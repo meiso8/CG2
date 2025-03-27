@@ -10,6 +10,8 @@
 //libのリンクはヘッダに書いてはいけない
 //任意のひとつのcppに記述するかプロジェクトの設定で行う
 //libのリンク includeのすぐ後ろに書くとよい
+#include <dxgidebug.h>//リソースリークチェックのため
+#pragma comment(lib,"dxguid.lib")
 
 //ログを出力する関数
 void Log(const std::string& message) {
@@ -217,6 +219,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
         //警告時に止まる
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+
+        //解放を忘れたことが判明した場合、警告で停止する設定を外すことで、詳細な情報をログに出力することが出来る。
+        //上記をコメントアウトし、情報を得て修正が終わったら必ず元に戻し停止しないことを確認する。
 
 #pragma region//エラーと警告の抑制
 
@@ -462,7 +467,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     }
 
+#pragma region //解放処理
 
+    CloseHandle(fenceEvent);
+    fence->Release();
+    rtvDescriptorHeap->Release();
+    swapChainResources[0]->Release();
+    swapChainResources[1]->Release();
+    swapChain->Release();
+    commandList->Release();
+    commandAllocator->Release();
+    commandQueue->Release();
+    device->Release();
+    useAdapter->Release();
+    dxgiFactory->Release();
+
+#ifdef _DEBUG
+    debugController->Release();
+#endif
+
+    CloseWindow(hwnd);
+
+#pragma endregion
+
+#pragma region //リソースリークチェック
+
+    //リソースリークチェック
+    IDXGIDebug1* debug;
+    if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
+        debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+        debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
+        debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
+        debug->Release();
+    };
+
+
+
+#pragma endregion
 
     return 0;
 }
