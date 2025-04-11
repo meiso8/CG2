@@ -115,8 +115,14 @@ static LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
+
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+    //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
+    //main関数始まってすぐに登録すると良い
+    SetUnhandledExceptionFilter(ExportDump);
 
     //　出力ウィンドウへの文字入力
     OutputDebugStringA("Hello,DirectX!\n");
@@ -470,7 +476,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     MSG msg{};
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
-    //ウィンドウのxボタンが押されるまでループ
+    //ウィンドウのxボタンが押されるまでループ メインループ
     while (msg.message != WM_QUIT) {
         //Windowにメッセージが来ていたら最優先で処理させる
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
