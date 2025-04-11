@@ -1,6 +1,11 @@
 #include <Windows.h>
 #include<cstdint>//int32_tを使うため
 #include<string>//ログの文字列を出力するため
+
+//ファイルの書いたり読んだりするライブラリ
+#include <fstream>
+//時刻を扱うライブラリ
+#include <chrono>
 #include<format>//フォーマットを推論してくれる
 #include<d3d12.h>
 #include<dxgi1_6.h>
@@ -12,9 +17,23 @@
 //libのリンク includeのすぐ後ろに書くとよい
 #include <dxgidebug.h>//リソースリークチェックのため
 #pragma comment(lib,"dxguid.lib")
+//Debug用のあれこれを使えるようにする
+#include <dbghelp.h>
+#pragma comment(lib,"Dbghelp.lib")
+//StringCchPrintfWの利用のため
+#include<strsafe.h>
+
+//ファイルやディレクトリに関する操作を行うライブラリ
+#include <filesystem>
+
 
 //ログを出力する関数
 void Log(const std::string& message) {
+    OutputDebugStringA(message.c_str());
+}
+
+void Log(std::ostream& os, const std::string& message) {
+    os << message << std::endl;
     OutputDebugStringA(message.c_str());
 }
 
@@ -73,11 +92,52 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
+//CrashHandler
+static LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
+    //時刻を取得して、時刻を名前に入れたファイルを作成。Dumpsディレクトリ以下に出力
+    SYSTEMTIME time;
+    GetLocalTime(&time);
+    wchar_t filePath[MAX_PATH] = { 0 };
+    CreateDirectory(L"./Dumps", nullptr);
+    StringCchPrintfW(filePath, MAX_PATH, L"./Dumps/%04d-%02d%02d-%02d%02d.dmp", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute);
+    HANDLE dumpFileHandle = CreateFile(filePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+    //processId(このexeのId)とクラッシュ(例外)の発生したthreadIdを取得
+    DWORD processId = GetCurrentProcessId();
+    DWORD threadId = GetCurrentThreadId();
+    //設定情報を入力
+    MINIDUMP_EXCEPTION_INFORMATION minidumpInformation{ 0 };
+    minidumpInformation.ThreadId = threadId;
+    minidumpInformation.ExceptionPointers = exception;
+    minidumpInformation.ClientPointers = TRUE;
+    // Dumpを出力。MiniDumpNormalは最低限の情報を出力するフラグ
+    MiniDumpWriteDump(GetCurrentProcess(), processId, dumpFileHandle, MiniDumpNormal, &minidumpInformation, nullptr, nullptr);
+    //他に関連付けられているSEH例外ハンドラがあれば実行。通常はプロセスを終了する
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //　出力ウィンドウへの文字入力
     OutputDebugStringA("Hello,DirectX!\n");
+
+#pragma region //ログをファイルに書き出す
+    // ログのディレクトリを用意
+    std::filesystem::create_directory("logs");
+    //現在時刻を取得（UTC時刻）
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    //ログファイルの名前にコンマ何秒はいらないので、削って秒にする
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>
+        nowSeconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
+    //日本時刻(PCの設定時間)に変換
+    std::chrono::zoned_time localTime{ std::chrono::current_zone(),nowSeconds };
+    //formatを使ってファイル名を決定
+    std::string dateString = std::format("{:%Y%m%d_%H%M%S}", localTime);
+    //時刻を使ってファイル名を出力
+    std::string logFilePath = std::string("logs/") + dateString + "log";
+    //ファイルを作って書き込み準備
+    std::ofstream logStream(logFilePath);
+#pragma endregion
 
 #pragma region ウィンドウクラスの登録
 
@@ -94,6 +154,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ウィンドウクラス名を登録する
     RegisterClass(&wc);
 
+    //ファイルへのログ出力
+    Log(logStream, "registrationWindowClass");
+
 #pragma endregion
 
 #pragma region ウィンドウサイズの設定
@@ -107,6 +170,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //クライアント領域をもとに実際のサイズにwrcを変更してもらう
     AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+
+    //ファイルへのログ出力
+    Log(logStream, "setWindowSize");
 
 #pragma endregion
 
@@ -127,6 +193,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         wc.hInstance,             // インスタンスハンドル
         nullptr);                 // オプション
 
+
+    //ファイルへのログ出力
+    Log(logStream, "create&displayWindow");
+
 #ifdef _DEBUG
     ID3D12Debug1* debugController = nullptr;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
@@ -139,6 +209,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ウィンドウを表示する
     ShowWindow(hwnd, SW_SHOW);
+
 #pragma endregion 
 
 #pragma region//DXGIFactoryの生成
@@ -150,6 +221,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
     //初期化の根本的な部分でエラーが出た場合はプログラムが間違っているか、どうにもできない場合が多いのでassertにしておく
     assert(SUCCEEDED(hr));
+
+    //ファイルへのログ出力
+    Log(logStream, "createDXGIFactory");
 
 #pragma endregion
 
@@ -179,6 +253,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //適切なアダプタが見つからなかったので起動できない
     assert(useAdapter != nullptr);
 
+    //ファイルへのログ出力
+    Log(logStream, "Set GPU");
+
 #pragma endregion
 
 #pragma region//D3D12Deviceの生成
@@ -205,6 +282,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //デバイスの生成が上手くいかなかったので起動できない
     assert(device != nullptr);
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
+
+    //ファイルへのログ出力
+    Log(logStream, "Complete create D3D12Device!!!\n");
 
 #pragma endregion
 
@@ -248,6 +328,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         infoQueue->Release();
     }
 
+    //ファイルへのログ出力
+    Log(logStream, "SetDebugError");
+
 #pragma endregion
 
 #pragma region//コマンドキューの生成
@@ -259,6 +342,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //コマンドキューの生成が上手くいかなかったので起動できない
     assert(SUCCEEDED(hr));
+
+    //ファイルへのログ出力
+    Log(logStream, "CreateCommandQueue");
 
 #pragma endregion
 
@@ -279,6 +365,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //コマンドリスト生成が上手くいかなかったので起動できない
     assert(SUCCEEDED(hr));
 
+    //ファイルへのログ出力
+    Log(logStream, "CreateCommandList");
+
 #pragma endregion
 
 #pragma region//スワップチェインの生成
@@ -295,6 +384,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, hwnd, &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&swapChain));
     assert(SUCCEEDED(hr));
 
+    //ファイルへのログ出力
+    Log(logStream, "CreateSwapChain");
+
 #pragma endregion
 
 #pragma region//DescriptorHeapを生成する
@@ -308,6 +400,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ディスクリプタヒープが作れなかったので起動できない
     assert(SUCCEEDED(hr));
 
+    //ファイルへのログ出力
+    Log(logStream, "CreateDescriptorHeap");
+
 #pragma endregion
 
 #pragma region//SwapChainからResourceを引っ張ってくる
@@ -320,6 +415,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     assert(SUCCEEDED(hr));
     //必要なものが作れないような場合、実際の製品であれば、メッセージを表示するなどする必要がある
    //ただ学生のうちはassertで止めてしまえばいい　ここら辺が失敗するPCというのは対象にしていないし、企業も使っていない
+
+    //ファイルへのログ出力
+    Log(logStream, "Pull Resource from SwapChain");
 
 #pragma endregion
 
@@ -348,6 +446,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //2つ目を作る
     device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
 
+    //ファイルへのログ出力
+    Log(logStream, "CreateRTV");
+
 #pragma endregion
 
 #pragma region //FenceとEventを生成する
@@ -360,9 +461,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // FenceのSignalを持つためのイベントを作成する
     HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     assert(fenceEvent != nullptr);
+
+    //ファイルへのログ出力
+    Log(logStream, "CreateFence&Event");
+
 #pragma endregion
 
     MSG msg{};
+    //ファイルへのログ出力
+    Log(logStream, "LoopStart");
     //ウィンドウのxボタンが押されるまでループ
     while (msg.message != WM_QUIT) {
         //Windowにメッセージが来ていたら最優先で処理させる
@@ -456,7 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //formatは変数から型を推論してくれる
             //Log(std::format("enemyHp:{}, texturePath:{}\n", enemyHp, texturePath));
-            ////https://cpprefjp.github.io/reference/format/format.html
+            //https://cpprefjp.github.io/reference/format/format.html
 
             //DirectXから受け取る情報をログに出力する
             //Log(ConvertString(std::format(L"WSTRING{}\n", wstringValue)));
@@ -482,9 +589,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     useAdapter->Release();
     dxgiFactory->Release();
 
+
 #ifdef _DEBUG
     debugController->Release();
 #endif
+
+    //ファイルへのログ出力
+    Log(logStream, "AllRelease");
 
     CloseWindow(hwnd);
 
@@ -501,7 +612,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         debug->Release();
     };
 
-
+    //ファイルへのログ出力
+    Log(logStream, "Resource leak check");
 
 #pragma endregion
 
