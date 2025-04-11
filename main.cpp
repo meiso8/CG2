@@ -328,7 +328,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         infoQueue->Release();
     }
 
-    //ファイルへのログ出力
+    //ファイルへのログ出力をしました
     Log(logStream, "SetDebugError");
 
 #pragma endregion
