@@ -752,8 +752,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     scissorRect.top = 0;
     scissorRect.bottom = kClientHeight;
 
-    /*   uint32_t* p = nullptr;
-       *p = 100;*/
+       //uint32_t* p = nullptr;
+       //*p = 100;
 
     MSG msg{};
     //ファイルへのログ出力
