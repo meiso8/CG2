@@ -5,14 +5,14 @@
 
 struct VertexShaderOutput
 {
-    float32_t4 position : SV_POSITION;
+    float4 position : SV_POSITION;
     //セマンティクス(Semantics) SV = SemanticsValue
 
 };
 
 struct VertexShaderInput
 {
-    float32_t4 position : POSITION;
+    float4 position : POSITION;
     
 };
 
