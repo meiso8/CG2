@@ -131,14 +131,13 @@ IDxcBlob* CompileShader(
     //初期化で生成されたものを3つ
     IDxcUtils* dxcUtils,
     IDxcCompiler3* dxcCompiler,
-    IDxcIncludeHandler* includeHandler
-) {
+    IDxcIncludeHandler* includeHandler) {
     // ここの中身をこの後書いていく
     // 1.hlslファイルを読み込む
 
-#pragma region //hlslファイルを読む
+#pragma region //1.hlslファイルを読む
 //ここからシェーダーをコンパイルする旨をログに出す
-    Log(ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}", filePath, profile)));
+    Log(ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}\n", filePath, profile)));
     //hlslファイルを読む
     IDxcBlobEncoding* shaderSource = nullptr;
     HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
@@ -153,7 +152,7 @@ IDxcBlob* CompileShader(
 #pragma endregion
 
     // 2.Compileする
-#pragma region//Compileする
+#pragma region//2.Compileする
 
     LPCWSTR arguments[] = {
     filePath.c_str(),//コンパイル対象のhlslファイル名
@@ -206,7 +205,6 @@ IDxcBlob* CompileShader(
     //実行用のバイナリを返却
     return shaderBlob;
 #pragma endregion
-
 
 }
 
@@ -488,7 +486,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//DescriptorHeapを生成する
+#pragma region//DescriptorHeapを生成する　RTV :DescriptorHeap上に作る
 
     //ディスクリプタヒープを生成する
     ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
@@ -566,7 +564,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//dxcCompilerを初期化
+#pragma region// DXCの初期化　dxcCompilerを初期化
     //dxcCompilerを初期化
     IDxcUtils* dxcUtils = nullptr;
     IDxcCompiler3* dxcCompiler = nullptr;
@@ -581,7 +579,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     assert(SUCCEEDED(hr));
 #pragma endregion
 
-
+    //PSO
 
 #pragma region//RootSignatureを生成する
 
@@ -625,19 +623,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma  region//BlendStateの設定を行う
 
+    //書き込む色要素を決めることなども出来る
     D3D12_BLEND_DESC blendDesc{};
     //全ての色要素を書き込む
     blendDesc.RenderTarget[0].RenderTargetWriteMask =
         D3D12_COLOR_WRITE_ENABLE_ALL;
+
 #pragma endregion
 
 #pragma  region//RasterizerStateの設定を行う
+    //三角形の内部をピクセルに分解して、PixelShaderを起動する
+
     //RasterizerStateの設定
     D3D12_RASTERIZER_DESC rasterizerDesc{};
-    //裏面（時計回り）を表示しない
+    //裏面（時計回り）を表示しない　裏面をカウリング
     rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
     //三角形の中を塗りつぶす
     rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+
 #pragma endregion
 
 #pragma region//ShaderをCompileする
@@ -698,7 +701,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     vertexResourceDesc.SampleDesc.Count = 1;
     //バッファの場合はこれにする決まり
     vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    //実際に腸手リソースを作る
+    //実際頂点リソースを作る
     ID3D12Resource* vertexResource = nullptr;
     hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
         &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
@@ -726,7 +729,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //書き込むためのアドレスを取得
     vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexDate));
     //左下
-    vertexDate[0] = { -0.5f,-0.5f,-0.0f,1.0f };
+    vertexDate[0] = { -0.5f,-0.5f,0.0f,1.0f };
     //上
     vertexDate[1] = { 0.0f,0.5f,0.0f,1.0f };
     //右下
@@ -738,7 +741,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     D3D12_VIEWPORT viewport{};
     //クライアント領域のサイズと一緒にして画面全体に表示
     viewport.Width = kClientWidth;
-    viewport.Height = 0;
+    viewport.Height = kClientHeight;
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
     viewport.MinDepth = 0.0f;
@@ -752,8 +755,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     scissorRect.top = 0;
     scissorRect.bottom = kClientHeight;
 
-       //uint32_t* p = nullptr;
-       //*p = 100;
+#pragma endregion
+
+    //uint32_t* p = nullptr;
+    //*p = 100;
 
     MSG msg{};
     //ファイルへのログ出力
