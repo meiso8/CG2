@@ -3,6 +3,16 @@
 //	return pos;
 //}
 
+//struct Matrix4x4
+//{
+//float4x4
+//};
+
+struct TransformationMatrix
+{
+    float4x4 WVP;
+};
+ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
 struct VertexShaderOutput
 {
     float4 position : SV_POSITION;
@@ -16,6 +26,7 @@ struct VertexShaderInput
 VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderInput output;
-    output.position = input.position;
+    //行列の積を計算する関数がhlslの組み込み関数で定義されている
+    output.position = mul(input.position, gTransformationMatrix.WVP);
     return output;
 }
