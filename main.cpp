@@ -220,7 +220,7 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
     D3D12_RESOURCE_DESC resourceDesc{};
     //バッファリソース。テクスチャの場合はまた別の設定をする
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    resourceDesc.Width = sizeInBytes;//リソースサイズ。今回はVector4を3頂点分
+    resourceDesc.Width = sizeInBytes;//リソースサイズ。
     //バッファの場合はこれらは1にする決まり
     resourceDesc.Height = 1;
     resourceDesc.DepthOrArraySize = 1;
@@ -235,9 +235,7 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
     assert(SUCCEEDED(hr));
 
     if (SUCCEEDED(hr)) {
-
         return resource;
-
     }
 
     return nullptr;
@@ -751,7 +749,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ////実際頂点リソースを作る
     //ID3D12Resource* vertexResource = nullptr;
 
-     ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(Vector4) * 3);
+    ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(Vector4) * 3);
     //hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
     //    &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
     //    IID_PPV_ARGS(&vertexResource));
