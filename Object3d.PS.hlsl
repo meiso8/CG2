@@ -7,7 +7,7 @@
 
 struct Material
 {
-    float4 color;
+    float32_t4 color;
 };
 
 //ConstantBufferを定義する
@@ -16,7 +16,7 @@ struct Material
 ConstantBuffer<Material> gMaterial : register(b0);
 struct PixelShaderOutput
 {
-    float4 color : SV_TARGET0;
+    float32_t4 color : SV_TARGET0;
 };
 
 PixelShaderOutput main()
