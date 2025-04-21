@@ -246,6 +246,21 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 
 };
 
+//DescriptorHeapの作成関数
+ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
+
+    //ディスクリプタヒープを生成する
+    ID3D12DescriptorHeap* descriptorHeap = nullptr;
+    D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+    descriptorHeapDesc.Type = heapType;//連打ーターゲットビュー用
+    descriptorHeapDesc.NumDescriptors = numDescriptors;
+    descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
+    //ディスクリプタヒープが作れなかったので起動できない
+    assert(SUCCEEDED(hr));
+    return descriptorHeap;
+}
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -524,19 +539,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//DescriptorHeapを生成する　RTV :DescriptorHeap上に作る
+#pragma region//DescriptorHeapを生成する
 
-    //ディスクリプタヒープを生成する
-    ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
-    D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
-    rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;//連打ーターゲットビュー用
-    rtvDescriptorHeapDesc.NumDescriptors = 2;//ダブルバッフ用に2つ。多くても別に構わない
-    hr = device->CreateDescriptorHeap(&rtvDescriptorHeapDesc, IID_PPV_ARGS(&rtvDescriptorHeap));
-    //ディスクリプタヒープが作れなかったので起動できない
-    assert(SUCCEEDED(hr));
+    ID3D12DescriptorHeap* rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 
     //ファイルへのログ出力
     Log(logStream, "CreateDescriptorHeap");
+
+#pragma endregion
+
+#pragma region //SRV
+
+    ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 120, true);
 
 #pragma endregion
 
@@ -919,9 +933,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             transform.rotate.y += 0.03f;
             Log(logStream, "RotateY");
 
-        /*    *wvpDate = worldMatrix;*/
+            /*    *wvpDate = worldMatrix;*/
 
-            //三角形の行列
+                //三角形の行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
             cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
@@ -936,7 +950,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //データを書き込む
             *wvpDate = worldViewProjectionMatrix;
 
-       
+
 
             //これからの流れ
             //1.  BackBufferを決定する
@@ -1062,6 +1076,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     CloseHandle(fenceEvent);
     fence->Release();
     rtvDescriptorHeap->Release();
+    srvDescriptorHeap->Release();
     swapChainResources[0]->Release();
     swapChainResources[1]->Release();
     swapChain->Release();
