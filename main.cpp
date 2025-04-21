@@ -879,7 +879,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //uint32_t* p = nullptr;
     //*p = 100;
 
-    //Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+    Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
     MSG msg{};
     //ファイルへのログ出力
@@ -896,9 +896,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //ゲームの処理
 
 
-      /*      transform.rotate.y += 0.03f;
+            transform.rotate.y += 0.03f;
             Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-            *wvpDate = worldMatrix;*/
+            *wvpDate = worldMatrix;
 
             //Log(logStream, "RotateY");
 
