@@ -34,10 +34,9 @@
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
-
-//#include"Vector4.h"
-//#include "Matrix4x4.h"
-//#include"Vector3.h"
+#include"Header/Inverse.h"
+#include"Header/MakePerspectiveFovMatrix.h"
+#include"Header/Multiply.h"
 
 //ログを出力する関数
 void Log(const std::string& message) {
@@ -846,8 +845,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Matrix4x4* wvpDate = nullptr;
     //書き込むためのアドレスを取得
     wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
+
+    //移動行列データ
+    //Matrix4x4* transformationMatrixData = nullptr;
+    //三角形の座標
+    Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+    //三角形の行列
+    Matrix4x4 worldMatrix;
+    //カメラ座標
+    Transform cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
+    //カメラ行列
+    Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+    //カメラの逆行列
+    Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+    //透視投影行列
+    Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.f, 100.0f);
+    //WVpMatrixを作る
+    Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+
+    //データを書き込む
+    //*transformationMatrixData = worldViewProjectionMatrix;
+
     //単位行列を書き込んでおく
-    *wvpDate = MakeIdentity4x4();
+ /*   *wvpDate = MakeIdentity4x4();*/
+    *wvpDate = worldViewProjectionMatrix;
+
 
     Log(logStream, "MakeResourceForTransformationMatrix");
 
@@ -879,8 +901,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //uint32_t* p = nullptr;
     //*p = 100;
 
-    Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-
     MSG msg{};
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
@@ -897,10 +917,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
             transform.rotate.y += 0.03f;
-            Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-            *wvpDate = worldMatrix;
+            Log(logStream, "RotateY");
 
-            //Log(logStream, "RotateY");
+        /*    *wvpDate = worldMatrix;*/
+
+            //三角形の行列
+            worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+            //カメラ座標
+            cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
+            //カメラ行列
+            cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+            //カメラの逆行列
+            viewMatrix = Inverse(cameraMatrix);
+            //透視投影行列
+            projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.f, 100.0f);
+            //WVpMatrixを作る
+            worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+            //データを書き込む
+            *wvpDate = worldViewProjectionMatrix;
+
+       
 
             //これからの流れ
             //1.  BackBufferを決定する

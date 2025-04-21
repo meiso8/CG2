@@ -1,7 +1,7 @@
-﻿#include"../Header/MakePerspectiveForMatrix.h"
+#include"../Header/MakePerspectiveFovMatrix.h"
 
 //1.透視投影行列
-Matrix4x4 MakePerspectiveForMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 
     Matrix4x4 result;
 

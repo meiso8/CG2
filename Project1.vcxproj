@@ -94,11 +94,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Add.cpp" />
+    <ClCompile Include="Source\cotangent.cpp" />
     <ClCompile Include="Source\Inverse.cpp" />
     <ClCompile Include="Source\MakeAffineMatrix.cpp" />
     <ClCompile Include="Source\MakeIdentity4x4.cpp" />
     <ClCompile Include="Source\MakeOrthographicMatrix.cpp" />
-    <ClCompile Include="Source\MakePerspectiveForMatrix.cpp" />
+    <ClCompile Include="Source\MakePerspectiveFovMatrix.cpp" />
     <ClCompile Include="Source\MakeRotateMatrix.cpp" />
     <ClCompile Include="Source\MakeScaleMatrix.cpp" />
     <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
@@ -123,12 +124,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cotangent.h" />
     <ClInclude Include="Header\Add.h" />
+    <ClInclude Include="Header\cotangent.h" />
     <ClInclude Include="Header\Inverse.h" />
     <ClInclude Include="Header\MakeAffineMatrix.h" />
     <ClInclude Include="Header\MakeIdentity4x4.h" />
     <ClInclude Include="Header\MakeOrthographicMatrix.h" />
-    <ClInclude Include="Header\MakePerspectiveForMatrix.h" />
+    <ClInclude Include="Header\MakePerspectiveFovMatrix.h" />
     <ClInclude Include="Header\MakeRotateMatrix.h" />
     <ClInclude Include="Header\MakeScaleMatrix.h" />
     <ClInclude Include="Header\MakeTranslateMatrix.h" />
