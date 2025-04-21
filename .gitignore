@@ -365,3 +365,9 @@ FodyWeavers.xsd
 # Dump
 *.dmp
 Dump/
+
+# Log
+logs/
+
+# vbfile
+*.vb

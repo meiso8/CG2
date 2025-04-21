@@ -31,9 +31,9 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 #include"Vector4.h"
-#include"Transform.h"
-#include "MakeIdentity4x4.h"
-#include"MakeAffineMatrix.h"
+#include"Header/Transform.h"
+#include "Header/MakeIdentity4x4.h"
+#include"Header/MakeAffineMatrix.h"
 
 //#include"Vector4.h"
 //#include "Matrix4x4.h"

@@ -93,8 +93,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MakeAffineMatrix.cpp" />
-    <ClCompile Include="MakeIdentity4x4.cpp" />
+    <ClCompile Include="Source\Add.cpp" />
+    <ClCompile Include="Source\Inverse.cpp" />
+    <ClCompile Include="Source\MakeAffineMatrix.cpp" />
+    <ClCompile Include="Source\MakeIdentity4x4.cpp" />
+    <ClCompile Include="Source\MakeOrthographicMatrix.cpp" />
+    <ClCompile Include="Source\MakePerspectiveForMatrix.cpp" />
+    <ClCompile Include="Source\MakeRotateMatrix.cpp" />
+    <ClCompile Include="Source\MakeScaleMatrix.cpp" />
+    <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
+    <ClCompile Include="Source\MakeViewportMatrix.cpp" />
+    <ClCompile Include="Source\Multiply.cpp" />
+    <ClCompile Include="Source\Subtract.cpp" />
+    <ClCompile Include="Source\CoordinateTransform.cpp" />
+    <ClCompile Include="Source\Transpose.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Object3d.PS.hlsl">
@@ -111,6 +123,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Add.h" />
+    <ClInclude Include="Header\Inverse.h" />
+    <ClInclude Include="Header\MakeAffineMatrix.h" />
+    <ClInclude Include="Header\MakeIdentity4x4.h" />
+    <ClInclude Include="Header\MakeOrthographicMatrix.h" />
+    <ClInclude Include="Header\MakePerspectiveForMatrix.h" />
+    <ClInclude Include="Header\MakeRotateMatrix.h" />
+    <ClInclude Include="Header\MakeScaleMatrix.h" />
+    <ClInclude Include="Header\MakeTranslateMatrix.h" />
+    <ClInclude Include="Header\MakeViewportMatrix.h" />
+    <ClInclude Include="Header\Multiply.h" />
+    <ClInclude Include="Header\Subtract.h" />
+    <ClInclude Include="Header\CoordinateTransform.h" />
+    <ClInclude Include="Header\Transpose.h" />
     <ClInclude Include="MakeAffineMatrix.h" />
     <ClInclude Include="MakeIdentity4x4.h" />
     <ClInclude Include="Matrix4x4.h" />

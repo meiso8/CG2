@@ -1,4 +1,4 @@
-#include"MakeAffineMatrix.h"
+#include"../Header/MakeAffineMatrix.h"
 #include <cmath>
 
 //3次元アフィン変換行列の生成
@@ -22,17 +22,12 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
     result.m[0][2] = -scale.x * sinY;
     result.m[0][3] = 0.0f;
 
-    float A = cosY + sinX * sinY;
+    float A = sinX * sinY;
 
-    result.m[1][0] = scale.y * (cosZ * A - sinZ * cosX);
-    result.m[1][1] = scale.y * (sinZ * A + cosX * cosZ);
-    result.m[1][2] = scale.y * (sinX * cosY - sinY);
+    result.m[1][0] = scale.y * (A * cosZ - sinZ * cosX);
+    result.m[1][1] = scale.y * (A * sinZ + cosX * cosZ);
+    result.m[1][2] = scale.y * sinX * cosY;
     result.m[1][3] = 0.0f;
-
-    //result.m[1][0] = scale.y * rotateMat.m[1][0];
-    //result.m[1][1] = scale.y * rotateMat.m[1][1];
-    //result.m[1][2] = scale.y * rotateMat.m[1][2];
-    //result.m[1][3] = 0.0f;
 
     result.m[2][0] = scale.z * (sinY * cosX * cosZ + sinX * sinZ);
     result.m[2][1] = scale.z * (sinY * cosX * sinZ - sinX * cosZ);
