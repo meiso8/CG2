@@ -312,8 +312,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     std::ofstream logStream(logFilePath);
 #pragma endregion
 
-
-
 #pragma region ウィンドウクラスの登録
 
     WNDCLASS wc{};
@@ -728,8 +726,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
-
 #pragma  region//BlendStateの設定を行う
 
     //書き込む色要素を決めることなども出来る
@@ -805,30 +801,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//VertexResourceを生成する
 
-    ////頂点リソース用ヒープの設定
-    //D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-    //uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
-    ////頂点リソースの設定
-    //D3D12_RESOURCE_DESC vertexResourceDesc{};
-    ////バッファリソース。テクスチャの場合はまた別の設定をする
-    //vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    //vertexResourceDesc.Width = sizeof(Vector4) * 3;//リソースサイズ。今回はVector4を3頂点分
-    ////バッファの場合はこれらは1にする決まり
-    //vertexResourceDesc.Height = 1;
-    //vertexResourceDesc.DepthOrArraySize = 1;
-    //vertexResourceDesc.MipLevels = 1;
-    //vertexResourceDesc.SampleDesc.Count = 1;
-    ////バッファの場合はこれにする決まり
-    //vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    ////実際頂点リソースを作る
-    //ID3D12Resource* vertexResource = nullptr;
-
     ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(Vector4) * 3);
-    //hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
-    //    &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-    //    IID_PPV_ARGS(&vertexResource));
-    //assert(SUCCEEDED(hr));
-
     Log(logStream, "CreateVertexResource");
 
 #pragma endregion
@@ -868,11 +841,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
     ID3D12Resource* materialResource = CreateBufferResource(device, sizeof(Vector4));
     //マテリアルにデータを書き込む
-    Vector4* materialDate = nullptr;
+    Vector4* materialData = nullptr;
     //書き込むためのアドレスを取得
-    materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialDate));
+    materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
     //今回は赤を書き込んでみる
-    *materialDate = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+    *materialData = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
     Log(logStream, "MakeResourceForMaterial");
 
@@ -942,7 +915,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //uint32_t* p = nullptr;
     //*p = 100;
 
-    #pragma region//ImGuiの初期化。
+#pragma region//ImGuiの初期化。
 #ifdef _DEBUG
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -957,6 +930,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 #pragma endregion
+
+    bool isRotateY = true;
 
     MSG msg{};
     //ファイルへのログ出力
@@ -990,12 +965,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
             ImGui::ShowDemoWindow();
+            ImGui::Begin("Triangle");
+            ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
+            ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
+            ImGui::ColorPicker4("materialColor", &(materialData->x));
+            if (ImGui::Button("Init")) {
+                transform.scale = { 1.0f, 1.0f, 1.0f };
+                transform.rotate = { 0.0f };
+                transform.translate = { 0.0f };
+                *materialData = { 1.0f,0.0f,0.0f,1.0f };
+
+            }
+            if (ImGui::Button("Rotate")) {
+                isRotateY = isRotateY ? false : true;
+            }
+
+            ImGui::End();
 #endif
 
 #pragma region //三角形の更新
-            transform.rotate.y += 0.03f;
-            Log(logStream, "RotateY");
 
+            if (isRotateY) {
+                transform.rotate.y += 0.03f;
+                Log(logStream, "RotateY");
+            }
             /* *wvpDate = worldMatrix;*/
 
             //三角形の行列
@@ -1012,6 +1006,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
             //データを書き込む
             *wvpDate = worldViewProjectionMatrix;
+
 #pragma endregion
 
 #ifdef _DEBUG
@@ -1164,7 +1159,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-        //descriptorHeaps[0]->Release();
+    //descriptorHeaps[0]->Release();
 #endif
 
 #pragma region //解放処理
