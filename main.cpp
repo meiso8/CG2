@@ -30,6 +30,15 @@
 #include <dxcapi.h>
 #pragma comment(lib,"dxcompiler.lib")
 
+#pragma region //ImGuiのincludeと関数の外部宣言
+
+#include"externals/imgui/imgui.h"
+#include"externals/imgui/imgui_impl_dx12.h"
+#include"externals/imgui/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#pragma endregion
+
+#pragma region //自作関数
 #include"Vector4.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
@@ -37,6 +46,7 @@
 #include"Header/Inverse.h"
 #include"Header/MakePerspectiveFovMatrix.h"
 #include"Header/Multiply.h"
+#pragma endregion
 
 //ログを出力する関数
 void Log(const std::string& message) {
@@ -90,6 +100,12 @@ std::string ConvertString(const std::wstring& str) {
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+
+    //ImGuiにメッセージを渡す
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+        return true;
+    }
+
     //メッセージに応じてゲーム固有の処理を行う
     switch (msg) {
         //ウィンドウが破棄された
@@ -634,7 +650,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    //PSO
 
 #pragma region//RootSignatureを生成する
 
@@ -746,6 +761,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+    //PSO
 #pragma region//PSOを生成する
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -914,6 +930,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //uint32_t* p = nullptr;
     //*p = 100;
+
+#pragma region//ImGuiの初期化。
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX12_Init(device, swapChainDesc.BufferCount,
+        rtvDesc.Format,
+        srvDescriptorHeap,
+        srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+        srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+#pragma endregion
 
     MSG msg{};
     //ファイルへのログ出力
