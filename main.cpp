@@ -32,10 +32,15 @@
 
 #pragma region //ImGuiのincludeと関数の外部宣言
 
+#ifdef _DEBUG
+
 #include"externals/imgui/imgui.h"
 #include"externals/imgui/imgui_impl_dx12.h"
 #include"externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+#endif
+
 #pragma endregion
 
 #pragma region //自作関数
@@ -101,10 +106,12 @@ std::string ConvertString(const std::wstring& str) {
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
+#ifdef _DEBUG
     //ImGuiにメッセージを渡す
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
         return true;
     }
+#endif
 
     //メッセージに応じてゲーム固有の処理を行う
     switch (msg) {
@@ -304,6 +311,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルを作って書き込み準備
     std::ofstream logStream(logFilePath);
 #pragma endregion
+
+
 
 #pragma region ウィンドウクラスの登録
 
@@ -566,9 +575,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //SRV
 
-    ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 120, true);
+    ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 
 #pragma endregion
+
 
 #pragma region//SwapChainからResourceを引っ張ってくる
     //SwapChainからResourceを引っ張ってくる
@@ -650,7 +660,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
 #pragma region//RootSignatureを生成する
 
     //具体的にShaderがどこかでデータを読めばいいのかの情報を取りまとめたもの
@@ -718,6 +727,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InputLayout");
 
 #pragma endregion
+
+
 
 #pragma  region//BlendStateの設定を行う
 
@@ -931,39 +942,63 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //uint32_t* p = nullptr;
     //*p = 100;
 
-#pragma region//ImGuiの初期化。
+    #pragma region//ImGuiの初期化。
+#ifdef _DEBUG
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(hwnd);
-    ImGui_ImplDX12_Init(device, swapChainDesc.BufferCount,
+    ImGui_ImplDX12_Init(device,
+        swapChainDesc.BufferCount,
         rtvDesc.Format,
         srvDescriptorHeap,
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    Log(logStream, "InitImGui");
+#endif
 #pragma endregion
 
     MSG msg{};
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
+
+    // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
+    // =============================================
     while (msg.message != WM_QUIT) {
+
         //Windowにメッセージが来ていたら最優先で処理させる
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
+
+#pragma region//ImGuiにここからフレームが始まる旨を伝える
+
+#ifdef _DEBUG
+            ImGui_ImplDX12_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
+#endif
+
+#pragma endregion
+
             //ゲームの処理
 
 #pragma region //ゲームの処理
 
+#ifdef _DEBUG
+            //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
+            ImGui::ShowDemoWindow();
+#endif
 
+#pragma region //三角形の更新
             transform.rotate.y += 0.03f;
             Log(logStream, "RotateY");
 
-            /*    *wvpDate = worldMatrix;*/
+            /* *wvpDate = worldMatrix;*/
 
-                //三角形の行列
+            //三角形の行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
             cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
@@ -977,8 +1012,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
             //データを書き込む
             *wvpDate = worldViewProjectionMatrix;
+#pragma endregion
 
-
+#ifdef _DEBUG
+            //ImGuiの内部コマンドを生成する
+            ImGui::Render();
+#endif
 
             //これからの流れ
             //1.  BackBufferを決定する
@@ -1013,6 +1052,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
             commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
 
+
+#ifdef _DEBUG
+            //描画用のDescriptorHeapの設定
+            ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap };
+            commandList->SetDescriptorHeaps(1, descriptorHeaps);
+#endif
+
 #pragma region //三角形を描画する
             //ファイルへのログ出力
             Log(logStream, "DrawTriangle");
@@ -1035,6 +1081,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->DrawInstanced(3, 1, 0, 0);
 
 #pragma endregion
+
+#ifdef _DEBUG
+            //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
+            //実際のcommandListのImGuiの描画コマンドを積む
+            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+
+#endif // _DEBUG
+
 
             //画面に書く処理は終わり、画面に移すので、状態を遷移
             //今回はRenderTargetからPresentにする
@@ -1095,9 +1149,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+
+
         }
 
+
+
     }
+
+#ifdef _DEBUG
+
+    //ImGuiの終了処理 ゲームループが終わったら行う
+    //初期化と逆順に行う
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+        //descriptorHeaps[0]->Release();
+#endif
 
 #pragma region //解放処理
 
@@ -1129,6 +1197,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
     debugController->Release();
+
+
 #endif
 
     //ファイルへのログ出力
