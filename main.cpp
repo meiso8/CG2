@@ -202,20 +202,26 @@ IDxcBlob* CompileShader(
         IID_PPV_ARGS(&shaderResult)//コンパイル結果
     );
 
+
     //コンパイルエラーではなくdxcが起動できないなどの致命的な状況
     assert(SUCCEEDED(hr));
 
+
 #pragma endregion
 
-// 3.警告・エラーが出ていないか確認する
+    // 3.警告・エラーが出ていないか確認する
 #pragma region //警告・エラーが出ていないか確認する
 //警告・エラーが出ていたらログに出して止める
     IDxcBlobUtf8* shaderError = nullptr;
     shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
     if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
+
         Log(shaderError->GetStringPointer());
+
         //警告・エラーダメ絶対
         assert(false);
+    } else {
+        Log("No shader compilation errors detected.");
     }
 #pragma endregion
 
@@ -865,11 +871,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(vertexShaderBlob != nullptr);
 
+    Log(logStream, "CompileVertexShader");
+
     IDxcBlob* pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(pixelShaderBlob != nullptr);
 
-    Log(logStream, "CompileShader");
+    Log(logStream, "CompilePixelShader");
 
 #pragma endregion
 
@@ -979,7 +987,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //書き込むためのアドレスを取得
     materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
     //今回は赤を書き込んでみる
-    *materialData = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+    *materialData = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
     Log(logStream, "MakeResourceForMaterial");
 
