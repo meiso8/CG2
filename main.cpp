@@ -34,7 +34,6 @@
 #include"externals/DirectXTex/DirectXTex.h"
 
 #pragma region //ImGuiのincludeと関数の外部宣言
-
 #ifdef _DEBUG
 
 #include"externals/imgui/imgui.h"
@@ -43,11 +42,10 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #endif
-
 #pragma endregion
 
 #pragma region //自作関数
-#include"Vector4.h"
+//#include"Vector4.h"
 #include"VertexData.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
@@ -209,7 +207,7 @@ IDxcBlob* CompileShader(
 
 #pragma endregion
 
-    // 3.警告・エラーが出ていないか確認する
+// 3.警告・エラーが出ていないか確認する
 #pragma region //警告・エラーが出ていないか確認する
 //警告・エラーが出ていたらログに出して止める
     IDxcBlobUtf8* shaderError = nullptr;
@@ -744,24 +742,50 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     descriptionRootSignature.Flags =
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    //RootParameter作成。複数設定できるので配列。今回は結果1つだけなので長さ1の配列
-    //D3D12_ROOT_PARAMETER rootParameters[1] = {};
-    //rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//PixelShaderで使う　register b0のbと一致する
-    //rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
-    //rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0とバインド　b0の0と一致する。もしb11に紐づけたいなら11となる
-    //descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
-    //descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
+    //DescriptorRange
+    D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
+    descriptorRange[0].BaseShaderRegister = 0;//0から始める
+    descriptorRange[0].NumDescriptors = 1;//1つ
+    descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRV
+    descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
 
+    //記入例
+    //descriptorRange[0].BaseShaderRegister = 3;//3から始める
+    //descriptorRange[0].NumDescriptors = 2;//2つ
+    //descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRV
+    //descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
+
+    //descriptorRange[1].BaseShaderRegister = 0;//0から始める
+    //descriptorRange[1].NumDescriptors = 3;//3つ
+    //descriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;//CBV
+    //descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
+
+    //Smaplerの設定
+    D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+    staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイナリフィルタ
+    staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0-1の範囲外をリピート
+    staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較せぬ
+    staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
+    staticSamplers[0].ShaderRegister = 0;
+    staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
+    descriptionRootSignature.pStaticSamplers = staticSamplers;
+    descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
     //CBufferを利用することになったので、RootParameterに設定を追加する
    /* RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform*/
-    D3D12_ROOT_PARAMETER rootParameters[2] = {};
+    D3D12_ROOT_PARAMETER rootParameters[3] = {};
     rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
     rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
     rootParameters[1].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
+    rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;//Table
+    rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
+    rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Tableの中身の配列を指定
+    rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Tableで利用する数
     descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
 
@@ -935,13 +959,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
     //左下
     vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
-    vertexData[0].texCoord = { 0.0f,1.0f };
+    vertexData[0].texcoord = { 0.0f,1.0f };
     //上
     vertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
-    vertexData[1].texCoord = { 0.5f,0.0f };
+    vertexData[1].texcoord = { 0.5f,0.0f };
     //右下
     vertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
-    vertexData[2].texCoord = { 1.0f,1.0f };
+    vertexData[2].texcoord = { 1.0f,1.0f };
 
     Log(logStream, "WriteDateToResource");
 
@@ -1182,6 +1206,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //wvp用のCBufferの場所を設定
             commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
             Log(logStream, "SetWVPToCBuffer");
+            //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
+            commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList->DrawInstanced(3, 1, 0, 0);
 
@@ -1276,7 +1302,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     fence->Release();
     rtvDescriptorHeap->Release();
     srvDescriptorHeap->Release();
-    
+
     swapChainResources[0]->Release();
     swapChainResources[1]->Release();
     swapChain->Release();
