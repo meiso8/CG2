@@ -287,6 +287,7 @@ ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTO
     return descriptorHeap;
 }
 
+//テクスチャの読み込み関数
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 
     //テクスチャファイルを読んでプログラムで扱えるようにする
@@ -895,6 +896,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Log(logStream, "CreateVertexBufferView");
 
+#pragma endregion
+
+#pragma region //Texrureを読んで転送する
+    DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
+    const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
+    ID3D12Resource* textureResource = CreateTextureResource(device, metadata);
+    UploadTextureData(textureResource, mipImages);
 #pragma endregion
 
 #pragma region//Resourceにデータを書き込む
