@@ -1,7 +1,4 @@
-//float4 main( float4 pos : POSITION ) : SV_POSITION
-//{
-//	return pos;
-//}
+#include "object3d.hlsli"
 
 //テクスチャを貼り付けたり、ライティングを行ったりと、もっとも主要なShaderである
 
@@ -19,7 +16,7 @@ struct PixelShaderOutput
     float32_t4 color : SV_TARGET0;
 };
 
-PixelShaderOutput main()
+PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
     //glbal変数のgをつけている

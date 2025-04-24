@@ -48,6 +48,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #pragma region //自作関数
 #include"Vector4.h"
+#include"VertexData.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
@@ -214,7 +215,6 @@ IDxcBlob* CompileShader(
     IDxcBlobUtf8* shaderError = nullptr;
     shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
     if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
-
         Log(shaderError->GetStringPointer());
         //警告・エラーダメ絶対
         assert(false);
@@ -790,11 +790,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//InputLayout
 
     //InputLayout
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
     inputElementDescs[0].SemanticName = "POSITION";
     inputElementDescs[0].SemanticIndex = 0;
-    inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//RGBA
     inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    inputElementDescs[1].SemanticName = "TEXCOORD";
+    inputElementDescs[1].SemanticIndex = 0;
+    inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;//Vector2のためRG
+    inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
     inputLayoutDesc.pInputElementDescs = inputElementDescs;
     inputLayoutDesc.NumElements = _countof(inputElementDescs);
@@ -878,7 +882,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//VertexResourceを生成する
 
-    ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(Vector4) * 3);
+    ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 3);
     Log(logStream, "CreateVertexResource");
 
 #pragma endregion
@@ -890,9 +894,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //リソースの先頭のアドレスから使う
     vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
     //使用するリソースのサイズは頂点3つ分のサイズ
-    vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
+    vertexBufferView.SizeInBytes = sizeof(VertexData) * 3;
     //1頂点あたりのサイズ
-    vertexBufferView.StrideInBytes = sizeof(Vector4);
+    vertexBufferView.StrideInBytes = sizeof(VertexData);
 
     Log(logStream, "CreateVertexBufferView");
 
@@ -926,15 +930,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//Resourceにデータを書き込む
     //頂点リソースにデータを書き込む
-    Vector4* vertexData = nullptr;
+    VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
     vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
     //左下
-    vertexData[0] = { -0.5f,-0.5f,0.0f,1.0f };
+    vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
+    vertexData[0].texCoord = { 0.0f,1.0f };
     //上
-    vertexData[1] = { 0.0f,0.5f,0.0f,1.0f };
+    vertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
+    vertexData[1].texCoord = { 0.5f,0.0f };
     //右下
-    vertexData[2] = { 0.5f,-0.5f,0.0f,1.0f };
+    vertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
+    vertexData[2].texCoord = { 1.0f,1.0f };
 
     Log(logStream, "WriteDateToResource");
 
@@ -1249,8 +1256,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
 
+        CoUninitialize();
 
-  
     }
 
 #ifdef _DEBUG
@@ -1260,7 +1267,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
- 
+
 #endif
 
 #pragma region //解放処理
@@ -1269,6 +1276,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     fence->Release();
     rtvDescriptorHeap->Release();
     srvDescriptorHeap->Release();
+    
     swapChainResources[0]->Release();
     swapChainResources[1]->Release();
     swapChain->Release();
@@ -1279,8 +1287,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     useAdapter->Release();
     dxgiFactory->Release();
 
-
     vertexResource->Release();
+    textureResource->Release();
     graphicsPipelineState->Release();
     signatureBlob->Release();
     if (errorBlob) {
@@ -1320,7 +1328,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    CoUninitialize();
+
 
     return 0;
 }
