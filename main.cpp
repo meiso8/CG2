@@ -648,7 +648,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region //SRV
+#pragma region //SRV　SRVやCBV用のDescriptorHeapは一旦ゲーム中に一つだけ
 
     ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 
@@ -905,6 +905,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     UploadTextureData(textureResource, mipImages);
 #pragma endregion
 
+#pragma region ShaderResourceViewを作る
+    //metaDataを基にSRVの設定
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Format = metadata.format;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//texture
+    srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+    //SRVを作成するDescriptorHeapの場所の選択
+    D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    //先頭はImGuiが使っているのでその次を使う GetDescriptorHandleIncrementSize()によって場所を求める
+    textureSrvHandleCPU.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    textureSrvHandleGPU.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    //SRVの生成
+    device->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
+
+#pragma endregion
+
 #pragma region//Resourceにデータを書き込む
     //頂点リソースにデータを書き込む
     Vector4* vertexData = nullptr;
@@ -1048,7 +1067,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
-            ImGui::ShowDemoWindow();
+         /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Triangle");
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
@@ -1228,12 +1247,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
-
         }
 
 
-
+  
     }
 
 #ifdef _DEBUG
@@ -1243,7 +1260,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    //descriptorHeaps[0]->Release();
+ 
 #endif
 
 #pragma region //解放処理
@@ -1262,6 +1279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     useAdapter->Release();
     dxgiFactory->Release();
 
+
     vertexResource->Release();
     graphicsPipelineState->Release();
     signatureBlob->Release();
@@ -1276,7 +1294,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
     debugController->Release();
-
 
 #endif
 
