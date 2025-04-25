@@ -693,7 +693,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ID3D12DescriptorHeap* rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 
     //ファイルへのログ出力
-    Log(logStream, "CreateDescriptorHeap");
+    Log(logStream, "CreateRTVDescriptorHeap");
+
+    //DSV用ヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
+    ID3D12DescriptorHeap* dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+
 
 #pragma endregion
 
@@ -1081,6 +1085,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//stencileTextureResourceの作成
     ID3D12Resource* depthStencilResource = CreateDepthStencileTextureResource(device, kClientWidth, kClientHeight);
+
+    //DSVの設定 DepthStencilView
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;//2dTexture
+    // DSVHeapの先頭にDSVを作る
+    device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
@@ -1362,6 +1374,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     fence->Release();
     rtvDescriptorHeap->Release();
     srvDescriptorHeap->Release();
+    dsvDescriptorHeap->Release();
 
     swapChainResources[0]->Release();
     swapChainResources[1]->Release();
