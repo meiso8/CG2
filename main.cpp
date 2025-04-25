@@ -295,7 +295,8 @@ ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTO
     return descriptorHeap;
 }
 
-//StencileTextureの作成関数　奥行き
+#pragma region//深度の関数
+//StencilTextureの作成関数　奥行き
 ID3D12Resource* CreateDepthStencileTextureResource(ID3D12Device* device, int32_t width, int32_t height) {
     //生成するResourceの設定
     D3D12_RESOURCE_DESC resourceDesc{};
@@ -330,6 +331,9 @@ ID3D12Resource* CreateDepthStencileTextureResource(ID3D12Device* device, int32_t
 
     return resource;
 }
+
+#pragma endregion
+
 
 #pragma region //Textureの関数
 //テクスチャの読み込み関数
@@ -1275,6 +1279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
 #pragma region //三角形を描画する
+
             //ファイルへのログ出力
             Log(logStream, "DrawTriangle");
 
