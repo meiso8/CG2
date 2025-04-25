@@ -342,6 +342,7 @@ ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMe
 
 }
 
+//TextureResourceにデータを転送する
 void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
     //Meta情報を取得
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
@@ -755,17 +756,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRV
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
 
-    //記入例
-    //descriptorRange[0].BaseShaderRegister = 3;//3から始める
-    //descriptorRange[0].NumDescriptors = 2;//2つ
-    //descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRV
-    //descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
-
-    //descriptorRange[1].BaseShaderRegister = 0;//0から始める
-    //descriptorRange[1].NumDescriptors = 3;//3つ
-    //descriptorRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;//CBV
-    //descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
-
     //Smaplerの設定
     D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
     staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイナリフィルタ
@@ -964,7 +954,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //頂点リソースにデータを書き込む
     VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
-    vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+    vertexResource->Map(0, nullptr, 
+        reinterpret_cast<void**>(&vertexData));
     //左下
     vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
     vertexData[0].texcoord = { 0.0f,1.0f };
