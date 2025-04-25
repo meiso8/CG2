@@ -295,6 +295,43 @@ ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTO
     return descriptorHeap;
 }
 
+//StencileTextureの作成関数　奥行き
+ID3D12Resource* CreateDepthStencileTextureResource(ID3D12Device* device, int32_t width, int32_t height) {
+    //生成するResourceの設定
+    D3D12_RESOURCE_DESC resourceDesc{};
+    resourceDesc.Width = width;//Textureの幅
+    resourceDesc.Height = height;//高さ
+    resourceDesc.MipLevels = 1;//mipmapの数
+    resourceDesc.DepthOrArraySize = 1;//奥行き　or 配列Textureの配列数
+    resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//DepthStencilとして利用可能なフォーマット
+    resourceDesc.SampleDesc.Count = 1;//サンプリングカウント
+    resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;//2次元
+    resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;//DepthStencilとして使う通知
+
+    //利用するHeapの設定
+    D3D12_HEAP_PROPERTIES heapProperties{};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;//VRAM上
+
+    //深度値クリア設定
+    D3D12_CLEAR_VALUE depthClearValue{};
+    depthClearValue.DepthStencil.Depth = 1.0f;//1.0f(最大値)でクリア
+    depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//フォーマット。Resourceと合わせる
+
+    //Resourceの生成
+    ID3D12Resource* resource = nullptr;
+    HRESULT hr = device->CreateCommittedResource(
+        &heapProperties,//Heapの設定
+        D3D12_HEAP_FLAG_NONE,//Heapの特殊な設定。特になし。
+        &resourceDesc,//Resourceの設定
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,//深度値を書き込む状態にしておく
+        &depthClearValue,//Clear最適地
+        IID_PPV_ARGS(&resource));
+    assert(SUCCEEDED(hr));
+
+    return resource;
+}
+
+#pragma region //Textureの関数
 //テクスチャの読み込み関数
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 
@@ -346,7 +383,7 @@ ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMe
 
 }
 
-//TextureResourceにデータを転送する
+//TextureResourceにデータを転送する　GPU
 [[nodiscard]]
 ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages, ID3D12Device* device,
     ID3D12GraphicsCommandList* commandList) {
@@ -367,25 +404,8 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
     return intermediateResource;
 
 }
-//void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
-//    //Meta情報を取得
-//    const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-//    //全MipMapについて
-//    for (size_t mipLevel = 0; mipLevel < metadata.mipLevels; ++mipLevel) {
-//        //MipMapLevelを指定して各Imageを取得
-//        const DirectX::Image* img = mipImages.GetImage(mipLevel, 0, 0);
-//        //Textureに転送
-//        HRESULT hr = texture->WriteToSubresource(
-//            UINT(mipLevel),
-//            nullptr,//全領域へコピー
-//            img->pixels,//元データアドレス
-//            UINT(img->rowPitch),//1ラインサイズ
-//            UINT(img->slicePitch)//1枚サイズ
-//        );
-//        assert(SUCCEEDED(hr));
-//    }
-//
-//}
+
+#pragma endregion
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -1059,6 +1079,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//stencileTextureResourceの作成
+    ID3D12Resource* depthStencilResource = CreateDepthStencileTextureResource(device, kClientWidth, kClientHeight);
+#pragma endregion
+
 #pragma region//ViewportとScissor(シザー)
     //ビューポート
     D3D12_VIEWPORT viewport{};
@@ -1352,6 +1376,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     vertexResource->Release();
     textureResource->Release();
     intermediateResource->Release();
+    depthStencilResource->Release();
+
     graphicsPipelineState->Release();
     signatureBlob->Release();
     if (errorBlob) {
