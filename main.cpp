@@ -699,8 +699,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルへのログ出力
     Log(logStream, "CreateRTVDescriptorHeap");
 
-    //DSV用ヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
-    ID3D12DescriptorHeap* dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
 
 #pragma endregion
@@ -1104,9 +1102,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//stencileTextureResourceの作成
     ID3D12Resource* depthStencilResource = CreateDepthStencileTextureResource(device, kClientWidth, kClientHeight);
 
+    //DSV用ヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
+    ID3D12DescriptorHeap* dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+
     //DSVの設定 DepthStencilView
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//基本的にはResourceに合わせる。
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;//2dTexture
     // DSVHeapの先頭にDSVを作る
     device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
@@ -1265,12 +1266,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //TransitionBarrierを張る
             commandList->ResourceBarrier(1, &barrier);
 
-            //2.描画用のRTVを設定する
-            commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
+            //2.描画用のRTVとDSVを設定する
+            D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+            commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
             //3.指定した色で画面全体をクリアする
             float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
             commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
-
+            commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 #ifdef _DEBUG
             //描画用のDescriptorHeapの設定
