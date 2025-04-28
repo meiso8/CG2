@@ -1083,7 +1083,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //カメラの逆行列
     Matrix4x4 viewMatrix = Inverse(cameraMatrix);
     //透視投影行列
-    Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.f, 100.0f);
+    Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
     //WVpMatrixを作る
     Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
@@ -1226,7 +1226,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //カメラの逆行列
             viewMatrix = Inverse(cameraMatrix);
             //透視投影行列
-            projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.f, 100.0f);
+            projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
             //WVpMatrixを作る
             worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
             //データを書き込む
@@ -1272,6 +1272,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //3.指定した色で画面全体をクリアする
             float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
             commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
+            //指定した深度で画面全体をクリアする
             commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 #ifdef _DEBUG
