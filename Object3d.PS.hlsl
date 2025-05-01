@@ -7,12 +7,68 @@ struct Material
     float32_t4 color;
 };
 
+struct BlurParam
+{
+    float sigma;
+};
+
+
 //ConstantBufferを定義する
 //ConstantBuffer<構造体>変数名 : register(b0);//配置場所
 //CPUから値を渡すにはConstantBufferという機能を利用する
 ConstantBuffer<Material> gMaterial : register(b0);
+ConstantBuffer<BlurParam> gSigma : register(b1);
+
 Texture2D<float32_t4> gTexture : register(t0); //SRVはt
+
 SamplerState gSampler : register(s0); //Samplerはs これを介してtextureを読む
+
+
+//正規分布/ガウス分布作成関数
+float GaussianWeight(float x, float sigma)
+{
+    return exp(-(x * x) / (2.0 * sigma * sigma));
+}
+
+float4 HorizontalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma)
+{
+    float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+    
+    for (int i = -int(sigma - 1 / 2); i <= int(sigma - 1 / 2); i++)
+    {
+        color += sceneTex.Sample(
+        sample, uv
+        + float2(i * offset.x, 0)) * GaussianWeight(i,sigma);
+    }
+    return color;
+}
+
+float4 VerticalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma)
+{
+    float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+    
+    for (int i = -int(sigma - 1 / 2); i <= int(sigma - 1 / 2); i++)  // カーネルを拡大
+    {
+        color += sceneTex.Sample(
+        sample, uv
+        + float2(0, i * offset.y)) * GaussianWeight(i,sigma);
+    }
+    return color;
+}
+
+float4 GaussianBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float sigma)
+{
+    float2 offset = float2(1.0 / 800.0, 1.0 / 600.0);
+
+    float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+    
+    color = HorizontalBlur(sceneTex, sample, uv, offset,sigma);
+    //color = VerticalBlur(sceneTex, sample, uv, offset, sigma);
+    
+    return color;
+}
+
+
 
 struct PixelShaderOutput
 {
@@ -23,11 +79,17 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
  
-    float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
-
+    //float32_t4 textureColor0 = gTexture.Sample(gSampler, input.texcoord);
+    
     PixelShaderOutput output;
 
     //glbal変数のgをつけている
-    output.color = gMaterial.color * textureColor; //ベクトル*ベクトルと記述すると乗算が行われる
+    //output.color = gMaterial.color * textureColor0; //ベクトル*ベクトルと記述すると乗算が行われる
+   
+    
+    output.color = gMaterial.color * GaussianBlur(gTexture, gSampler, input.texcoord, gSigma.sigma);
+
+    
     return output;
 }
+
