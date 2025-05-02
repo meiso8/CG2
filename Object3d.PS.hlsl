@@ -10,6 +10,7 @@ struct Material
 struct BlurParam
 {
     float sigma;
+    uint kernel;
 };
 
 
@@ -30,40 +31,63 @@ float GaussianWeight(float x, float sigma)
     return exp(-(x * x) / (2.0 * sigma * sigma));
 }
 
-float4 HorizontalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma)
+float4 HorizontalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma, uint kernel)
 {
     float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
     
-    for (int i = -int(sigma - 1 / 2); i <= int(sigma - 1 / 2); i++)
+
+    for (int i = -int(kernel - 1 / 2); i <= int(kernel - 1 / 2); i++)
     {
         color += sceneTex.Sample(
         sample, uv
-        + float2(i * offset.x, 0)) * GaussianWeight(i,sigma);
+        + float2(i * offset.x, 0)) * GaussianWeight(i, sigma);
+    }
+    
+    return color;
+}
+
+float4 VerticalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma, uint kernel)
+{
+    float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+     
+    for (int i = -int(kernel - 1 / 2); i <= int(kernel - 1 / 2); i++)  // カーネルを拡大
+    {
+        color += sceneTex.Sample(
+        sample, uv
+        + float2(0, i * offset.y)) * GaussianWeight(i, sigma);
     }
     return color;
 }
 
-float4 VerticalBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma)
+
+float4 Blur(Texture2D sceneTex, SamplerState sample, float2 uv, float2 offset, float sigma, uint kernel)
 {
     float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
-    
-    for (int i = -int(sigma - 1 / 2); i <= int(sigma - 1 / 2); i++)  // カーネルを拡大
+
+    for (int i = -int(kernel - 1 / 2); i <= int(kernel - 1 / 2); i++)
     {
         color += sceneTex.Sample(
         sample, uv
-        + float2(0, i * offset.y)) * GaussianWeight(i,sigma);
+        + float2(i * offset)) * GaussianWeight(i, sigma);
     }
+    
     return color;
 }
 
-float4 GaussianBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float sigma)
+float4 GaussianBlur(Texture2D sceneTex, SamplerState sample, float2 uv, float sigma, uint kernel)
 {
     float2 offset = float2(1.0 / 800.0, 1.0 / 600.0);
+    //float2 offset = float2(1.0 / 10.0, 1.0 / 10.0);
 
     float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
     
-    color = HorizontalBlur(sceneTex, sample, uv, offset,sigma);
-    //color = VerticalBlur(sceneTex, sample, uv, offset, sigma);
+        
+ 
+    
+    color = HorizontalBlur(sceneTex, sample, uv, offset, sigma, kernel);
+    color += VerticalBlur(sceneTex, sample, uv, offset, sigma, kernel);
+    
+    //color = Blur(sceneTex, sample, uv, offset, sigma, kernel);
     
     return color;
 }
@@ -79,17 +103,11 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
  
-    //float32_t4 textureColor0 = gTexture.Sample(gSampler, input.texcoord);
-    
     PixelShaderOutput output;
-
-    //glbal変数のgをつけている
-    //output.color = gMaterial.color * textureColor0; //ベクトル*ベクトルと記述すると乗算が行われる
-   
     
-    output.color = gMaterial.color * GaussianBlur(gTexture, gSampler, input.texcoord, gSigma.sigma);
+    //ガウスブラー処理をしたものを出力
+    output.color = gMaterial.color * GaussianBlur(gTexture, gSampler, input.texcoord, gSigma.sigma, gSigma.kernel);
 
-    
     return output;
 }
 

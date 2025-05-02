@@ -51,6 +51,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma region //自作関数
 //#include"Vector4.h"
 #include"VertexData.h"
+#include"BlurParam.h"//ブラー用パラメータ
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
@@ -414,6 +415,26 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 
 #pragma endregion
 
+#pragma region//DescriptorHandleの取得関数
+
+D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
+
+    D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    handleCPU.ptr += (descriptorSize * index);
+    return handleCPU;
+
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
+
+    D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    handleGPU.ptr += (descriptorSize * index);
+    return handleGPU;
+
+}
+
+#pragma endregion
+
 #pragma endregion
 
 //Windowsアプリでのエントリーポイント(main関数)
@@ -703,8 +724,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ファイルへのログ出力
     Log(logStream, "CreateRTVDescriptorHeap");
-
-
 
 #pragma endregion
 
@@ -1024,33 +1043,104 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+
+
 #pragma region //Texrureを読んで転送する
-    //DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
+
+    enum TEXTURES {
+        SATURN,//サタン
+        AOD,
+        REAL,
+    };
+
+    int textureNum = SATURN;
+
     DirectX::ScratchImage mipImages = LoadTexture("resources/3306349_m.jpg");
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
     ID3D12Resource* textureResource = CreateTextureResource(device, metadata);
-    /* UploadTextureData(textureResource, mipImages);*/
+
+    //二枚目のテクスチャ
+    DirectX::ScratchImage mipImages2 = LoadTexture("resources/aoD.jpg");
+    const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
+    ID3D12Resource* textureResource2 = CreateTextureResource(device, metadata2);
+
+    //三枚目
+    DirectX::ScratchImage mipImages3 = LoadTexture("resources/real.jpg");
+    const DirectX::TexMetadata& metadata3 = mipImages3.GetMetadata();
+    ID3D12Resource* textureResource3 = CreateTextureResource(device, metadata3);
+
+
     ID3D12Resource* intermediateResource = UploadTextureData(textureResource, mipImages, device, commandList);
+    ID3D12Resource* intermediateResource2 = UploadTextureData(textureResource2, mipImages2, device, commandList);
+    ID3D12Resource* intermediateResource3 = UploadTextureData(textureResource3, mipImages3, device, commandList);
+
+#pragma endregion
+
+#pragma region //DescriptorSizeの取得
+
+    const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    const uint32_t descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
 #pragma endregion
 
 #pragma region ShaderResourceViewを作る
-    //metaDataを基にSRVの設定
+
+    // ================================
+    // metaDataを基にSRVの設定
+    // ================================
+
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format = metadata.format;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//texture
     srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-    //SRVを作成するDescriptorHeapの場所の選択
-    D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    //先頭はImGuiが使っているのでその次を使う GetDescriptorHandleIncrementSize()によって場所を求める
-    textureSrvHandleCPU.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    textureSrvHandleGPU.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    //二枚目
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
+    srvDesc2.Format = metadata2.format;
+    srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
+
+    //三枚目
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc3{};
+    srvDesc3.Format = metadata3.format;
+    srvDesc3.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc3.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc3.Texture2D.MipLevels = UINT(metadata3.mipLevels);
+
+    // ================================
+    // SRVを作成するDescriptorHeapの場所の選択
+    // ================================
+
+    D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU[3] = {
+        GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1), 
+    GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
+      GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3)
+    };
+    D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU[3] = {
+        GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1) ,
+         GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
+             GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3)
+    };
+
+    //二枚目
+    //D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
+    //D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
+
+    // ================================
     //SRVの生成
-    device->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
+    // ================================
+
+    device->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU[0]);
+    //二枚目
+    device->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU[1]);
+
+    device->CreateShaderResourceView(textureResource3, &srvDesc3, textureSrvHandleCPU[2]);
 
 #pragma endregion
+
 
 #pragma region//Resourceにデータを書き込む
     //頂点リソースにデータを書き込む
@@ -1113,7 +1203,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //書き込むためのアドレスを取得
     materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
     //今回は赤を書き込んでみる
-    *materialData = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    *materialData = Vector4(0.5f, 0.5f, 0.5f, 1.0f);
 
     Log(logStream, "MakeResourceForMaterial");
 
@@ -1121,12 +1211,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ガウス処理のためのResource パラメータ設定
 
-    ID3D12Resource* blurParamResource = CreateBufferResource(device, sizeof(float));
-    float* sigmaData = nullptr;
+    ID3D12Resource* blurParamResource = CreateBufferResource(device, sizeof(BlurParam));
+    BlurParam* blurParamData = nullptr;
     //書き込むためのアドレスを取得
-    blurParamResource->Map(0, nullptr, reinterpret_cast<void**>(&sigmaData));
+    blurParamResource->Map(0, nullptr, reinterpret_cast<void**>(&blurParamData));
     //
-    *sigmaData = 3.0f;
+    *blurParamData = { 5.0f,7 };
 
 #pragma endregion
 
@@ -1299,7 +1389,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
             ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
-            ImGui::SliderFloat("Sigma", sigmaData, 0.5f, 10.0f);
+            ImGui::SliderFloat("Sigma", &blurParamData->sigma, 0.0f, 10.0f);
+            // 修正: unsigned int* を int* にキャストすることで型の不一致を解消します。
+            ImGui::SliderInt("kernel", reinterpret_cast<int*>(&blurParamData->kernel), 3, 121);
+            ImGui::SliderInt("Texture", &textureNum, 0, 2);
             ImGui::ColorPicker4("materialColor", &(materialData->x));
 
             ImGui::End();
@@ -1416,7 +1509,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetGraphicsRootConstantBufferView(2, blurParamResource->GetGPUVirtualAddress());
 
             //SRVのDescriptorTableの先頭を設定。3はrootParameter[3]である。
-            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU);
+            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[textureNum]);
+
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList->DrawInstanced(6, 1, 0, 0);
 
@@ -1483,21 +1577,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             hr = commandList->Reset(commandAllocator, nullptr);
             assert(SUCCEEDED(hr));
 
-#pragma endregion
 
-#pragma region//ログの出力
-
-            //Log("GameLoop\n");
-
-            //int enemyHp = 100;
-            //char texturePath[] = "enemy.png";
-
-            //formatは変数から型を推論してくれる
-            //Log(std::format("enemyHp:{}, texturePath:{}\n", enemyHp, texturePath));
-            //https://cpprefjp.github.io/reference/format/format.html
-
-            //DirectXから受け取る情報をログに出力する
-            //Log(ConvertString(std::format(L"WSTRING{}\n", wstringValue)));
 
 #pragma endregion
 
@@ -1537,7 +1617,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     vertexResource->Release();
     textureResource->Release();
+    textureResource2->Release();
+    textureResource3->Release();
+
+
+    //intermediateResource
     intermediateResource->Release();
+    intermediateResource2->Release();
+    intermediateResource3->Release();
+
+
     depthStencilResource->Release();
 
     vertexResourceSprite->Release();
