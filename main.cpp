@@ -1389,9 +1389,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
             ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
-            ImGui::SliderFloat("Sigma", &blurParamData->sigma, 0.0f, 10.0f);
+            ImGui::SliderFloat("Sigma", &blurParamData->sigma, 0.0f, 101.0f);
             // 修正: unsigned int* を int* にキャストすることで型の不一致を解消します。
-            ImGui::SliderInt("kernel", reinterpret_cast<int*>(&blurParamData->kernel), 3, 121);
+            ImGui::SliderInt("kernel", reinterpret_cast<int*>(&blurParamData->kernel), 3, 361);
             ImGui::SliderInt("Texture", &textureNum, 0, 2);
             ImGui::ColorPicker4("materialColor", &(materialData->x));
 
