@@ -969,8 +969,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//VertexResourceを生成する
 
-    //三角形用
-    ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 6);
+    //三角形用 ここから球体を作る
+
+    const uint32_t kSubdivision = 16;//分割数
+
+    ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision * kSubdivision);
     Log(logStream, "CreateVertexResource");
 
 #pragma endregion
@@ -982,7 +985,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //リソースの先頭のアドレスから使う
     vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
     //使用するリソースのサイズは頂点3つ分のサイズ
-    vertexBufferView.SizeInBytes = sizeof(VertexData) * 6;
+    vertexBufferView.SizeInBytes = sizeof(VertexData) * 6 * kSubdivision * kSubdivision;
     //1頂点あたりのサイズ
     vertexBufferView.StrideInBytes = sizeof(VertexData);
 
@@ -1037,32 +1040,72 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//Resourceにデータを書き込む
+
+
     //頂点リソースにデータを書き込む
     VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
     vertexResource->Map(0, nullptr,
         reinterpret_cast<void**>(&vertexData));
-    //左下
-    vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
-    vertexData[0].texcoord = { 0.0f,1.0f };
-    //上
-    vertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
-    vertexData[1].texcoord = { 0.5f,0.0f };
-    //右下
-    vertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
-    vertexData[2].texcoord = { 1.0f,1.0f };
 
-    //2枚目
-    //左下2
-    vertexData[3].position = { -0.5f,-0.5f,0.5f,1.0f };
-    vertexData[3].texcoord = { 0.0f,1.0f };
-    //上2
-    vertexData[4].position = { 0.0f,0.0f,0.0f,1.0f };
-    vertexData[4].texcoord = { 0.5f,0.0f };
-    //右下2
-    vertexData[5].position = { 0.5f,-0.5f,-0.5f,1.0f };
-    vertexData[5].texcoord = { 1.0f,1.0f };
+    //const uint32_t kSubdivision = 16;//分割数
+    const float pi = 3.1415926535f;
+    const float kLonEvery = 2.0f * pi / float(kSubdivision);
+    const float kLatEvery = pi / float(kSubdivision);
 
+    //緯度の方向に分割　-pi/2 ~ pi/2
+
+    for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+        float lat = -pi / 2.0f + kLatEvery * latIndex;//現在の緯度
+        //経度の方向に分割 0 ~ 2*pi
+        for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+            //書き込む最初の場所
+            uint32_t startIndex = (latIndex * kSubdivision + lonIndex) * 6;
+            float lon = lonIndex * kLonEvery;//現在の経度
+
+            Vector2 uv = { float(lonIndex) / float(kSubdivision),
+                1.0f - float(latIndex) / float(kSubdivision) };
+
+            //a   
+            vertexData[startIndex].position.x = std::cos(lat) * std::cos(lon);
+            vertexData[startIndex].position.y = std::sin(lat);
+            vertexData[startIndex].position.z = std::cos(lat) * std::sin(lon);
+            vertexData[startIndex].position.w = 1.0f;
+            vertexData[startIndex].texcoord = { uv.x,
+               uv.y + 1.0f / float(kSubdivision) };
+
+            //b
+            vertexData[startIndex + 1].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
+            vertexData[startIndex + 1].position.y = std::sin(lat + kLatEvery);
+            vertexData[startIndex + 1].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
+            vertexData[startIndex + 1].position.w = 1.0f;
+            vertexData[startIndex + 1].texcoord = uv;
+
+            //c
+            vertexData[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
+            vertexData[startIndex + 2].position.y = std::sin(lat);
+            vertexData[startIndex + 2].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
+            vertexData[startIndex + 2].position.w = 1.0f;
+            vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision),
+                 uv.y + 1.0f / float(kSubdivision) };
+
+            //c
+            vertexData[startIndex + 3] = vertexData[startIndex + 2];
+
+            //b
+            vertexData[startIndex + 4] = vertexData[startIndex + 1];
+
+            //d
+            vertexData[startIndex + 5].position.x = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
+            vertexData[startIndex + 5].position.y = std::sin(lat + kLatEvery);
+            vertexData[startIndex + 5].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
+            vertexData[startIndex + 5].position.w = 1.0f;
+            vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision),
+                uv.y };
+
+        }
+
+    }
 
     Log(logStream, "WriteDateToResource");
 
@@ -1252,6 +1295,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
             ImGui::ColorPicker4("materialColor", &(materialData->x));
+            ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
+            ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
+            ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
             if (ImGui::Button("Init")) {
                 transform.scale = { 1.0f, 1.0f, 1.0f };
                 transform.rotate = { 0.0f };
@@ -1259,9 +1305,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 *materialData = { 1.0f,0.0f,0.0f,1.0f };
 
             }
-            if (ImGui::Button("Rotate")) {
-                isRotateY = isRotateY ? false : true;
-            }
+
 
             ImGui::End();
 
@@ -1294,7 +1338,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //三角形の行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
-            cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
+            cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
             //カメラ行列
             cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
             //カメラの逆行列
@@ -1388,7 +1432,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-            commandList->DrawInstanced(6, 1, 0, 0);
+            commandList->DrawInstanced(6 * kSubdivision * kSubdivision, 1, 0, 0);
 
 #pragma endregion
 
