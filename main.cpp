@@ -891,7 +891,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//InputLayout
 
     //InputLayout
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
     inputElementDescs[0].SemanticName = "POSITION";
     inputElementDescs[0].SemanticIndex = 0;
     inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//RGBA
@@ -900,6 +900,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     inputElementDescs[1].SemanticIndex = 0;
     inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;//Vector2のためRG
     inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    inputElementDescs[2].SemanticName = "NORMAL";
+    inputElementDescs[2].SemanticIndex = 0;
+    inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;//RGB
+    inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
     inputLayoutDesc.pInputElementDescs = inputElementDescs;
     inputLayoutDesc.NumElements = _countof(inputElementDescs);
@@ -1068,7 +1073,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //SRVを作成するDescriptorHeapの場所の選択
     D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1);
     D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1);
-    
+
     //SRVの生成
     device->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
 
@@ -1121,8 +1126,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex].position.y = std::sin(lat);
             vertexData[startIndex].position.z = std::cos(lat) * std::sin(lon);
             vertexData[startIndex].position.w = 1.0f;
-            vertexData[startIndex].texcoord = { uv.x,
-               uv.y };
+            vertexData[startIndex].texcoord = uv;
+            vertexData[startIndex].normal = { vertexData[startIndex].position.x , vertexData[startIndex].position.y, vertexData[startIndex].position.z };
 
             //b
             vertexData[startIndex + 1].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
@@ -1131,6 +1136,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 1].position.w = 1.0f;
             vertexData[startIndex + 1].texcoord = { uv.x,
                uv.y - 1.0f / float(kSubdivision) };
+            vertexData[startIndex+1].normal = { vertexData[startIndex+1].position.x , vertexData[startIndex+1].position.y, vertexData[startIndex+1].position.z };
 
             //c
             vertexData[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
@@ -1139,6 +1145,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 2].position.w = 1.0f;
             vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision),
                  uv.y };
+            vertexData[startIndex + 1].normal = { vertexData[startIndex + 2].position.x , vertexData[startIndex + 2].position.y, vertexData[startIndex + 2].position.z };
+
 
             //c
             vertexData[startIndex + 3] = vertexData[startIndex + 2];
@@ -1153,6 +1161,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 5].position.w = 1.0f;
             vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision),
                 uv.y - 1.0f / float(kSubdivision) };
+            vertexData[startIndex + 5].normal = { vertexData[startIndex + 5].position.x , vertexData[startIndex + 5].position.y, vertexData[startIndex + 5].position.z };
 
         }
 
@@ -1169,18 +1178,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //1枚目の三角形
     vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
     vertexDataSprite[0].texcoord = { 0.0f,1.0f };
-    vertexDataSprite[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
+    vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };//法線
     vertexDataSprite[1].texcoord = { 0.0f,0.0f };
+    vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
     vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
     vertexDataSprite[2].texcoord = { 1.0f,1.0f };
+    vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
     //2枚目の三角形
     vertexDataSprite[3].position = { 0.0f,0.0f,0.0f,1.0f };//左上
     vertexDataSprite[3].texcoord = { 0.0f,0.0f };
+    vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
     vertexDataSprite[4].position = { 640.0f,0.0f,0.0f,1.0f };//右上
     vertexDataSprite[4].texcoord = { 1.0f,0.0f };
+    vertexDataSprite[4].normal = { 0.0f,0.0f,-1.0f };
     vertexDataSprite[5].position = { 640.0f,360.0f,0.0f,1.0f };//右下
     vertexDataSprite[5].texcoord = { 1.0f,1.0f };
-
+    vertexDataSprite[5].normal = { 0.0f,0.0f,-1.0f };
 #pragma endregion
 
 #pragma region//Material用のResourceを作る
@@ -1483,7 +1496,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
             Log(logStream, "SetWVPToCBuffer");
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList->SetGraphicsRootDescriptorTable(2,useMonsterBall? textureSrvHandleGPU2 : textureSrvHandleGPU);
+            commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList->DrawInstanced(6 * kSubdivision * kSubdivision, 1, 0, 0);
 
@@ -1495,7 +1508,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //TransformationMatrixCBufferの場所を設定
             commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList->SetGraphicsRootDescriptorTable(2,textureSrvHandleGPU);
+            commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画！（DrawCall/ドローコール）
             commandList->DrawInstanced(6, 1, 0, 0);
             //色とSRV（Texture）は三角形と同じものを使用するため設定しない
