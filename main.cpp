@@ -1072,14 +1072,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex].position.z = std::cos(lat) * std::sin(lon);
             vertexData[startIndex].position.w = 1.0f;
             vertexData[startIndex].texcoord = { uv.x,
-               uv.y + 1.0f / float(kSubdivision) };
+               uv.y };
 
             //b
             vertexData[startIndex + 1].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
             vertexData[startIndex + 1].position.y = std::sin(lat + kLatEvery);
             vertexData[startIndex + 1].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
             vertexData[startIndex + 1].position.w = 1.0f;
-            vertexData[startIndex + 1].texcoord = uv;
+            vertexData[startIndex + 1].texcoord = { uv.x,
+               uv.y - 1.0f / float(kSubdivision)};
 
             //c
             vertexData[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
@@ -1087,7 +1088,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 2].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
             vertexData[startIndex + 2].position.w = 1.0f;
             vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision),
-                 uv.y + 1.0f / float(kSubdivision) };
+                 uv.y};
 
             //c
             vertexData[startIndex + 3] = vertexData[startIndex + 2];
@@ -1101,7 +1102,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 5].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
             vertexData[startIndex + 5].position.w = 1.0f;
             vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision),
-                uv.y };
+                uv.y - 1.0f / float(kSubdivision) };
 
         }
 
