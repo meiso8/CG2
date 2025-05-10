@@ -1073,12 +1073,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     int textureNum = SATURN;
 
-    DirectX::ScratchImage mipImages = LoadTexture("resources/test.png");
+    DirectX::ScratchImage mipImages = LoadTexture("resources/aoD.jpg");
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
     ID3D12Resource* textureResource = CreateTextureResource(device, metadata);
 
     //二枚目のテクスチャ
-    DirectX::ScratchImage mipImages2 = LoadTexture("resources/testDepth.png");
+    DirectX::ScratchImage mipImages2 = LoadTexture("resources/whiteCircle.png");
     const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
     ID3D12Resource* textureResource2 = CreateTextureResource(device, metadata2);
 

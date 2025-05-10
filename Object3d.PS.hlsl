@@ -96,12 +96,11 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t4 blurColor = GaussianBlur(gTexture, gSampler, input.texcoord, gDoFParam.sigma, gDoFParam.kernel);
     
     //線形補間しているというわけですね
-    output.color = lerp(originalColor, blurColor, blurFactor);
-    
-    //output.color = blurColor;
-    
+    //output.color = lerp(originalColor, blurColor, blurFactor);
     //output.color = gMaterial.color * lerp(originalColor, blurColor, blurFactor);
     
+    //反転
+    output.color = float4(1.0f - output.color.x, 1.0f - output.color.y, 1.0f - output.color.z, output.color.w);
     
     return output;
 }
