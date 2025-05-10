@@ -100,7 +100,9 @@ PixelShaderOutput main(VertexShaderOutput input)
     //output.color = gMaterial.color * lerp(originalColor, blurColor, blurFactor);
     
     //反転
-    output.color = float4(1.0f - output.color.x, 1.0f - output.color.y, 1.0f - output.color.z, output.color.w);
+    //output.color = float4(1.0f - output.color.x, 1.0f - output.color.y, 1.0f - output.color.z, output.color.w);
+    
+    output.color = gMaterial.color * blurColor;
     
     return output;
 }
