@@ -104,6 +104,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     
     output.color = gMaterial.color * blurColor;
     
+    
     return output;
 }
 

@@ -391,8 +391,6 @@ ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMe
     //2.利用するHeapの設定
     D3D12_HEAP_PROPERTIES heapProperties{};
     heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;//GPUで処理するために書き換え
-    //heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;//WriteBackポリシーとは
-    //heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;//プロセッサの近くに配置
 
     //3.Resourceを生成する
     ID3D12Resource* resource = nullptr;
@@ -787,9 +785,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     rtvHandles[1] = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV, 1);
 
-    //rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    //rtvHandles[1].ptr = rtvHandles[0].ptr + descriptorSizeRTV;
-
     //GetDescriptorHandleIncrementSize() Descriptorのサイズは、最適化のため、GPUまたはドライバによって異なることが許可されている
     //なのでDirectX12に問い合わせて実際のサイズを取得する　このサイズはゲーム中に変化することはないので初期化時に取得しておけばよい
 
@@ -1028,12 +1023,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//VertexResourceを生成する
 
-    //三角形用 ここから球体を作る
+    //ここから球体を作る
 
     const uint32_t kSubdivision = 16;//分割数
-
+    //球体を作る
     ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision * kSubdivision);
+
+    //三角形を作る
+    ID3D12Resource* triangleVertexResource = CreateBufferResource(device, sizeof(VertexData) * 3);
+
     Log(logStream, "CreateVertexResource");
+
 
 #pragma endregion
 
@@ -1048,7 +1048,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //1頂点あたりのサイズ
     vertexBufferView.StrideInBytes = sizeof(VertexData);
 
+    //三角形用に作成
+    //頂点バッファビューを作成する
+    D3D12_VERTEX_BUFFER_VIEW vertexTriangleBufferView{};
+    //リソースの先頭のアドレスから使う
+    vertexTriangleBufferView.BufferLocation = triangleVertexResource->GetGPUVirtualAddress();
+    //使用するリソースのサイズは頂点3つ分のサイズ
+    vertexTriangleBufferView.SizeInBytes = sizeof(VertexData) * 3;
+    //1頂点あたりのサイズ
+    vertexTriangleBufferView.StrideInBytes = sizeof(VertexData);
+
+
     Log(logStream, "CreateVertexBufferView");
+
 
 #pragma endregion
 
@@ -1085,12 +1097,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     int textureNum = SATURN;
 
-    DirectX::ScratchImage mipImages = LoadTexture("resources/2k_earth_daymap.jpg");
+    DirectX::ScratchImage mipImages = LoadTexture("resources/2k_earth_daymap.jpg");//借りてきた画像
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
     ID3D12Resource* textureResource = CreateTextureResource(device, metadata);
 
     //二枚目のテクスチャ
-    DirectX::ScratchImage mipImages2 = LoadTexture("resources/whiteCircle.png");
+    DirectX::ScratchImage mipImages2 = LoadTexture("resources/monsterBall.png");
     const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
     ID3D12Resource* textureResource2 = CreateTextureResource(device, metadata2);
 
@@ -1176,14 +1188,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//Resourceにデータを書き込む
 
-
+#pragma region //Sphereの作成
     //頂点リソースにデータを書き込む
     VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
     vertexResource->Map(0, nullptr,
         reinterpret_cast<void**>(&vertexData));
 
-    //const uint32_t kSubdivision = 16;//分割数
     const float pi = 3.1415926535f;
     const float kLonEvery = 2.0f * pi / float(kSubdivision);
     const float kLatEvery = pi / float(kSubdivision);
@@ -1243,6 +1254,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     }
 
+#pragma endregion
+
+    //頂点リソースにデータを書き込む
+    VertexData* triangleVertexData = nullptr;
+
+    //書き込むためのアドレスを取得
+    triangleVertexResource->Map(0, nullptr,
+        reinterpret_cast<void**>(&triangleVertexData));
+
+    triangleVertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
+    triangleVertexData[0].texcoord = { 0.0f,1.0f };
+    triangleVertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
+    triangleVertexData[1].texcoord = { 0.5f,0.0f };
+    triangleVertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
+    triangleVertexData[2].texcoord = { 1.0f,1.0f };
+
     Log(logStream, "WriteDateToResource");
 
 #pragma endregion
@@ -1295,6 +1322,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//TransformationMatrix用のResourceを作る
 
+#pragma region//Sphere
     //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
     ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
     //データを書き込む
@@ -1302,9 +1330,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //書き込むためのアドレスを取得
     wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
 
-    //三角形の座標
+    //Sphereの座標
     Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-    //三角形の行列
+    //Sphereの行列
     Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
     //カメラ座標
     Transform cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
@@ -1318,6 +1346,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
     *wvpDate = worldViewProjectionMatrix;
+
+#pragma endregion
+
+#pragma region //三角形
+
+    //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
+    ID3D12Resource* wvpTriangleResource = CreateBufferResource(device, sizeof(Matrix4x4));
+    //データを書き込む
+    Matrix4x4* wvpTriangleDate = nullptr;
+    //書き込むためのアドレスを取得
+    wvpTriangleResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpTriangleDate));
+
+    //三角形の座標
+    Transform triangleTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+    //三角形の行列
+    Matrix4x4 triangleWorldMatrix = MakeAffineMatrix(triangleTransform.scale, triangleTransform.rotate, triangleTransform.translate);
+    //WVpMatrixを作る
+    Matrix4x4 triangleWvpMatrix = Multiply(triangleWorldMatrix, Multiply(viewMatrix, projectionMatrix));
+    *wvpTriangleDate = triangleWvpMatrix;
+
+#pragma endregion
 
     Log(logStream, "MakeResourceForTransformationMatrix");
 
@@ -1394,9 +1443,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 #pragma endregion
 
+    bool isRotateX = false;
     bool isRotateY = true;
-    bool useMonsterBall = true;
-
+    bool isRotateZ = false;
 
     MSG msg{};
     //ファイルへのログ出力
@@ -1429,62 +1478,50 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-#pragma region//三角形のデバッグ 
+#pragma region//Sphereのデバッグ 
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
-            ImGui::Begin("Triangle");
-            ImGui::Checkbox("useMonsterBall", &useMonsterBall);
+            ImGui::Begin("Sphere");
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
             ImGui::ColorPicker4("materialColor", &(materialData->x));
-            ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
-            ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
-            ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
+            ImGui::SliderInt("Texture", &textureNum, 0, 3);
+
             if (ImGui::Button("Init")) {
                 transform.scale = { 1.0f, 1.0f, 1.0f };
                 transform.rotate = { 0.0f };
                 transform.translate = { 0.0f };
-                *materialData = { 1.0f,0.0f,0.0f,1.0f };
+                *materialData = { 1.0f,1.0f,1.0f,1.0f };
 
             }
+            ImGui::Checkbox("Rotate : X", &isRotateX);
+            ImGui::Checkbox("Rotate : Y", &isRotateY);
+            ImGui::Checkbox("Rotate : Z", &isRotateZ);
 
-
-            ImGui::End();
-
-#pragma endregion
-
-#pragma region//Spriteのデバッグ
-
-            ImGui::Begin("Sprite");
-
-            ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
-            ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
+            //被写界深度用のパラメータ
             ImGui::SliderFloat("Sigma", &dofParamData->sigma, 0.0f, 101.0f);
-            // 修正: unsigned int* を int* にキャストすることで型の不一致を解消します。
             ImGui::SliderInt("kernel", reinterpret_cast<int*>(&dofParamData->kernel), 3, 361);
             ImGui::SliderFloat("focusDepth", &dofParamData->focusDepth, 0.0f, 1.0f);
-            ImGui::SliderInt("Texture", &textureNum, 0, 3);
-            ImGui::ColorPicker4("materialColor", &(materialData->x));
 
             ImGui::End();
 
+#pragma region //Sphereの更新
 
-#pragma endregion
-
-#endif
-
-#pragma region //三角形の更新
+            if (isRotateX) {
+                transform.rotate.x += 0.03f;
+            }
 
             if (isRotateY) {
                 transform.rotate.y += 0.03f;
-                Log(logStream, "RotateY");
             }
-            /* *wvpDate = worldMatrix;*/
 
-            //三角形の行列
+            if (isRotateZ) {
+                transform.rotate.z += 0.03f;
+            }
+
+            //Sphereの行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
             cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
@@ -1501,7 +1538,55 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//三角形の更新処理
+
+
+#pragma endregion
+
+#pragma region//三角形のデバッグ 
+
+            //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
+         /*   ImGui::ShowDemoWindow();*/
+            ImGui::Begin("Triangle");
+            ImGui::SliderFloat3("scale", &triangleTransform.scale.x, 0.0f, 8.0f);
+            ImGui::SliderFloat3("rotate", &triangleTransform.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat3("translate", &triangleTransform.translate.x, -2.0f, 2.0f);
+            if (ImGui::Button("Init")) {
+                triangleTransform.scale = { 1.0f, 1.0f, 1.0f };
+                triangleTransform.rotate = { 0.0f };
+                triangleTransform.translate = { 0.0f };
+                *materialData = { 1.0f,1.0f,1.0f,1.0f };
+            }
+
+            ImGui::End();
+
+            //三角形の行列
+            triangleWorldMatrix = MakeAffineMatrix(triangleTransform.scale, triangleTransform.rotate, triangleTransform.translate);
+            //カメラの逆行列
+            viewMatrix = Inverse(cameraMatrix);
+            //WVpMatrixを作る
+            triangleWvpMatrix = Multiply(triangleWorldMatrix, Multiply(viewMatrix, projectionMatrix));
+            //データを書き込む
+            *wvpTriangleDate = triangleWvpMatrix;
+
+#pragma endregion
+
+
+#pragma region//Spriteのデバッグ
+
+            ImGui::Begin("Sprite");
+            ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
+            ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
+            ImGui::End();
+
+#pragma endregion
+
+#endif
+
+
+
+
+#pragma region//Spriteの更新処理
 
             worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
             viewMatrixSprite = MakeIdentity4x4();
@@ -1560,10 +1645,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetDescriptorHeaps(1, descriptorHeaps);
 #endif
 
-#pragma region //三角形を描画する
+#pragma region //Sphereを描画する
 
             //ファイルへのログ出力
-            Log(logStream, "DrawTriangle");
+            Log(logStream, "DrawSphere");
 
             commandList->RSSetViewports(1, &viewport);//Viewportを設定
             commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
@@ -1592,6 +1677,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region //三角形を描画する
+
+            //ファイルへのログ出力
+            Log(logStream, "DrawTriangle");
+
+            commandList->IASetVertexBuffers(0, 1, &vertexTriangleBufferView);//VBVを設定
+            //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
+            commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            //マテリアルCBufferの場所を設定　/*RootParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
+            commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+            //wvp用のCBufferの場所を設定
+            commandList->SetGraphicsRootConstantBufferView(1, wvpTriangleResource->GetGPUVirtualAddress());
+            //SRVのDescriptorTableの先頭を設定。3はrootParameter[3]である。
+            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[textureNum]);
+            //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+            commandList->DrawInstanced(3, 1, 0, 0);
+
+#pragma endregion
+
 #pragma region//Spriteの描画
             //Spriteの描画。変更が必要なものだけ変更
             commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
@@ -1599,7 +1703,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
 
             //SRVのDescriptorTableの先頭を設定。3はrootParameter[3]である。
-            commandList->SetGraphicsRootDescriptorTable(3,textureSrvHandleGPU[0]);
+            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[0]);
 
             //描画！（DrawCall/ドローコール）
             commandList->DrawInstanced(6, 1, 0, 0);
@@ -1694,9 +1798,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     dxgiFactory->Release();
 
     vertexResource->Release();
+    triangleVertexResource->Release();
+
     textureResource->Release();
     textureResource2->Release();
-
     textureResource3->Release();
 
     depthStencilResource->Release();
@@ -1720,7 +1825,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     pixelShaderBlob->Release();
     vertexShaderBlob->Release();
     materialResource->Release();
+
     wvpResource->Release();
+    wvpTriangleResource->Release();
 
 #ifdef _DEBUG
     debugController->Release();
