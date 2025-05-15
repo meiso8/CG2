@@ -11,7 +11,7 @@ struct DoFParam
 {
     float sigma;
     uint kernel;
-    float focusDepth; //焦点距離を追加
+    //float focusDepth; //焦点距離を追加
 };
 
 //ConstantBufferを定義する
@@ -21,7 +21,7 @@ ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DoFParam> gDoFParam : register(b1);
 
 Texture2D<float32_t4> gTexture : register(t0); //SRVはt
-Texture2D<float32_t4> gDepthTexture : register(t1); //追加
+//Texture2D<float32_t4> gDepthTexture : register(t1); //追加
 
 SamplerState gSampler : register(s0); //Samplerはs これを介してtextureを読む
 
@@ -84,14 +84,14 @@ PixelShaderOutput main(VertexShaderOutput input)
  
     PixelShaderOutput output;
     
-    //深度値を取得　tex2Dとは2DTextureの特定の座標からデータを取得する関数？
-    float depth = gDepthTexture.Sample(gSampler, input.texcoord).r; //深度値の情報はRGBのrだけに入っているのでrだけを取得
+    ////深度値を取得　tex2Dとは2DTextureの特定の座標からデータを取得する関数？
+    //float depth = gDepthTexture.Sample(gSampler, input.texcoord).r; //深度値の情報はRGBのrだけに入っているのでrだけを取得
     
-    //焦点を合わせる計算
-    float blurFactor = abs(depth - gDoFParam.focusDepth);
+    ////焦点を合わせる計算
+    //float blurFactor = abs(depth - gDoFParam.focusDepth);
 
-    //オリジナルカラー
-    float32_t4 originalColor = gTexture.Sample(gSampler, input.texcoord);
+    ////オリジナルカラー
+    //float32_t4 originalColor = gTexture.Sample(gSampler, input.texcoord);
      //ガウスブラー処理をしたもの
     float32_t4 blurColor = GaussianBlur(gTexture, gSampler, input.texcoord, gDoFParam.sigma, gDoFParam.kernel);
     
