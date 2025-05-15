@@ -1026,14 +1026,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ここから球体を作る
 
     const uint32_t kSubdivision = 16;//分割数
+
+    uint32_t drawLength = 1;
+
     //球体を作る
     ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision * kSubdivision);
 
-    //三角形を作る
-    ID3D12Resource* triangleVertexResource = CreateBufferResource(device, sizeof(VertexData) * 3);
-
+    //三角形を作る 三角錐を作る
+    ID3D12Resource* triangleVertexResource = CreateBufferResource(device, sizeof(VertexData) * 12);
     Log(logStream, "CreateVertexResource");
-
 
 #pragma endregion
 
@@ -1054,7 +1055,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //リソースの先頭のアドレスから使う
     vertexTriangleBufferView.BufferLocation = triangleVertexResource->GetGPUVirtualAddress();
     //使用するリソースのサイズは頂点3つ分のサイズ
-    vertexTriangleBufferView.SizeInBytes = sizeof(VertexData) * 3;
+    vertexTriangleBufferView.SizeInBytes = sizeof(VertexData) * 12;
     //1頂点あたりのサイズ
     vertexTriangleBufferView.StrideInBytes = sizeof(VertexData);
 
@@ -1102,12 +1103,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ID3D12Resource* textureResource = CreateTextureResource(device, metadata);
 
     //二枚目のテクスチャ
-    DirectX::ScratchImage mipImages2 = LoadTexture("resources/monsterBall.png");
+    DirectX::ScratchImage mipImages2 = LoadTexture("resources/texture.png");
     const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
     ID3D12Resource* textureResource2 = CreateTextureResource(device, metadata2);
 
     //三枚目
-    DirectX::ScratchImage mipImages3 = LoadTexture("resources/real.jpg");
+    DirectX::ScratchImage mipImages3 = LoadTexture("resources/monsterBall.png");
     const DirectX::TexMetadata& metadata3 = mipImages3.GetMetadata();
     ID3D12Resource* textureResource3 = CreateTextureResource(device, metadata3);
 
@@ -1263,12 +1264,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     triangleVertexResource->Map(0, nullptr,
         reinterpret_cast<void**>(&triangleVertexData));
 
-    triangleVertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
+    //左下
+    triangleVertexData[0].position = { -0.5f,-0.5f * sqrtf(3.0f) / 3.0f,-0.5f * sqrtf(3.0f) / 3.0f,1.0f };
     triangleVertexData[0].texcoord = { 0.0f,1.0f };
-    triangleVertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
+    //上
+    triangleVertexData[1].position = { 0.0f,sqrtf(3.0f) / 3.0f,0.0f,1.0f };
     triangleVertexData[1].texcoord = { 0.5f,0.0f };
-    triangleVertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
+    //右下
+    triangleVertexData[2].position = { 0.5f,-0.5f * sqrtf(3.0f) / 3.0f,-0.5f * sqrtf(3.0f) / 3.0f,1.0f };
     triangleVertexData[2].texcoord = { 1.0f,1.0f };
+
+    triangleVertexData[3].position = triangleVertexData[2].position;
+    triangleVertexData[3].texcoord = { 0.0f,1.0f };
+    triangleVertexData[4].position = triangleVertexData[1].position;
+    triangleVertexData[4].texcoord = { 0.5f,0.0f };
+    triangleVertexData[5].position = { 0.0f,-0.5f * sqrtf(3.0f) / 3.0f, sqrtf(3.0f) / 3.0f,1.0f };
+    triangleVertexData[5].texcoord = { 1.0f,1.0f };
+
+    triangleVertexData[6].position = triangleVertexData[5].position;
+    triangleVertexData[6].texcoord = { 0.0f,1.0f };
+    triangleVertexData[7].position = triangleVertexData[1].position;
+    triangleVertexData[7].texcoord = { 0.5f,0.0f };
+    triangleVertexData[8].position = triangleVertexData[0].position;
+    triangleVertexData[8].texcoord = { 1.0f,1.0f };
+
+    //底面の面の向きを考慮する
+    triangleVertexData[9].position = triangleVertexData[0].position;
+    triangleVertexData[9].texcoord = { 0.0f,1.0f };
+    triangleVertexData[10].position = triangleVertexData[2].position;
+    triangleVertexData[10].texcoord = { 1.0f,1.0f };
+    triangleVertexData[11].position = triangleVertexData[5].position;
+    triangleVertexData[11].texcoord = { 0.5f,0.0f };
 
     Log(logStream, "WriteDateToResource");
 
@@ -1444,8 +1470,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
     bool isRotateX = false;
-    bool isRotateY = true;
+    bool isRotateY = false;
     bool isRotateZ = false;
+
+    unsigned int frame = 0;
+    //unsigned int second = 0;
 
     MSG msg{};
     //ファイルへのログ出力
@@ -1478,11 +1507,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
+            //フレーム数を足す
+            frame++;
+
+      /*      if (frame >= 59) {
+                frame = 0;
+                second++;*/
+                if (drawLength < kSubdivision * kSubdivision * 2) {
+                    drawLength++;
+                }
+           /* }*/
+
 #pragma region//Sphereのデバッグ 
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Sphere");
+            ImGui::Text("frame %d,drawLength %d", frame, drawLength);
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
@@ -1546,6 +1587,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
+            triangleTransform.rotate.y += 0.03f;
+
             ImGui::Begin("Triangle");
             ImGui::SliderFloat3("scale", &triangleTransform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &triangleTransform.rotate.x, 0.0f, 360.0f);
@@ -1634,7 +1677,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
             //3.指定した色で画面全体をクリアする
             //float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
-            float clearColor[] = { 0.0f,0.0f,0.0f,1.0f };//青っぽい色。RGBAの順
+            float clearColor[] = { 0.0f,0.0f,0.0f,1.0f };//黒色。RGBAの順
             commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
             //指定した深度で画面全体をクリアする
             commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -1665,7 +1708,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
             Log(logStream, "SetWVPToCBuffer");
 
-
             //blurParameterの CBufferの場所を設定　/*RootParameter配列の2番目 
             commandList->SetGraphicsRootConstantBufferView(2, DoFParamResource->GetGPUVirtualAddress());
 
@@ -1673,7 +1715,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[textureNum]);
 
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-            commandList->DrawInstanced(6 * kSubdivision * kSubdivision, 1, 0, 0);
+            commandList->DrawInstanced(3 * drawLength, 1, 0, 0);
 
 #pragma endregion
 
@@ -1690,9 +1732,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //wvp用のCBufferの場所を設定
             commandList->SetGraphicsRootConstantBufferView(1, wvpTriangleResource->GetGPUVirtualAddress());
             //SRVのDescriptorTableの先頭を設定。3はrootParameter[3]である。
-            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[textureNum]);
+            commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[1]);
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-            commandList->DrawInstanced(3, 1, 0, 0);
+            commandList->DrawInstanced(12, 1, 0, 0);
 
 #pragma endregion
 
