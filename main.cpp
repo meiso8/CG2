@@ -1872,11 +1872,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //指定した深度で画面全体をクリアする
             commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-#ifdef _DEBUG
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap };
             commandList->SetDescriptorHeaps(1, descriptorHeaps);
-#endif
 
 #pragma region //Sphereを描画する
 
@@ -1904,7 +1902,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。3はrootParameter[3]である。
             commandList->SetGraphicsRootDescriptorTable(3, textureSrvHandleGPU[textureNum]);
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-
+            commandList->DrawInstanced(3 * drawLength, 1, 0, 0);
 
 #pragma endregion
 
@@ -1924,8 +1922,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
             }
-
-
 
 #pragma endregion
 
