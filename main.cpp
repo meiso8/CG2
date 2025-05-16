@@ -52,6 +52,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 //#include"Vector4.h"
 #include"Material.h"
 #include"VertexData.h"
+#include"TransformationMatrix.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
@@ -1229,9 +1230,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//TransformationMatrix用のResourceを作る
 
     //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
-    ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
+    ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(TransformationMatrix));
     //データを書き込む
-    Matrix4x4* wvpDate = nullptr;
+    TransformationMatrix* wvpDate = nullptr;
     //書き込むためのアドレスを取得
     wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
 
@@ -1250,7 +1251,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //WVpMatrixを作る
     Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
-    *wvpDate = worldViewProjectionMatrix;
+    *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
     Log(logStream, "MakeResourceForTransformationMatrix");
 
@@ -1430,7 +1431,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //WVpMatrixを作る
             worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
             //データを書き込む
-            *wvpDate = worldViewProjectionMatrix;
+            *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
 #pragma endregion
 
