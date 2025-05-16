@@ -2,9 +2,12 @@
 
 //テクスチャを貼り付けたり、ライティングを行ったりと、もっとも主要なShaderである
 
+
 struct Material
 {
     float32_t4 color;
+    int32_t enableLighting;
+
 };
 
 //ConstantBufferを定義する

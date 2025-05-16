@@ -50,6 +50,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #pragma region //自作関数
 //#include"Vector4.h"
+#include"Material.h"
 #include"VertexData.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
@@ -1198,16 +1199,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//Material用のResourceを作る
-    //マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
-    ID3D12Resource* materialResource = CreateBufferResource(device, sizeof(Vector4));
+    //マテリアル用のリソースを作る。
+    ID3D12Resource* materialResource = CreateBufferResource(device, sizeof(Material));
     //マテリアルにデータを書き込む
-    Vector4* materialData = nullptr;
+    Material* materialData = nullptr;
     //書き込むためのアドレスを取得
     materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
     //今回は赤を書き込んでみる
-    *materialData = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    *materialData = Material{ {1.0f, 1.0f, 1.0f, 1.0f },true };
 
     Log(logStream, "MakeResourceForMaterial");
+
+    //Sprite用のマテリアルを作成
+    //マテリアル用のリソースを作る。
+    ID3D12Resource* materialResourceSprite = CreateBufferResource(device, sizeof(Material));
+    //マテリアルにデータを書き込む
+    Material* materialDataSprite = nullptr;
+    //書き込むためのアドレスを取得
+    materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSprite));
+    //今回は赤を書き込んでみる
+    *materialDataSprite = Material{ {1.0f, 1.0f, 1.0f, 1.0f },false };
+
+    Log(logStream, "MakeResourceForMaterialSprite");
+
+
 
 #pragma endregion
 
@@ -1361,7 +1376,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
-            ImGui::ColorPicker4("materialColor", &(materialData->x));
+            ImGui::ColorPicker4("materialColor", &(materialData->color.x));
             ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
             ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
             ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
@@ -1385,7 +1400,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
             ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
-            ImGui::ColorPicker4("materialColor", &(materialData->x));
+            ImGui::ColorPicker4("materialColor", &(materialDataSprite->color.x));
 
             ImGui::End();
 
@@ -1506,6 +1521,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Spriteの描画
             //Spriteの描画。変更が必要なものだけ変更
             commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
+            //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
+            commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
             //TransformationMatrixCBufferの場所を設定
             commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
@@ -1636,6 +1653,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     pixelShaderBlob->Release();
     vertexShaderBlob->Release();
     materialResource->Release();
+    materialResourceSprite->Release();
     wvpResource->Release();
 
 #ifdef _DEBUG

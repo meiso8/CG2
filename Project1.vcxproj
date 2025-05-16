@@ -157,6 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Transpose.h" />
     <ClInclude Include="MakeAffineMatrix.h" />
     <ClInclude Include="MakeIdentity4x4.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector2.h" />
