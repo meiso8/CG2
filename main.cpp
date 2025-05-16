@@ -1136,7 +1136,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 1].position.w = 1.0f;
             vertexData[startIndex + 1].texcoord = { uv.x,
                uv.y - 1.0f / float(kSubdivision) };
-            vertexData[startIndex+1].normal = { vertexData[startIndex+1].position.x , vertexData[startIndex+1].position.y, vertexData[startIndex+1].position.z };
+            vertexData[startIndex + 1].normal = { vertexData[startIndex + 1].position.x , vertexData[startIndex + 1].position.y, vertexData[startIndex + 1].position.z };
 
             //c
             vertexData[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
@@ -1179,6 +1179,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
     vertexDataSprite[0].texcoord = { 0.0f,1.0f };
     vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };//法線
+    vertexDataSprite[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
     vertexDataSprite[1].texcoord = { 0.0f,0.0f };
     vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
     vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
