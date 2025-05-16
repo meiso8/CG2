@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "../Matrix4x4.h"
+#include "../Header/Matrix4x4.h"
 
 //1.X軸回転行列
 Matrix4x4 MakeRotateXMatrix(float radian);

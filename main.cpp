@@ -50,8 +50,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #pragma region //自作関数
 //#include"Vector4.h"
-#include"VertexData.h"
-#include"DoFParam.h"//ブラー用パラメータ
+#include"Header/VertexData.h"
+#include"Header/DoFParam.h"//ブラー用パラメータ
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeTranslateMatrix.h"
@@ -1212,6 +1212,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
       GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3),
       //GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 4)//深度情報
     };
+
+   
+
     D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU[TEXTURE_MAX] = {
         GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1) ,
          GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
