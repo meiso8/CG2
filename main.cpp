@@ -1195,13 +1195,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     srvDesc3.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc3.Texture2D.MipLevels = UINT(metadata3.mipLevels);
 
-    //SRVの設定 depthTexture用
-    //D3D12_SHADER_RESOURCE_VIEW_DESC srvDescDepth{};
-    //srvDescDepth.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//深度情報のみ利用
-    //srvDescDepth.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    //srvDescDepth.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    //srvDescDepth.Texture2D.MipLevels = 1;
-
     // ================================
     // SRVを作成するDescriptorHeapの場所の選択
     // ================================
@@ -1210,16 +1203,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1),
     GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
       GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3),
-      //GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 4)//深度情報
     };
 
-   
 
     D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU[TEXTURE_MAX] = {
-        GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1) ,
-         GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
-             GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3),
-             //GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 4)//深度情報
+       GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 1) ,
+        GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2),
+            GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 3),
     };
 
     // ================================
@@ -1232,9 +1222,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     device->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU[1]);
 
     device->CreateShaderResourceView(textureResource3, &srvDesc3, textureSrvHandleCPU[2]);
-
-    ////Depth用に作成
-    //device->CreateShaderResourceView(depthStencilResource, &srvDescDepth, textureSrvHandleCPU[3]);
 
 #pragma endregion
 
