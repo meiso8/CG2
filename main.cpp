@@ -53,6 +53,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Material.h"
 #include"VertexData.h"
 #include"TransformationMatrix.h"
+#include"Header/Normalize.h"
 #include"DirectionalLight.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
@@ -1153,7 +1154,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             vertexData[startIndex + 2].position.w = 1.0f;
             vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision),
                  uv.y };
-            vertexData[startIndex + 1].normal = { vertexData[startIndex + 2].position.x , vertexData[startIndex + 2].position.y, vertexData[startIndex + 2].position.z };
+            vertexData[startIndex + 2].normal = { vertexData[startIndex + 2].position.x , vertexData[startIndex + 2].position.y, vertexData[startIndex + 2].position.z };
 
 
             //c
@@ -1212,7 +1213,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Material* materialData = nullptr;
     //書き込むためのアドレスを取得
     materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-    //今回は赤を書き込んでみる
+    //今回は白
     *materialData = Material{ {1.0f, 1.0f, 1.0f, 1.0f },true };
 
     Log(logStream, "MakeResourceForMaterial");
@@ -1224,7 +1225,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Material* materialDataSprite = nullptr;
     //書き込むためのアドレスを取得
     materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSprite));
-    //今回は赤を書き込んでみる
     *materialDataSprite = Material{ {1.0f, 1.0f, 1.0f, 1.0f },false };
 
     Log(logStream, "MakeResourceForMaterialSprite");
@@ -1279,7 +1279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //平行投影のためOrthographicを利用している
     Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
     Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-    *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite, worldMatrixSprite};
+    *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite, worldMatrixSprite };
 
 #pragma endregion
 
@@ -1310,7 +1310,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     directionalLightData->direction = { 0.0f,-1.0f,0.0f };//向きは正規化する
     directionalLightData->intensity = 1.0f;
 
-  /*  *directionalLightResource = directionalLightData;*/
+    /*  *directionalLightResource = directionalLightData;*/
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
@@ -1389,6 +1389,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
+            //Lightを設定
+            ImGui::Begin("DirectionalLight");
+            ImGui::DragFloat4("color", &directionalLightData->color.x);
+            Vector3 direction = directionalLightData->direction;
+            ImGui::SliderFloat3("direction2", &direction.x,-1.0f,1.0f);//後で正規化する
+            directionalLightData->direction = Normalize(direction);
+
+            ImGui::DragFloat("intensity", &directionalLightData->intensity);
+            ImGui::End();
+
 #pragma region//三角形のデバッグ 
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
@@ -1413,14 +1423,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::End();
 
-
-            ImGui::Begin("DirectionalLight");
-            ImGui::DragFloat4("color", &directionalLightData->color.x);
-            ImGui::DragFloat4("direction", &directionalLightData->direction.x);//後で正規化する
-            ImGui::DragFloat("intensity", &directionalLightData->intensity);
-            ImGui::End();
-
 #pragma endregion
+
+
 
 #pragma region//Spriteのデバッグ
 
@@ -1432,7 +1437,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::ColorPicker4("materialColor", &(materialDataSprite->color.x));
 
             ImGui::End();
-
 
 #pragma endregion
 
