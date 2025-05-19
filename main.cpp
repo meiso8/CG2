@@ -53,6 +53,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Material.h"
 #include"VertexData.h"
 #include"TransformationMatrix.h"
+#include"DirectionalLight.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
@@ -434,7 +435,8 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //main関数の先頭でComの初期化を行う
-    CoInitializeEx(0, COINIT_MULTITHREADED);
+    HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+    assert(SUCCEEDED(hr));
 
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
@@ -540,7 +542,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     IDXGIFactory7* dxgiFactory = nullptr;
     //HRESULTはWindow系のエラーコードであり、
     //関数が成功したかどうかをSUCCEEDEDマクロで判定できる
-    HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
+    hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
     //初期化の根本的な部分でエラーが出た場合はプログラムが間違っているか、どうにもできない場合が多いのでassertにしておく
     assert(SUCCEEDED(hr));
 
@@ -854,7 +856,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //CBufferを利用することになったので、RootParameterに設定を追加する
    /* RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform*/
-    D3D12_ROOT_PARAMETER rootParameters[3] = {};
+    D3D12_ROOT_PARAMETER rootParameters[4] = {};
     rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
@@ -865,6 +867,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Tableの中身の配列を指定
     rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Tableで利用する数
+    rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
+    rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
+    rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
+
     descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
 
@@ -1259,13 +1265,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//Sprite用のTransformationMatrix用のリソースを作る。
     //Matrix4x4　1つ分のサイズを用意
-    ID3D12Resource* transformationMatrixResourceSprite = CreateBufferResource(device, sizeof(Matrix4x4));
+    ID3D12Resource* transformationMatrixResourceSprite = CreateBufferResource(device, sizeof(TransformationMatrix));
     //データを書き込む
-    Matrix4x4* transformationMatrixDataSprite = nullptr;
+    TransformationMatrix* transformationMatrixDataSprite = nullptr;
     //書き込むためのアドレスを取得
     transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
     //単位行列を書き込む
-    *transformationMatrixDataSprite = MakeIdentity4x4();
+    //*transformationMatrixDataSprite = MakeIdentity4x4();
 
     Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
@@ -1273,7 +1279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //平行投影のためOrthographicを利用している
     Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
     Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-    *transformationMatrixDataSprite = worldViewProjectionMatrixSprite;
+    *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite, worldMatrixSprite};
 
 #pragma endregion
 
@@ -1290,6 +1296,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // DSVHeapの先頭にDSVを作る
     device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
+#pragma endregion
+
+#pragma region//平行光源用のResourceを作成する
+    ID3D12Resource* directionalLightResource = CreateBufferResource(device, sizeof(DirectionalLight));
+
+    //データを書き込む
+    DirectionalLight* directionalLightData = nullptr;
+    //書き込むためのアドレスを取得
+    directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
+    //デフォルト値はとりあえず以下のようにしておく   
+    directionalLightData->color = { 1.0f,1.0f,1.0f,1.0f };
+    directionalLightData->direction = { 0.0f,-1.0f,0.0f };//向きは正規化する
+    directionalLightData->intensity = 1.0f;
+
+  /*  *directionalLightResource = directionalLightData;*/
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
@@ -1381,6 +1402,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
             ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
             ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
+
             if (ImGui::Button("Init")) {
                 transform.scale = { 1.0f, 1.0f, 1.0f };
                 transform.rotate = { 0.0f };
@@ -1389,7 +1411,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             }
 
+            ImGui::End();
 
+
+            ImGui::Begin("DirectionalLight");
+            ImGui::DragFloat4("color", &directionalLightData->color.x);
+            ImGui::DragFloat4("direction", &directionalLightData->direction.x);//後で正規化する
+            ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 
 #pragma endregion
@@ -1442,7 +1470,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //平行投影のためOrthographicを利用している
             projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
             worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-            *transformationMatrixDataSprite = worldViewProjectionMatrixSprite;
+            *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite,worldMatrixSprite };
 
 #pragma endregion
 
@@ -1487,11 +1515,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //指定した深度で画面全体をクリアする
             commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-#ifdef _DEBUG
+
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap };
             commandList->SetDescriptorHeaps(1, descriptorHeaps);
-#endif
 
 #pragma region //三角形を描画する
 
@@ -1514,6 +1541,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             Log(logStream, "SetWVPToCBuffer");
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+
+            //LightのCBufferの場所を設定
+            commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList->DrawInstanced(6 * kSubdivision * kSubdivision, 1, 0, 0);
 
@@ -1656,7 +1687,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     materialResource->Release();
     materialResourceSprite->Release();
     wvpResource->Release();
-
+    directionalLightResource->Release();
 #ifdef _DEBUG
     debugController->Release();
 
