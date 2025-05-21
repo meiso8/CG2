@@ -50,11 +50,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 #pragma region //自作関数
 //#include"Vector4.h"
-#include"Material.h"
-#include"VertexData.h"
-#include"TransformationMatrix.h"
+#include"Header/Material.h"
+#include"Header/VertexData.h"
+#include"Header/TransformationMatrix.h"
 #include"Header/Normalize.h"
-#include"DirectionalLight.h"
+#include"Header/DirectionalLight.h"
 #include"Header/Transform.h"
 #include "Header/MakeIdentity4x4.h"
 #include"Header/MakeAffineMatrix.h"
