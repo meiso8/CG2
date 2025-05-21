@@ -134,7 +134,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cotangent.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
@@ -146,6 +145,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Header\Add.h" />
     <ClInclude Include="Header\cotangent.h" />
+    <ClInclude Include="Header\DirectionalLight.h" />
     <ClInclude Include="Header\Dot.h" />
     <ClInclude Include="Header\Inverse.h" />
     <ClInclude Include="Header\Length.h" />
@@ -157,21 +157,19 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MakeScaleMatrix.h" />
     <ClInclude Include="Header\MakeTranslateMatrix.h" />
     <ClInclude Include="Header\MakeViewportMatrix.h" />
+    <ClInclude Include="Header\Material.h" />
+    <ClInclude Include="Header\Matrix4x4.h" />
     <ClInclude Include="Header\Multiply.h" />
     <ClInclude Include="Header\Normalize.h" />
     <ClInclude Include="Header\Subtract.h" />
     <ClInclude Include="Header\CoordinateTransform.h" />
+    <ClInclude Include="Header\Transform.h" />
+    <ClInclude Include="Header\TransformationMatrix.h" />
     <ClInclude Include="Header\Transpose.h" />
-    <ClInclude Include="MakeAffineMatrix.h" />
-    <ClInclude Include="MakeIdentity4x4.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Matrix4x4.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="TransformationMatrix.h" />
-    <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Vector3.h" />
-    <ClInclude Include="Vector4.h" />
-    <ClInclude Include="VertexData.h" />
+    <ClInclude Include="Header\Vector2.h" />
+    <ClInclude Include="Header\Vector3.h" />
+    <ClInclude Include="Header\Vector4.h" />
+    <ClInclude Include="Header\VertexData.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
