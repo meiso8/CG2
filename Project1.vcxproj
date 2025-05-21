@@ -102,7 +102,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Add.cpp" />
     <ClCompile Include="Source\cotangent.cpp" />
+    <ClCompile Include="Source\Dot.cpp" />
     <ClCompile Include="Source\Inverse.cpp" />
+    <ClCompile Include="Source\Length.cpp" />
     <ClCompile Include="Source\MakeAffineMatrix.cpp" />
     <ClCompile Include="Source\MakeIdentity4x4.cpp" />
     <ClCompile Include="Source\MakeOrthographicMatrix.cpp" />
@@ -112,6 +114,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
     <ClCompile Include="Source\MakeViewportMatrix.cpp" />
     <ClCompile Include="Source\Multiply.cpp" />
+    <ClCompile Include="Source\Normalize.cpp" />
     <ClCompile Include="Source\Subtract.cpp" />
     <ClCompile Include="Source\CoordinateTransform.cpp" />
     <ClCompile Include="Source\Transpose.cpp" />
@@ -132,6 +135,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cotangent.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -142,7 +146,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Header\Add.h" />
     <ClInclude Include="Header\cotangent.h" />
+    <ClInclude Include="Header\Dot.h" />
     <ClInclude Include="Header\Inverse.h" />
+    <ClInclude Include="Header\Length.h" />
     <ClInclude Include="Header\MakeAffineMatrix.h" />
     <ClInclude Include="Header\MakeIdentity4x4.h" />
     <ClInclude Include="Header\MakeOrthographicMatrix.h" />
@@ -152,13 +158,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MakeTranslateMatrix.h" />
     <ClInclude Include="Header\MakeViewportMatrix.h" />
     <ClInclude Include="Header\Multiply.h" />
+    <ClInclude Include="Header\Normalize.h" />
     <ClInclude Include="Header\Subtract.h" />
     <ClInclude Include="Header\CoordinateTransform.h" />
     <ClInclude Include="Header\Transpose.h" />
     <ClInclude Include="MakeAffineMatrix.h" />
     <ClInclude Include="MakeIdentity4x4.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TransformationMatrix.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />
@@ -173,6 +182,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DirectionalLight.hlsli" />
     <None Include="Object3d.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
