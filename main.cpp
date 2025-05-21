@@ -1555,17 +1555,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//Spriteの描画
-            //Spriteの描画。変更が必要なものだけ変更
-            commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
-            //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-            commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
-            //TransformationMatrixCBufferの場所を設定
-            commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-            //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-            //描画！（DrawCall/ドローコール）
-            commandList->DrawInstanced(6, 1, 0, 0);
-            //色とSRV（Texture）は三角形と同じものを使用するため設定しない
+            ////Spriteの描画。変更が必要なものだけ変更
+            //commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
+            ////マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
+            //commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
+            ////TransformationMatrixCBufferの場所を設定
+            //commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
+            ////SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
+            //commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+            ////描画！（DrawCall/ドローコール）
+            //commandList->DrawInstanced(6, 1, 0, 0);
+            ////色とSRV（Texture）は三角形と同じものを使用するため設定しない
 #pragma endregion
 
 #ifdef _DEBUG
