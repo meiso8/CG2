@@ -33,11 +33,22 @@ PixelShaderOutput main(VertexShaderOutput input)
 
     PixelShaderOutput output;
 
-    if (gMaterial.enableLighting != 0){
+    if (gMaterial.enableLighting != 0)
+    {
     //Lightingする場合
-        float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        
+        //half lambert
+        
+        //法線とライトの方向の内積
+        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+        
+        //float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        
+        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
-    }else{
+    }
+    else
+    {
         //Lightingしない場合。前回までと同じ演算
         output.color = gMaterial.color * textureColor; //ベクトル*ベクトルと記述すると乗算が行われる
     
