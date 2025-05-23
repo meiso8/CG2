@@ -159,6 +159,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MakeViewportMatrix.h" />
     <ClInclude Include="Header\Material.h" />
     <ClInclude Include="Header\Matrix4x4.h" />
+    <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\Multiply.h" />
     <ClInclude Include="Header\Normalize.h" />
     <ClInclude Include="Header\Subtract.h" />
@@ -171,6 +172,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Vector4.h" />
     <ClInclude Include="Header\VertexData.h" />
     <ClInclude Include="Matrix3x3.h" />
+    <ClInclude Include="ModelData.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
