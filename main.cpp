@@ -1234,8 +1234,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //書き込むためのアドレスを取得
     materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
     //今回は白
-    *materialData = Material{ {1.0f, 1.0f, 1.0f, 1.0f },true };
-
+    materialData->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    materialData->enableLighting = true;
+    materialData->uvTransform = MakeIdentity4x4();
     Log(logStream, "MakeResourceForMaterial");
 
     //Sprite用のマテリアルを作成
@@ -1245,11 +1246,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Material* materialDataSprite = nullptr;
     //書き込むためのアドレスを取得
     materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSprite));
-    *materialDataSprite = Material{ {1.0f, 1.0f, 1.0f, 1.0f },false };
+    materialDataSprite->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    materialDataSprite->enableLighting = false;
+    materialDataSprite->uvTransform = MakeIdentity4x4();
 
     Log(logStream, "MakeResourceForMaterialSprite");
 
+#pragma endregion
 
+#pragma region//UVTransform
+    Transform uvTransformSprite{
+        {1.0f,1.0f,1.0f},
+        {0.0f,0.0f,0.0f},
+        {0.0f,0.0f,0.0f},
+    };
+
+    Matrix4x4 uvTransformMatrix = MakeIdentity4x4();
 
 #pragma endregion
 
@@ -1455,12 +1467,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
             ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
             ImGui::ColorPicker4("materialColor", &(materialDataSprite->color.x));
+            ImGui::DragFloat2("uv : translate", &(uvTransformSprite.translate.x), 0.01f, -10.0f,10.0f);
+            ImGui::DragFloat2("uv : scale", &(uvTransformSprite.scale.x), 0.01f,-10.0f, 10.0f);
+            ImGui::SliderAngle("uv : rotate", &(uvTransformSprite.rotate.z));
 
             ImGui::End();
 
 #pragma endregion
 
 #endif
+            uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
+            materialDataSprite->uvTransform = uvTransformMatrix;
+
 
 #pragma region //三角形の更新
 
