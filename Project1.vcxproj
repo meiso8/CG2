@@ -162,6 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\Multiply.h" />
     <ClInclude Include="Header\Normalize.h" />
+    <ClInclude Include="Header\ResourceObject.h" />
     <ClInclude Include="Header\Subtract.h" />
     <ClInclude Include="Header\CoordinateTransform.h" />
     <ClInclude Include="Header\Transform.h" />
