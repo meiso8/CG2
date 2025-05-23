@@ -1056,6 +1056,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+
+
 #pragma region //Texrureを読んで転送する
     DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
@@ -1104,8 +1106,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//Resourceにデータを書き込む
-
-
     //頂点リソースにデータを書き込む
     VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
@@ -1181,10 +1181,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region //Sprite用の頂点データの設定
-
     VertexData* vertexDataSprite = nullptr;
     vertexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
-    //1枚目の三角形
+    //1枚目の三角形 四頂点でスプライト描画が完成
     vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
     vertexDataSprite[0].texcoord = { 0.0f,1.0f };
     vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };//法線
@@ -1194,16 +1193,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
     vertexDataSprite[2].texcoord = { 1.0f,1.0f };
     vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
-    //2枚目の三角形
-    vertexDataSprite[3].position = { 0.0f,0.0f,0.0f,1.0f };//左上
-    vertexDataSprite[3].texcoord = { 0.0f,0.0f };
+    vertexDataSprite[3].position = { 640.0f,0.0f,0.0f,1.0f };//右上
+    vertexDataSprite[3].texcoord = { 1.0f,0.0f };
     vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
-    vertexDataSprite[4].position = { 640.0f,0.0f,0.0f,1.0f };//右上
-    vertexDataSprite[4].texcoord = { 1.0f,0.0f };
-    vertexDataSprite[4].normal = { 0.0f,0.0f,-1.0f };
-    vertexDataSprite[5].position = { 640.0f,360.0f,0.0f,1.0f };//右下
-    vertexDataSprite[5].texcoord = { 1.0f,1.0f };
-    vertexDataSprite[5].normal = { 0.0f,0.0f,-1.0f };
+#pragma endregion
+
+#pragma region//IndexResourceSpriteを作成
+    ID3D12Resource* indexResourceSprite = CreateBufferResource(device, sizeof(uint32_t) * 6);
+    //Viewを作成する IndexBufferView(IBV)
+    D3D12_INDEX_BUFFER_VIEW  indexBufferViewSprite{};
+    //リソースの先頭アドレスから使う
+    indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
+    //使用するリソースのサイズはインデックス6つ分のサイズ
+    indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
+    //インデックスはuint32_tとする
+    indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
+#pragma endregion
+
+#pragma region//IndexResourceにデータを書き込む
+    //インデックスリーソースにデータを書き込む
+    uint32_t* indexDataSprite = nullptr;
+    indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+
+    //頂点数を削減
+    indexDataSprite[0] = 0;
+    indexDataSprite[1] = 1;
+    indexDataSprite[2] = 2;
+
+    indexDataSprite[3] = 1;
+    indexDataSprite[4] = 3;
+    indexDataSprite[5] = 2;
+
 #pragma endregion
 
 #pragma region//Material用のResourceを作る
@@ -1393,7 +1413,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::Begin("DirectionalLight");
             ImGui::DragFloat4("color", &directionalLightData->color.x);
             Vector3 direction = directionalLightData->direction;
-            ImGui::SliderFloat3("direction2", &direction.x,-1.0f,1.0f);//後で正規化する
+            ImGui::SliderFloat3("direction2", &direction.x, -1.0f, 1.0f);//後で正規化する
             directionalLightData->direction = Normalize(direction);
 
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
@@ -1554,18 +1574,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Spriteの描画
-            ////Spriteの描画。変更が必要なものだけ変更
-            //commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
-            ////マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-            //commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
-            ////TransformationMatrixCBufferの場所を設定
-            //commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-            ////SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            //commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+#pragma region//IndexSpriteの描画
+
+            //頂点バッファビューを設定
+            commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
+            //IBVを設定new
+            commandList->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
+            //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
+            commandList->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
+            //TransformationMatrixCBufferの場所を設定
+            commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
+            //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
+            commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+            //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
+            commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
             ////描画！（DrawCall/ドローコール）
             //commandList->DrawInstanced(6, 1, 0, 0);
-            ////色とSRV（Texture）は三角形と同じものを使用するため設定しない
 #pragma endregion
 
 #ifdef _DEBUG
@@ -1678,6 +1702,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     depthStencilResource->Release();
 
     vertexResourceSprite->Release();
+    indexResourceSprite->Release();
     transformationMatrixResourceSprite->Release();
 
     graphicsPipelineState->Release();
