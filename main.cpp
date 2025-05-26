@@ -1712,51 +1712,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     CloseHandle(fenceEvent);
     fence->Release();
-    /*rtvDescriptorHeap->Release();
-    srvDescriptorHeap->Release();
-    dsvDescriptorHeap->Release();
-
-    swapChainResources[0]->Release();
-    swapChainResources[1]->Release();
-    swapChain->Release();
-
-    commandList->Release();
-    commandAllocator->Release();
-    commandQueue->Release();
-    device->Release();
-    useAdapter->Release();
-    dxgiFactory->Release();
-
-    vertexResource->Release();
-    textureResource->Release();
-    textureResource2->Release();
-
-    intermediateResource->Release();
-    intermediateResource2->Release();
-
-    depthStencilResource->Release();
-     //ここまではおｋ
-
-    vertexResourceSprite->Release();
-    indexResourceSprite->Release();
-    transformationMatrixResourceSprite->Release();
-
-    graphicsPipelineState->Release();
-    signatureBlob->Release();
-    if (errorBlob) {
-        errorBlob->Release();
-    }
-    rootSignature->Release();
-    pixelShaderBlob->Release();
-    vertexShaderBlob->Release();
-    materialResource->Release();
-    materialResourceSprite->Release();
-    wvpResource->Release();
-    directionalLightResource->Release();*/
-#ifdef _DEBUG
-  /*  debugController->Release();*/
-
-#endif
 
     //ファイルへのログ出力
  /*   Log(logStream, "AllRelease");*/
