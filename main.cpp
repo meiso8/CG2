@@ -668,7 +668,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//使用するアダプタ(GPU)を決定する
 
-    IDXGIAdapter4* useAdapter = nullptr;
+    Microsoft::WRL::ComPtr <IDXGIAdapter4> useAdapter = nullptr;
     //良い順にアダプタを頼む
     for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i,
         DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) !=
@@ -709,7 +709,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //高い順に生成出来るか試していく
     for (size_t i = 0; i < _countof(featureLevels); ++i) {
         //採用したアダプターでデバイスを生成
-        hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&device));
+        hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(&device));
         //指定した機能レベルでデバイスが生成できたかを確認する
         if (SUCCEEDED(hr)) {
 
@@ -989,8 +989,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
 
     //シリアライズしてバイナリにする
-    ID3DBlob* signatureBlob = nullptr;
-    ID3DBlob* errorBlob = nullptr;
+    Microsoft::WRL::ComPtr <ID3DBlob> signatureBlob = nullptr;
+    Microsoft::WRL::ComPtr <ID3DBlob> errorBlob = nullptr;
     hr = D3D12SerializeRootSignature(&descriptionRootSignature,
         D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
 
@@ -1000,7 +1000,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     //バイナリ元に生成
-    ID3D12RootSignature* rootSignature = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
     hr = device->CreateRootSignature(0,
         signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
         IID_PPV_ARGS(&rootSignature));
@@ -1065,13 +1065,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//ShaderをCompileする
 
     //Shaderをコンパイルする
-    IDxcBlob* vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl",
         L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(vertexShaderBlob != nullptr);
 
     Log(logStream, "CompileVertexShader");
 
-    IDxcBlob* pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(pixelShaderBlob != nullptr);
 
@@ -1093,7 +1093,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//PSOを生成する
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-    graphicsPipelineStateDesc.pRootSignature = rootSignature;//RootSignature
+    graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();//RootSignature
     graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;//InputLayout
     graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
     vertexShaderBlob->GetBufferSize() };//VertexShader
@@ -1115,7 +1115,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     //実際に生成
-    ID3D12PipelineState* graphicsPipelineState = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState = nullptr;
     hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
         IID_PPV_ARGS(&graphicsPipelineState));
     assert(SUCCEEDED(hr));
@@ -1601,8 +1601,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList->RSSetViewports(1, &viewport);//Viewportを設定
             commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
             //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-            commandList->SetGraphicsRootSignature(rootSignature);
-            commandList->SetPipelineState(graphicsPipelineState);//PSOを設定
+            commandList->SetGraphicsRootSignature(rootSignature.Get());
+            commandList->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
             commandList->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
             //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
             commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1719,7 +1719,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     swapChainResources[0]->Release();
     swapChainResources[1]->Release();
     swapChain->Release();
-    //ここまではおｋ
 
     commandList->Release();
     commandAllocator->Release();
@@ -1735,13 +1734,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     intermediateResource->Release();
     intermediateResource2->Release();
 
-
-    Log(logStream, "Release intermediateResource");
-
     depthStencilResource->Release();
-
-    Log(logStream, "Release depthStencilResource");
-
+     //ここまではおｋ
 
     vertexResourceSprite->Release();
     indexResourceSprite->Release();
