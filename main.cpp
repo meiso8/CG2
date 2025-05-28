@@ -42,6 +42,15 @@
 //ComPtr(コムポインタ)
 #include<wrl.h>
 
+//#pragma region//DirectInput
+//#define DIRECTINPUT_VERSION 0x0800//DirectXバージョン指定
+////　DIRECTINPUT_VERSION　dinput.hのインクルードより上に書くこと。
+//#include <dinput.h>
+//
+//#pragma comment(lib,"dinput8.lib")
+//#pragma comment(lib,"dxguid.lib")
+//#pragma endregion
+
 #pragma region //ImGuiのincludeと関数の外部宣言
 #ifdef _DEBUG
 
@@ -70,6 +79,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Multiply.h"
 #include"Header/ResourceObject.h"
 #include"Header/Sound.h"
+#include"Header/Input.h"
 #pragma endregion
 
 //ログを出力する関数
@@ -538,6 +548,7 @@ struct D3DResourceLeakChecker {
 };
 
 
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -546,13 +557,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     assert(SUCCEEDED(hr));
 
-#pragma region//音声
-    Microsoft::WRL::ComPtr<IXAudio2> xAudio2;//ComオブジェクトなのでComPtrで管理する。
-    IXAudio2MasteringVoice* masterVoice;//ReleaseなしのためComPtrで管理することが出来ない。
-#pragma endregion
+    //#pragma region//音声
+    //    Microsoft::WRL::ComPtr<IXAudio2> xAudio2;//ComオブジェクトなのでComPtrで管理する。
+    //    IXAudio2MasteringVoice* masterVoice;//ReleaseなしのためComPtrで管理することが出来ない。
+    //#pragma endregion
 
-    //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
-    //main関数始まってすぐに登録すると良い
+        //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
+        //main関数始まってすぐに登録すると良い
     SetUnhandledExceptionFilter(ExportDump);
 
     //　出力ウィンドウへの文字入力
@@ -725,16 +736,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//DirectInputオブジェクト
+
+    Input input;
+    input.Initalize(wc, hwnd);
+
+#pragma endregion
+
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
-    //XAudioエンジンのインスタンスを生成
-    //result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    //マスターボイスの生成
-    hr = xAudio2->CreateMasteringVoice(&masterVoice);//masterVoiceはxAudio2の解放と同時に無効になるため自分でdeleteしない
-
     //音声クラスの作成
     Sound sound;
+    hr = sound.Initialize();
+    assert(SUCCEEDED(hr));
 
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
@@ -1449,6 +1463,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             DispatchMessage(&msg);
         } else {
 
+            //キーボード情報の取得開始
+            input.InputInfoGet();
+
 #pragma region//ImGuiにここからフレームが始まる旨を伝える
 
 #ifdef _DEBUG
@@ -1524,16 +1541,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::Begin("Sound");
             if (ImGui::Button("SoundStart")) {
-                //音声再生
-                sound.SoundPlayWave(xAudio2.Get(), soundData1);
+              
             }
             ImGui::End();
 #pragma endregion
 
 #endif
+
+            if (input.IsTriggerKey(DIK_SPACE)) {
+                //音声再生
+                sound.SoundPlayWave(soundData1);
+                useMonsterBall = (useMonsterBall) ? false : true;
+            }
+
+#pragma region//UVの更新処理
             uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
             materialDataSprite->uvTransform = uvTransformMatrix;
-
+#pragma endregion
 
 #pragma region //Modelの更新
 
@@ -1731,8 +1755,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     CloseHandle(fenceEvent);
     fence->Release();
 
-    //XAudio2解放
-    xAudio2.Reset();
     //音声データの解放
     sound.SoundUnload(&soundData1);
 

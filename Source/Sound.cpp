@@ -74,6 +74,14 @@ SoundData Sound::SoundLoadWave(const char* filename) {
     return soundData;
 }
 
+HRESULT Sound::Initialize(/*Microsoft::WRL::ComPtr<IXAudio2>&xAudio2,IXAudio2MasteringVoice* masterVoice*/) {
+    HRESULT result;
+    result = XAudio2Create(ixAudio2_.GetAddressOf(), 0, XAUDIO2_DEFAULT_PROCESSOR);
+    //マスターボイスの生成
+    result = ixAudio2_->CreateMasteringVoice(&masterVoice_);//masterVoiceはxAudio2の解放と同時に無効になるため自分でdeleteしない
+    return result;
+}
+
 void Sound::SoundUnload(SoundData* soundData) {
 
     //バッファのメモリを解放 配列deleteで波形データのバッファを解放する
@@ -85,12 +93,12 @@ void Sound::SoundUnload(SoundData* soundData) {
 
 }
 
-void Sound::SoundPlayWave(IXAudio2* ixAudio2, const SoundData& soundData) {
+void Sound::SoundPlayWave(/*IXAudio2* ixAudio2, */const SoundData& soundData) {
     HRESULT result;
 
     //波形フォーマットを元にSoundVoiceの生成
     IXAudio2SourceVoice* pSourceVoice = nullptr;
-    result = ixAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
+    result = ixAudio2_->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
     assert(SUCCEEDED(result));
 
     //再生する波形データの設定
@@ -102,4 +110,8 @@ void Sound::SoundPlayWave(IXAudio2* ixAudio2, const SoundData& soundData) {
     //波形データの再生
     result = pSourceVoice->SubmitSourceBuffer(&buf);
     result = pSourceVoice->Start();//再生開始
+}
+
+Sound::~Sound() {
+    ixAudio2_.Reset();
 }

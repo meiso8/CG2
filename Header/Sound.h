@@ -2,6 +2,8 @@
 
 #include <xaudio2.h>//wavファイル用
 #pragma comment(lib,"xaudio2.lib")//xaudio2.libをリンクする。
+//ComPtr(コムポインタ)
+#include<wrl.h>
 #include<stdint.h>
 
 //チャンクヘッダ
@@ -36,6 +38,13 @@ struct SoundData {
 
 class Sound {
 public:
+
+    /// @brief 初期化処理
+    /// @param xAudio2 XAudioエンジン
+    /// @param masterVoice 
+    /// @return 
+    HRESULT Initialize(/*Microsoft::WRL::ComPtr<IXAudio2>&xAudio2 ,IXAudio2MasteringVoice* masterVoice*/);
+
     /// @brief Wave音声読み込み関数
     /// @param filename ファイル名 
     /// @return 音声データ
@@ -48,6 +57,11 @@ public:
     /// @brief Wave音声の再生
     /// @param ixAudio2 XAudioエンジン
     /// @param soundData 音声データ
-    void SoundPlayWave(IXAudio2* ixAudio2, const SoundData& soundData);
+    void SoundPlayWave(/*IXAudio2* ixAudio2, */const SoundData& soundData);
 
+    ~Sound();
+
+private:
+    Microsoft::WRL::ComPtr<IXAudio2> ixAudio2_;//ComオブジェクトなのでComPtrで管理する。
+    IXAudio2MasteringVoice* masterVoice_;//ReleaseなしのためComPtrで管理することが出来ない。
 };
