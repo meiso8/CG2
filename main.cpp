@@ -42,10 +42,6 @@
 //ComPtr(コムポインタ)
 #include<wrl.h>
 
-//wavファイル用
-#include <xaudio2.h>
-#pragma comment(lib,"xaudio2.lib")//xaudio2.libをリンクする。
-
 #pragma region //ImGuiのincludeと関数の外部宣言
 #ifdef _DEBUG
 
@@ -73,6 +69,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/MakeOrthographicMatrix.h"
 #include"Header/Multiply.h"
 #include"Header/ResourceObject.h"
+#include"Header/Sound.h"
 #pragma endregion
 
 //ログを出力する関数
@@ -540,151 +537,9 @@ struct D3DResourceLeakChecker {
     }
 };
 
-#pragma region//音声の読み込みのための構造体
-
-//チャンクヘッダ
-struct ChunkHeader {
-    char id[4];//チャンク毎のID
-    int32_t size;//チャンクサイズ
-};
-
-//以下がWavファイルのデータ構造
-
-//RIFFヘッダチャンク
-struct RiffHeader {
-    ChunkHeader chunk;//"RIFF"
-    char type[4];//"WAVE"
-};
-
-//FMTチャンク
-struct FormatChunk {
-    ChunkHeader chunk;//"fmt"
-    WAVEFORMATEX fmt;//波形フォーマット
-};
-
-//音声データ
-struct SoundData {
-    //波形フォーマット
-    WAVEFORMATEX wfex;
-    //バッファの先頭アドレス
-    BYTE* pBuffer;
-    //バッファサイズ
-    unsigned int bufferSize;
-};
-
-#pragma endregion
-
-/// @brief Wave音声読み込み関数
-/// @param filename ファイル名 
-/// @return 音声データ
-SoundData SoundLoadWave(const char* filename) {
-    //HRESULT result;
-    //1.ファイルオープン
-
-    //ファイル入力ストリームのインスタンス
-    std::ifstream file;
-    //.wavファイルをバイナリモードで開く
-    file.open(filename, std::ios_base::binary);
-    //ファイルオープン失敗を検出する
-    assert(file.is_open());
-
-    //2. .wavデータ読み込み
-
-    //RIFFヘッダーの読み込み
-    RiffHeader riff;
-    file.read((char*)&riff, sizeof(riff));
-    //ファイルがRIFFかチェック
-    if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
-        assert(0);
-    }
-    //タイプがWAVEかチェック
-    if (strncmp(riff.type, "WAVE", 4) != 0) {
-        assert(0);
-    }
-
-    //Fotmatチャンクの読み込み
-    FormatChunk format = {};
-    //チャンクヘッダーの確認
-    file.read((char*)&format, sizeof(ChunkHeader));
-    if (strncmp(format.chunk.id, "fmt ", 4) != 0) {
-        assert(0);
-    }
-
-    //チャンク本体の読み込み
-    assert(format.chunk.size <= sizeof(format.fmt));
-    file.read((char*)&format.fmt, format.chunk.size);
-
-    //Dataチャンクの読み込み
-    ChunkHeader data;
-    file.read((char*)&data, sizeof(data));
-    //JUNKチャンクを検出した場合 JUNKチャンクというものが間に挟まっている場合があるデータの開始位置を桐の良いところに配置するためのダミーデータ
-    if (strncmp(data.id, "JUNK", 4) == 0) {
-        //読み取り位置をJUNKチャンクの終わりまで進める　seekg()で読み取り位置を動かすことが出来る
-        file.seekg(data.size, std::ios_base::cur);
-        //再読み込み　本物のでーたを読み込み
-        file.read((char*)&data, sizeof(data));
-    }
-
-    if (strncmp(data.id, "data", 4) != 0) {
-        assert(0);
-    }
-
-    //Dataチャンクのデータ部(波形データ)の読み込み 動的に確保する
-    char* pBuffer = new char[data.size];
-    file.read(pBuffer, data.size);
-
-    //3.ファイルクローズ
-
-    //Waveファイルを閉じる
-    file.close();
-
-    //4.読み込んだ音声ファイルデータをreturn
-    //returnするための音声データ
-    SoundData soundData = {};
-
-    soundData.wfex = format.fmt;
-    soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
-    soundData.bufferSize = data.size;
-
-    return soundData;
-}
-
-/// @brief 音声データの解放関数
-/// @param soundData 音声データ
-void SoundUnload(SoundData* soundData) {
-
-    //バッファのメモリを解放 配列deleteで波形データのバッファを解放する
-    delete[] soundData->pBuffer;
-
-    soundData->pBuffer = 0;
-    soundData->bufferSize = 0;
-    soundData->wfex = {};
-
-}
-
-void SoundPlayWave(IXAudio2* ixAudio2, const SoundData& soundData) {
-    HRESULT result;
-
-    //波形フォーマットを元にSoundVoiceの生成
-    IXAudio2SourceVoice* pSourceVoice = nullptr;
-    result = ixAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
-    assert(SUCCEEDED(result));
-
-    //再生する波形データの設定
-    XAUDIO2_BUFFER buf{};
-    buf.pAudioData = soundData.pBuffer;
-    buf.AudioBytes = soundData.bufferSize;
-    buf.Flags = XAUDIO2_END_OF_STREAM;
-
-    //波形データの再生
-    result = pSourceVoice->SubmitSourceBuffer(&buf);
-    result = pSourceVoice->Start();//再生開始
-}
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-
- 
 
     D3DResourceLeakChecker leakCheck;
     //main関数の先頭でComの初期化を行う
@@ -878,11 +733,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //マスターボイスの生成
     hr = xAudio2->CreateMasteringVoice(&masterVoice);//masterVoiceはxAudio2の解放と同時に無効になるため自分でdeleteしない
 
+    //音声クラスの作成
+    Sound sound;
+
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = SoundLoadWave("resources/Alarm01.wav");
-    //今回は最初に一回だけ再生するため初期化処理の位置で呼び出す
-
+    SoundData soundData1 = sound.SoundLoadWave("resources/Alarm01.wav");
 
 #pragma endregion
 
@@ -1669,7 +1525,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::Begin("Sound");
             if (ImGui::Button("SoundStart")) {
                 //音声再生
-                SoundPlayWave(xAudio2.Get(), soundData1);         
+                sound.SoundPlayWave(xAudio2.Get(), soundData1);
             }
             ImGui::End();
 #pragma endregion
@@ -1878,7 +1734,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //XAudio2解放
     xAudio2.Reset();
     //音声データの解放
-    SoundUnload(&soundData1);
+    sound.SoundUnload(&soundData1);
 
     //ファイルへのログ出力
  /*   Log(logStream, "AllRelease");*/
