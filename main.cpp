@@ -70,6 +70,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/ResourceObject.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
+#include"Header/DebugCamera.h"
 #pragma endregion
 
 //ログを出力する関数
@@ -537,8 +538,6 @@ struct D3DResourceLeakChecker {
     }
 };
 
-
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -546,7 +545,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //main関数の先頭でComの初期化を行う
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     assert(SUCCEEDED(hr));
-
 
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
@@ -726,6 +724,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Input input;
     input.Initalize(wc, hwnd);
+
+#pragma endregion
+
+#pragma region//DebugCamera
+
+    DebugCamera debugCamera;
+
+    debugCamera.Initialize(&input);
 
 #pragma endregion
 
@@ -1354,8 +1360,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     TransformationMatrix* transformationMatrixDataSprite = nullptr;
     //書き込むためのアドレスを取得
     transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
-    //単位行列を書き込む
-    //*transformationMatrixDataSprite = MakeIdentity4x4();
 
     Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
@@ -1394,7 +1398,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     directionalLightData->direction = { 0.0f,-1.0f,0.0f };//向きは正規化する
     directionalLightData->intensity = 1.0f;
 
-    /*  *directionalLightResource = directionalLightData;*/
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
@@ -1463,6 +1466,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui_ImplDX12_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
+
+            debugCamera.Update();
 #endif
 
 #pragma endregion
@@ -1484,11 +1489,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 
-#pragma region//三角形のデバッグ 
+#pragma region//Modelのデバッグ 
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
-            ImGui::Begin("Triangle");
+            ImGui::Begin("Model");
             ImGui::Checkbox("useMonsterBall", &useMonsterBall);
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
@@ -1502,15 +1507,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 transform.scale = { 1.0f, 1.0f, 1.0f };
                 transform.rotate = { 0.0f };
                 transform.translate = { 0.0f };
-                *materialData = { 1.0f,0.0f,0.0f,1.0f };
-
             }
 
             ImGui::End();
 
 #pragma endregion
-
-
 
 #pragma region//Spriteのデバッグ
 
@@ -1528,24 +1529,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Sound
-
-            ImGui::Begin("Sound");
-            if (ImGui::Button("SoundStart")) {
-
-            }
-            ImGui::End();
-#pragma endregion
-
 #endif
 
-            if (input.IsTriggerKey(DIK_SPACE)) {
+            if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlayWave(soundData1);
                 useMonsterBall = (useMonsterBall) ? false : true;
             }
 
-            if (input.IsTriggerKey(DIK_RETURN)) {
+            if (input.IsTriggerKey(DIK_2)) {
+                //音声再生
                 sound.SoundPlayMP3(soundData2);
             }
 
@@ -1556,7 +1549,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelの更新
 
-            //三角形の行列
+            //Model行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
             cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
@@ -1566,14 +1559,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             viewMatrix = Inverse(cameraMatrix);
             //透視投影行列
             projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
-            //WVpMatrixを作る
-            worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+            ////WVpMatrixを作る
+            //worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+            //WVpMatrixを作る DebugCameraに切り替え
+            worldViewProjectionMatrix = Multiply(worldMatrix, debugCamera.GetViewProjectionMatrix());
+
             //データを書き込む
             *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
 #pragma endregion
 
-#pragma region//Modelの更新処理
+#pragma region//Spriteの更新処理
 
             worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
             viewMatrixSprite = MakeIdentity4x4();
@@ -1630,10 +1626,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList->SetDescriptorHeaps(1, descriptorHeaps);
 
-#pragma region //三角形を描画する
+#pragma region //Modelを描画する
 
             //ファイルへのログ出力
-            Log(logStream, "DrawTriangle");
+            Log(logStream, "DrawModel");
 
             commandList->RSSetViewports(1, &viewport);//Viewportを設定
             commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
@@ -1673,7 +1669,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-      /*      commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);*/
+            commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
             ////描画！（DrawCall/ドローコール）
             //commandList->DrawInstanced(6, 1, 0, 0);
 #pragma endregion
