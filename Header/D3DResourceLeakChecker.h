@@ -1,5 +1,8 @@
 #pragma once
 
+#include <dxgidebug.h>//リソースリークチェックのため
+#pragma comment(lib,"dxguid.lib")
+
 /// @brief リークチェックの構造体
 struct D3DResourceLeakChecker {
     ~D3DResourceLeakChecker() {
