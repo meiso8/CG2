@@ -43,7 +43,7 @@ public:
     /// @param xAudio2 XAudioエンジン
     /// @param masterVoice 
     /// @return 
-    HRESULT Initialize(/*Microsoft::WRL::ComPtr<IXAudio2>&xAudio2 ,IXAudio2MasteringVoice* masterVoice*/);
+    HRESULT Initialize();
 
     /// @brief Wave音声読み込み関数
     /// @param filename ファイル名 
@@ -57,11 +57,12 @@ public:
     /// @brief Wave音声の再生
     /// @param ixAudio2 XAudioエンジン
     /// @param soundData 音声データ
-    void SoundPlayWave(/*IXAudio2* ixAudio2, */const SoundData& soundData);
+    void SoundPlayWave(const SoundData& soundData);
 
-    ~Sound();
+    void Reset();
 
 private:
-    Microsoft::WRL::ComPtr<IXAudio2> ixAudio2_;//ComオブジェクトなのでComPtrで管理する。
+
+    Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;//ComオブジェクトなのでComPtrで管理する。
     IXAudio2MasteringVoice* masterVoice_;//ReleaseなしのためComPtrで管理することが出来ない。
 };

@@ -557,13 +557,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     assert(SUCCEEDED(hr));
 
-    //#pragma region//音声
-    //    Microsoft::WRL::ComPtr<IXAudio2> xAudio2;//ComオブジェクトなのでComPtrで管理する。
-    //    IXAudio2MasteringVoice* masterVoice;//ReleaseなしのためComPtrで管理することが出来ない。
-    //#pragma endregion
 
-        //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
-        //main関数始まってすぐに登録すると良い
+    //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
+    //main関数始まってすぐに登録すると良い
     SetUnhandledExceptionFilter(ExportDump);
 
     //　出力ウィンドウへの文字入力
@@ -935,7 +931,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //FenceとEventを生成する
     //初期値0でFenceを作る
-    ID3D12Fence* fence = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12Fence> fence = nullptr;
     uint64_t fenceValue = 0;
     hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
     assert(SUCCEEDED(hr));
@@ -1541,7 +1537,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::Begin("Sound");
             if (ImGui::Button("SoundStart")) {
-              
+
             }
             ImGui::End();
 #pragma endregion
@@ -1715,7 +1711,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //Fenceの値を更新
             fenceValue++;
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            commandQueue->Signal(fence, fenceValue);
+            commandQueue->Signal(fence.Get(), fenceValue);
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
             //GetCompletedValueの初期値はFence作成時に渡した初期値
@@ -1736,7 +1732,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
 
-        CoUninitialize();
+
 
     }
 
@@ -1753,16 +1749,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //解放処理
 
     CloseHandle(fenceEvent);
-    fence->Release();
 
     //音声データの解放
     sound.SoundUnload(&soundData1);
-
-    //ファイルへのログ出力
- /*   Log(logStream, "AllRelease");*/
+    //xAudio2のReset
+    sound.Reset();
 
     CloseWindow(hwnd);
 
+    CoUninitialize();
 #pragma endregion
 
 
