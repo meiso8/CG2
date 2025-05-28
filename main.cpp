@@ -42,15 +42,6 @@
 //ComPtr(コムポインタ)
 #include<wrl.h>
 
-//#pragma region//DirectInput
-//#define DIRECTINPUT_VERSION 0x0800//DirectXバージョン指定
-////　DIRECTINPUT_VERSION　dinput.hのインクルードより上に書くこと。
-//#include <dinput.h>
-//
-//#pragma comment(lib,"dinput8.lib")
-//#pragma comment(lib,"dxguid.lib")
-//#pragma endregion
-
 #pragma region //ImGuiのincludeと関数の外部宣言
 #ifdef _DEBUG
 
@@ -63,7 +54,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma endregion
 
 #pragma region //自作関数
-//#include"Vector4.h"
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/ModelData.h"
@@ -745,10 +735,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
     hr = sound.Initialize();
     assert(SUCCEEDED(hr));
+    hr = sound.InitializeMF();
+    assert(SUCCEEDED(hr));
 
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
     SoundData soundData1 = sound.SoundLoadWave("resources/Alarm01.wav");
+    SoundDataMP3 soundData2 = sound.SoundLoadMP3(L"resources/dreamcore.mp3");
+    //std::string path = "resources/dreamcore.mp3";
+    //SoundDataMP3 soundData2 = sound.SoundLoadMP3(ConvertString(path));
 
 #pragma endregion
 
@@ -1550,6 +1545,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 useMonsterBall = (useMonsterBall) ? false : true;
             }
 
+            if (input.IsTriggerKey(DIK_RETURN)) {
+                sound.SoundPlayMP3(soundData2);
+            }
+
 #pragma region//UVの更新処理
             uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
             materialDataSprite->uvTransform = uvTransformMatrix;
@@ -1752,6 +1751,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //音声データの解放
     sound.SoundUnload(&soundData1);
+    sound.SoundUnloadMP3(&soundData2);
     //xAudio2のReset
     sound.Reset();
 
