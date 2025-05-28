@@ -2,7 +2,7 @@
 #define DIRECTINPUT_VERSION 0x0800//DirectXバージョン指定
 //　DIRECTINPUT_VERSION　dinput.hのインクルードより上に書くこと。
 #include <dinput.h>
-#include<stdint.h>
+#include<cstdint>
 
 class Input {
 public:

@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include<cstdint>//int32_tを使うため
-#include<string>//ログの文字列を出力するため
 
 //ファイルの書いたり読んだりするライブラリ　音声の読み込みにも使用する
 #include <fstream>
@@ -54,6 +53,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma endregion
 
 #pragma region //自作関数
+#include"Header/Log.h"
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/ModelData.h"
@@ -71,47 +71,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Sound.h"
 #include"Header/Input.h"
 #include"Header/DebugCamera.h"
+#include"Header/D3DResourceLeakChecker.h"
 #pragma endregion
-
-//ログを出力する関数
-void Log(const std::string& message) {
-    OutputDebugStringA(message.c_str());
-}
-
-void Log(std::ostream& os, const std::string& message) {
-    os << message << std::endl;
-    OutputDebugStringA(message.c_str());
-}
-
-//string->wstringに変換する関数
-std::wstring ConvertString(const std::string& str) {
-    if (str.empty()) {
-        return std::wstring();
-    }
-
-    auto sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), NULL, 0);
-    if (sizeNeeded == 0) {
-        return std::wstring();
-    }
-    std::wstring result(sizeNeeded, 0);
-    MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), &result[0], sizeNeeded);
-    return result;
-}
-
-//wstring->stringに変換する関数
-std::string ConvertString(const std::wstring& str) {
-    if (str.empty()) {
-        return std::string();
-    }
-
-    auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), NULL, 0, NULL, NULL);
-    if (sizeNeeded == 0) {
-        return std::string();
-    }
-    std::string result(sizeNeeded, 0);
-    WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
-    return result;
-}
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -524,19 +485,6 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
 
 #pragma endregion
 
-/// @brief リークチェックの構造体
-struct D3DResourceLeakChecker {
-    ~D3DResourceLeakChecker() {
-        //リソースリークチェック
-        IDXGIDebug1* debug;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
-            debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-            debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
-            debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
-            debug->Release();
-        }
-    }
-};
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -1090,13 +1038,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//ShaderをCompileする
 
     //Shaderをコンパイルする
-    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shader/Object3D.VS.hlsl",
         L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(vertexShaderBlob != nullptr);
 
     Log(logStream, "CompileVertexShader");
 
-    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"resources/shader/Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(pixelShaderBlob != nullptr);
 
@@ -1726,9 +1674,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
         }
-
-
-
     }
 
 #ifdef _DEBUG
@@ -1755,8 +1700,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     CoUninitialize();
 #pragma endregion
-
-
 
     return 0;
 }

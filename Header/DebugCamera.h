@@ -17,9 +17,9 @@ private:
     //射影行列
     Matrix4x4 projectionMatrix_ = {};
     //回転速度
-    float rotateSpeed_;
+    float rotateSpeed_ = {};
     //上下左右移動
-    float speed_;
+    float speed_ = {};
     //入力
     Input* input_ = nullptr;
 public:
