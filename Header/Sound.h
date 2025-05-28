@@ -7,9 +7,6 @@
 #include <mfidl.h>  
 #include <mfreadwrite.h>  
 #include <string>
-//#include <locale>
-//#include <codecvt>
-
 
 #pragma comment(lib, "Mf.lib")  
 #pragma comment(lib, "mfplat.lib")  
