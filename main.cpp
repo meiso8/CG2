@@ -16,8 +16,7 @@
 //libのリンクはヘッダに書いてはいけない
 //任意のひとつのcppに記述するかプロジェクトの設定で行う
 //libのリンク includeのすぐ後ろに書くとよい
-#include <dxgidebug.h>//リソースリークチェックのため
-#pragma comment(lib,"dxguid.lib")
+
 //Debug用のあれこれを使えるようにする
 #include <dbghelp.h>
 #pragma comment(lib,"Dbghelp.lib")
@@ -56,7 +55,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Log.h"
 #include"Header/Material.h"
 #include"Header/VertexData.h"
-#include"Header/ModelData.h"
+
 #include"Header/TransformationMatrix.h"
 #include"Header/Normalize.h"
 #include"Header/DirectionalLight.h"
@@ -72,6 +71,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Input.h"
 #include"Header/DebugCamera.h"
 #include"Header/D3DResourceLeakChecker.h"
+#include "Header/Depth.h"//StencilTextureの作成関数　奥行き
+#include"Header/ModelData.h"
+
 #pragma endregion
 
 // ウィンドウプロシージャ

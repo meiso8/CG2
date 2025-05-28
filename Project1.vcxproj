@@ -103,6 +103,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Add.cpp" />
     <ClCompile Include="Source\cotangent.cpp" />
+    <ClCompile Include="Source\Depth.cpp" />
     <ClCompile Include="Source\Dot.cpp" />
     <ClCompile Include="Source\Input.cpp" />
     <ClCompile Include="Source\Inverse.cpp" />
@@ -115,6 +116,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\MakeScaleMatrix.cpp" />
     <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
     <ClCompile Include="Source\MakeViewportMatrix.cpp" />
+    <ClCompile Include="Source\ModelData.cpp" />
     <ClCompile Include="Source\Multiply.cpp" />
     <ClCompile Include="Source\Normalize.cpp" />
     <ClCompile Include="Source\Sound.cpp" />
