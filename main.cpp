@@ -2,7 +2,7 @@
 #include<cstdint>//int32_tを使うため
 #include<string>//ログの文字列を出力するため
 
-//ファイルの書いたり読んだりするライブラリ
+//ファイルの書いたり読んだりするライブラリ　音声の読み込みにも使用する
 #include <fstream>
 //istringstreamのためにインクルードする
 #include<sstream>
@@ -54,7 +54,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma endregion
 
 #pragma region //自作関数
-//#include"Vector4.h"
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/ModelData.h"
@@ -69,6 +68,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/MakeOrthographicMatrix.h"
 #include"Header/Multiply.h"
 #include"Header/ResourceObject.h"
+#include"Header/Sound.h"
+#include"Header/Input.h"
 #pragma endregion
 
 //ログを出力する関数
@@ -80,16 +81,6 @@ void Log(std::ostream& os, const std::string& message) {
     os << message << std::endl;
     OutputDebugStringA(message.c_str());
 }
-
-//std::stringの基本的な使い方
-
-////文字列を格納する
-//std::string str0{ "STRING!!!" };
-//
-////整数を文字列にする
-//std::string str1{ std::to_string(10) };
-
-// https://cpprefjp.github.io/reference/string/basic_string.html
 
 //string->wstringに変換する関数
 std::wstring ConvertString(const std::string& str) {
@@ -229,7 +220,7 @@ IDxcBlob* CompileShader(
 #pragma region //警告・エラーが出ていないか確認する
 //警告・エラーが出ていたらログに出して止める
     IDxcBlobUtf8* shaderError = nullptr;
-     shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+    shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
 
     if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
 
@@ -532,9 +523,10 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
 
 #pragma endregion
 
+/// @brief リークチェックの構造体
 struct D3DResourceLeakChecker {
     ~D3DResourceLeakChecker() {
-       //リソースリークチェック
+        //リソースリークチェック
         IDXGIDebug1* debug;
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
             debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
@@ -545,6 +537,8 @@ struct D3DResourceLeakChecker {
     }
 };
 
+
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -552,6 +546,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //main関数の先頭でComの初期化を行う
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     assert(SUCCEEDED(hr));
+
 
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
@@ -727,6 +722,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//DirectInputオブジェクト
+
+    Input input;
+    input.Initalize(wc, hwnd);
+
+#pragma endregion
+
+#pragma region//XAudio全体の初期化と音声の読み込み
+    //DirectX初期化処理の末尾に追加する
+    //音声クラスの作成
+    Sound sound;
+    hr = sound.Initialize();
+    assert(SUCCEEDED(hr));
+    hr = sound.InitializeMF();
+    assert(SUCCEEDED(hr));
+
+    //ここはゲームによって異なる
+     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
+    SoundData soundData1 = sound.SoundLoadWave("resources/Alarm01.wav");
+    SoundDataMP3 soundData2 = sound.SoundLoadMP3(L"resources/dreamcore.mp3");
+    //std::string path = "resources/dreamcore.mp3";
+    //SoundDataMP3 soundData2 = sound.SoundLoadMP3(ConvertString(path));
+
+#pragma endregion
+
 #pragma region//エラーや警告時のデバッグ
 
     //デバイスに対してデバッグ
@@ -822,7 +842,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //コマンドキュー、ウィンドウハンドル、設定を渡して生成する
     hr = dxgiFactory->CreateSwapChainForHwnd(
         commandQueue.Get(),
-        hwnd, &swapChainDesc, 
+        hwnd, &swapChainDesc,
         nullptr, nullptr,
         reinterpret_cast<IDXGISwapChain1**>(swapChain.GetAddressOf()));
     assert(SUCCEEDED(hr));
@@ -848,7 +868,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 
 #pragma endregion
-
 
 #pragma region//SwapChainからResourceを引っ張ってくる
     //SwapChainからResourceを引っ張ってくる
@@ -907,7 +926,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //FenceとEventを生成する
     //初期値0でFenceを作る
-    ID3D12Fence* fence = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12Fence> fence = nullptr;
     uint64_t fenceValue = 0;
     hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
     assert(SUCCEEDED(hr));
@@ -1124,9 +1143,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
-
-
 #pragma region //Sprite 用の頂点リソースを作る
     //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点6つ)
     Microsoft::WRL::ComPtr <ID3D12Resource> vertexResourceSprite = CreateBufferResource(device, sizeof(VertexData) * 6);
@@ -1145,8 +1161,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "Create Sprite VertexBufferView");
 
 #pragma endregion
-
-
 
 #pragma region //Texrureを読んで転送する
     DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
@@ -1406,9 +1420,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    //uint32_t* p = nullptr;
-    //*p = 100;
-
 #pragma region//ImGuiの初期化。
 #ifdef _DEBUG
     IMGUI_CHECKVERSION();
@@ -1431,6 +1442,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
 
+
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
     // =============================================
@@ -1441,6 +1453,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
+
+            //キーボード情報の取得開始
+            input.InputInfoGet();
 
 #pragma region//ImGuiにここからフレームが始まる旨を伝える
 
@@ -1453,6 +1468,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
             //ゲームの処理
+
 
 #pragma region //ゲームの処理
 
@@ -1512,10 +1528,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//Sound
+
+            ImGui::Begin("Sound");
+            if (ImGui::Button("SoundStart")) {
+
+            }
+            ImGui::End();
+#pragma endregion
+
 #endif
+
+            if (input.IsTriggerKey(DIK_SPACE)) {
+                //音声再生
+                sound.SoundPlayWave(soundData1);
+                useMonsterBall = (useMonsterBall) ? false : true;
+            }
+
+            if (input.IsTriggerKey(DIK_RETURN)) {
+                sound.SoundPlayMP3(soundData2);
+            }
+
+#pragma region//UVの更新処理
             uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
             materialDataSprite->uvTransform = uvTransformMatrix;
-
+#pragma endregion
 
 #pragma region //Modelの更新
 
@@ -1673,7 +1710,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //Fenceの値を更新
             fenceValue++;
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            commandQueue->Signal(fence, fenceValue);
+            commandQueue->Signal(fence.Get(), fenceValue);
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
             //GetCompletedValueの初期値はFence作成時に渡した初期値
@@ -1694,7 +1731,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
 
-        CoUninitialize();
+
 
     }
 
@@ -1711,15 +1748,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //解放処理
 
     CloseHandle(fenceEvent);
-    fence->Release();
 
-    //ファイルへのログ出力
- /*   Log(logStream, "AllRelease");*/
+    //音声データの解放
+    sound.SoundUnload(&soundData1);
+    sound.SoundUnloadMP3(&soundData2);
+    //xAudio2のReset
+    sound.Reset();
 
     CloseWindow(hwnd);
 
+    CoUninitialize();
 #pragma endregion
-
 
 
 

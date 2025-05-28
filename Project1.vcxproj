@@ -115,6 +115,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\MakeViewportMatrix.cpp" />
     <ClCompile Include="Source\Multiply.cpp" />
     <ClCompile Include="Source\Normalize.cpp" />
+    <ClCompile Include="Source\Sound.cpp" />
     <ClCompile Include="Source\Subtract.cpp" />
     <ClCompile Include="Source\CoordinateTransform.cpp" />
     <ClCompile Include="Source\Transpose.cpp" />
@@ -147,6 +148,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\cotangent.h" />
     <ClInclude Include="Header\DirectionalLight.h" />
     <ClInclude Include="Header\Dot.h" />
+    <ClInclude Include="Header\Input.h" />
     <ClInclude Include="Header\Inverse.h" />
     <ClInclude Include="Header\Length.h" />
     <ClInclude Include="Header\MakeAffineMatrix.h" />
@@ -163,6 +165,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Multiply.h" />
     <ClInclude Include="Header\Normalize.h" />
     <ClInclude Include="Header\ResourceObject.h" />
+    <ClInclude Include="Header\Sound.h" />
     <ClInclude Include="Header\Subtract.h" />
     <ClInclude Include="Header\CoordinateTransform.h" />
     <ClInclude Include="Header\Transform.h" />
