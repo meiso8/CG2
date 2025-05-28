@@ -42,7 +42,20 @@ public:
 
     };
 
+    /// @brief キーを押した状態
+    /// @param keyNum 
+    /// @return 
+    bool IsPressStateKey(const uint8_t& keyNum) {
 
+        if (key_[keyNum]) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    //キーを押した瞬間
     bool IsTriggerKey(const uint8_t& keyNum) {
 
         if (key_[keyNum] && !preKey_[keyNum]) {
@@ -53,15 +66,28 @@ public:
 
     }
 
-    bool IsPressKey(const uint8_t& keyNum) {
+    //キーを離した状態
+    bool IsReleaseStateKey(const uint8_t& keyNum) {
 
-        if (key_[keyNum]) {
+        if (!key_[keyNum]) {
             return true;
         }
 
         return false;
 
     }
+
+    //キーを離した瞬間
+    bool IsReleaseKey(const uint8_t& keyNum) {
+
+        if (!key_[keyNum]&& preKey_[keyNum]) {
+            return true;
+        }
+
+        return false;
+
+    }
+
 
     void InputInfoGet() {
 
