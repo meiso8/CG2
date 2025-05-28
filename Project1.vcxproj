@@ -151,12 +151,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Header\Add.h" />
     <ClInclude Include="Header\cotangent.h" />
+    <ClInclude Include="Header\Depth.h" />
     <ClInclude Include="Header\DirectionalLight.h" />
     <ClInclude Include="Header\Dot.h" />
     <ClInclude Include="Header\Input.h" />
     <ClInclude Include="Header\Inverse.h" />
     <ClInclude Include="Header\Length.h" />
-    <ClInclude Include="Header\Log.h" />
     <ClInclude Include="Header\MakeAffineMatrix.h" />
     <ClInclude Include="Header\MakeIdentity4x4.h" />
     <ClInclude Include="Header\MakeOrthographicMatrix.h" />
