@@ -1,6 +1,6 @@
 #pragma once
 #include"Vector4.h"
-#include<stdint.h>
+#include<cstdint>
 #include"Matrix4x4.h"
 
 struct Material {

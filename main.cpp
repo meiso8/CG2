@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include<cstdint>//int32_tを使うため
-#include<string>//ログの文字列を出力するため
 
 //ファイルの書いたり読んだりするライブラリ　音声の読み込みにも使用する
 #include <fstream>
@@ -17,8 +16,7 @@
 //libのリンクはヘッダに書いてはいけない
 //任意のひとつのcppに記述するかプロジェクトの設定で行う
 //libのリンク includeのすぐ後ろに書くとよい
-#include <dxgidebug.h>//リソースリークチェックのため
-#pragma comment(lib,"dxguid.lib")
+
 //Debug用のあれこれを使えるようにする
 #include <dbghelp.h>
 #pragma comment(lib,"Dbghelp.lib")
@@ -54,9 +52,10 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #pragma endregion
 
 #pragma region //自作関数
+#include"Header/Log.h"
 #include"Header/Material.h"
 #include"Header/VertexData.h"
-#include"Header/ModelData.h"
+
 #include"Header/TransformationMatrix.h"
 #include"Header/Normalize.h"
 #include"Header/DirectionalLight.h"
@@ -70,47 +69,12 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/ResourceObject.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
+#include"Header/DebugCamera.h"
+#include"Header/D3DResourceLeakChecker.h"
+#include "Header/Depth.h"//StencilTextureの作成関数　奥行き
+#include"Header/ModelData.h"
+
 #pragma endregion
-
-//ログを出力する関数
-void Log(const std::string& message) {
-    OutputDebugStringA(message.c_str());
-}
-
-void Log(std::ostream& os, const std::string& message) {
-    os << message << std::endl;
-    OutputDebugStringA(message.c_str());
-}
-
-//string->wstringに変換する関数
-std::wstring ConvertString(const std::string& str) {
-    if (str.empty()) {
-        return std::wstring();
-    }
-
-    auto sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), NULL, 0);
-    if (sizeNeeded == 0) {
-        return std::wstring();
-    }
-    std::wstring result(sizeNeeded, 0);
-    MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), &result[0], sizeNeeded);
-    return result;
-}
-
-//wstring->stringに変換する関数
-std::string ConvertString(const std::wstring& str) {
-    if (str.empty()) {
-        return std::string();
-    }
-
-    auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), NULL, 0, NULL, NULL);
-    if (sizeNeeded == 0) {
-        return std::string();
-    }
-    std::string result(sizeNeeded, 0);
-    WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
-    return result;
-}
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -317,48 +281,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descrip
     return handleGPU;
 };
 
-#pragma region//深度の関数
-//StencilTextureの作成関数　奥行き
-Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencileTextureResource(
-    const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    int32_t width,
-    int32_t height) {
-    //生成するResourceの設定
-    D3D12_RESOURCE_DESC resourceDesc{};
-    resourceDesc.Width = width;//Textureの幅
-    resourceDesc.Height = height;//高さ
-    resourceDesc.MipLevels = 1;//mipmapの数
-    resourceDesc.DepthOrArraySize = 1;//奥行き　or 配列Textureの配列数
-    resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//DepthStencilとして利用可能なフォーマット
-    resourceDesc.SampleDesc.Count = 1;//サンプリングカウント
-    resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;//2次元
-    resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;//DepthStencilとして使う通知
-
-    //利用するHeapの設定
-    D3D12_HEAP_PROPERTIES heapProperties{};
-    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;//VRAM上
-
-    //深度値クリア設定
-    D3D12_CLEAR_VALUE depthClearValue{};
-    depthClearValue.DepthStencil.Depth = 1.0f;//1.0f(最大値)でクリア
-    depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//フォーマット。Resourceと合わせる
-
-    //Resourceの生成
-    Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-    HRESULT hr = device->CreateCommittedResource(
-        &heapProperties,//Heapの設定
-        D3D12_HEAP_FLAG_NONE,//Heapの特殊な設定。特になし。
-        &resourceDesc,//Resourceの設定
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,//深度値を書き込む状態にしておく
-        &depthClearValue,//Clear最適地
-        IID_PPV_ARGS(&resource));
-    assert(SUCCEEDED(hr));
-
-    return resource;
-}
-
-#pragma endregion
-
 #pragma region //Textureの関数
 //テクスチャの読み込み関数
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
@@ -440,105 +362,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
 
 #pragma endregion
 
-#pragma region//ModelDataの読み込み関数
-
-ModelData LoadObjeFile(const std::string& directoryPath, const std::string& filename) {
-
-    //1.中で必要となる変数の宣言
-    ModelData modelData;
-    std::vector<Vector4> positions;
-    std::vector<Vector3> normals;
-    std::vector<Vector2> texcoords;
-    std::string line;//ファイルから読み込んだ1行を格納するもの
-
-    //2.ファイルを開く
-    std::ifstream file(directoryPath + "/" + filename);//ファイルを開く
-    assert(file.is_open());//開けなかったら止める
-
-    //3.実際にファイルを読み、ModelDataを構成していく
-    //std::getlineはstreamから1行読んでstd::stringに格納する関数
-    while (std::getline(file, line)) {
-        std::string identifier;
-        //文字列を分解しながら読むためのクラス（空白を区切り文字として読むことが可能）
-        std::istringstream s(line); //これに対して>>すると空文字区切りで1ずつ値を読むことが出来る
-        s >> identifier;//先頭の識別子を読む　IDを読む
-
-        //IDに応じた処理
-        if (identifier == "v") {
-            Vector4 position;
-            s >> position.x >> position.y >> position.z;
-            position.y *= -1.0f;//座標系の統一のため
-            position.w = 1.0f;//同次座標のため
-            positions.push_back(position);
-
-        } else if (identifier == "vt") {
-            Vector2 texcoord;
-            s >> texcoord.x >> texcoord.y;
-            texcoords.push_back(texcoord);
-
-        } else if (identifier == "vn") {
-            Vector3 normal;
-            s >> normal.x >> normal.y >> normal.z;
-            normal.y *= -1.0f;//座標系の統一のため
-            normals.push_back(normal);
-        } else if (identifier == "f") {
-            //三角形を作る
-
-            //面は三角形限定。その他は未対応
-            for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
-                std::string vertexDefinition;
-                s >> vertexDefinition;
-                //頂点の要素へのIndexは「位置/UV/法線」で格納されているので、分解してIndexを取得する
-                std::istringstream v(vertexDefinition);
-                uint32_t elementIndices[3];
-                for (int32_t element = 0; element < 3; ++element) {
-                    std::string index;
-                    std::getline(v, index, '/');//区切りでインデックスを読んでいく
-                    elementIndices[element] = std::stoi(index);
-                }
-
-                //要素へのIndexから、実際の要素の値を取得して、頂点を構成する
-                Vector4 position = positions[elementIndices[0] - 1];//1始まりなので-1する
-                Vector2 texcoord = texcoords[elementIndices[1] - 1];
-                Vector3 normal = normals[elementIndices[2] - 1];
-
-                //まずobj通りに保存、格納する際に逆にする　座標系の統一のため
-                VertexData triangle = { position,texcoord,normal };
-                modelData.vertices.push_back(triangle);
-            }
-
-            //////頂点を逆順で登録することで、回り順を逆順にする
-            //modelData.vertices.push_back(triangle[0]);
-            //modelData.vertices.push_back(triangle[1]);
-            //modelData.vertices.push_back(triangle[2]);
-
-        }
-
-    }
-
-    //4.ModelDataを返す
-    return modelData;
-
-}
-
-#pragma endregion
-
-/// @brief リークチェックの構造体
-struct D3DResourceLeakChecker {
-    ~D3DResourceLeakChecker() {
-        //リソースリークチェック
-        IDXGIDebug1* debug;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
-            debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-            debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
-            debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
-            debug->Release();
-        }
-    }
-};
-
-
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -546,7 +369,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //main関数の先頭でComの初期化を行う
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     assert(SUCCEEDED(hr));
-
 
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
@@ -726,6 +548,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Input input;
     input.Initalize(wc, hwnd);
+
+#pragma endregion
+
+#pragma region//DebugCamera
+
+    DebugCamera debugCamera;
+
+    debugCamera.Initialize(&input);
 
 #pragma endregion
 
@@ -1084,13 +914,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//ShaderをCompileする
 
     //Shaderをコンパイルする
-    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"Object3D.VS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shader/Object3D.VS.hlsl",
         L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(vertexShaderBlob != nullptr);
 
     Log(logStream, "CompileVertexShader");
 
-    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"Object3D.PS.hlsl",
+    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"resources/shader/Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(pixelShaderBlob != nullptr);
 
@@ -1354,8 +1184,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     TransformationMatrix* transformationMatrixDataSprite = nullptr;
     //書き込むためのアドレスを取得
     transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
-    //単位行列を書き込む
-    //*transformationMatrixDataSprite = MakeIdentity4x4();
 
     Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
@@ -1394,7 +1222,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     directionalLightData->direction = { 0.0f,-1.0f,0.0f };//向きは正規化する
     directionalLightData->intensity = 1.0f;
 
-    /*  *directionalLightResource = directionalLightData;*/
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
@@ -1463,6 +1290,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui_ImplDX12_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
+
+            debugCamera.Update();
 #endif
 
 #pragma endregion
@@ -1484,11 +1313,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 
-#pragma region//三角形のデバッグ 
+#pragma region//Modelのデバッグ 
 
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
-            ImGui::Begin("Triangle");
+            ImGui::Begin("Model");
             ImGui::Checkbox("useMonsterBall", &useMonsterBall);
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
@@ -1502,15 +1331,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 transform.scale = { 1.0f, 1.0f, 1.0f };
                 transform.rotate = { 0.0f };
                 transform.translate = { 0.0f };
-                *materialData = { 1.0f,0.0f,0.0f,1.0f };
-
             }
 
             ImGui::End();
 
 #pragma endregion
-
-
 
 #pragma region//Spriteのデバッグ
 
@@ -1528,24 +1353,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Sound
-
-            ImGui::Begin("Sound");
-            if (ImGui::Button("SoundStart")) {
-
-            }
-            ImGui::End();
-#pragma endregion
-
 #endif
 
-            if (input.IsTriggerKey(DIK_SPACE)) {
+            if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlayWave(soundData1);
                 useMonsterBall = (useMonsterBall) ? false : true;
             }
 
-            if (input.IsTriggerKey(DIK_RETURN)) {
+            if (input.IsTriggerKey(DIK_2)) {
+                //音声再生
                 sound.SoundPlayMP3(soundData2);
             }
 
@@ -1556,7 +1373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelの更新
 
-            //三角形の行列
+            //Model行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
             //カメラ座標
             cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
@@ -1566,14 +1383,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             viewMatrix = Inverse(cameraMatrix);
             //透視投影行列
             projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
-            //WVpMatrixを作る
-            worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+            ////WVpMatrixを作る
+            //worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+            //WVpMatrixを作る DebugCameraに切り替え
+            worldViewProjectionMatrix = Multiply(worldMatrix, debugCamera.GetViewProjectionMatrix());
+
             //データを書き込む
             *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
 #pragma endregion
 
-#pragma region//Modelの更新処理
+#pragma region//Spriteの更新処理
 
             worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
             viewMatrixSprite = MakeIdentity4x4();
@@ -1630,10 +1450,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList->SetDescriptorHeaps(1, descriptorHeaps);
 
-#pragma region //三角形を描画する
+#pragma region //Modelを描画する
 
             //ファイルへのログ出力
-            Log(logStream, "DrawTriangle");
+            Log(logStream, "DrawModel");
 
             commandList->RSSetViewports(1, &viewport);//Viewportを設定
             commandList->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
@@ -1673,7 +1493,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-      /*      commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);*/
+            //commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
             ////描画！（DrawCall/ドローコール）
             //commandList->DrawInstanced(6, 1, 0, 0);
 #pragma endregion
@@ -1730,9 +1550,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
         }
-
-
-
     }
 
 #ifdef _DEBUG
@@ -1759,8 +1576,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     CoUninitialize();
 #pragma endregion
-
-
 
     return 0;
 }

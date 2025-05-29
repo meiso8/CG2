@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DebugCamera.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -102,7 +103,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Add.cpp" />
     <ClCompile Include="Source\cotangent.cpp" />
+    <ClCompile Include="Source\Depth.cpp" />
     <ClCompile Include="Source\Dot.cpp" />
+    <ClCompile Include="Source\Input.cpp" />
     <ClCompile Include="Source\Inverse.cpp" />
     <ClCompile Include="Source\Length.cpp" />
     <ClCompile Include="Source\MakeAffineMatrix.cpp" />
@@ -113,6 +116,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\MakeScaleMatrix.cpp" />
     <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
     <ClCompile Include="Source\MakeViewportMatrix.cpp" />
+    <ClCompile Include="Source\ModelData.cpp" />
     <ClCompile Include="Source\Multiply.cpp" />
     <ClCompile Include="Source\Normalize.cpp" />
     <ClCompile Include="Source\Sound.cpp" />
@@ -121,13 +125,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Transpose.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Object3d.PS.hlsl">
+    <FxCompile Include="resources\shader\Object3d.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Object3d.VS.hlsl">
+    <FxCompile Include="resources\shader\Object3d.VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -135,7 +139,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="Header\D3DResourceLeakChecker.h" />
+    <ClInclude Include="Header\DebugCamera.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -146,6 +151,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Header\Add.h" />
     <ClInclude Include="Header\cotangent.h" />
+    <ClInclude Include="Header\Depth.h" />
     <ClInclude Include="Header\DirectionalLight.h" />
     <ClInclude Include="Header\Dot.h" />
     <ClInclude Include="Header\Input.h" />
@@ -160,6 +166,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MakeTranslateMatrix.h" />
     <ClInclude Include="Header\MakeViewportMatrix.h" />
     <ClInclude Include="Header\Material.h" />
+    <ClInclude Include="Header\Matrix3x3.h" />
     <ClInclude Include="Header\Matrix4x4.h" />
     <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\Multiply.h" />
@@ -175,8 +182,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Vector3.h" />
     <ClInclude Include="Header\Vector4.h" />
     <ClInclude Include="Header\VertexData.h" />
-    <ClInclude Include="Matrix3x3.h" />
-    <ClInclude Include="ModelData.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -187,8 +192,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DirectionalLight.hlsli" />
-    <None Include="Object3d.hlsli" />
+    <None Include="resources\shader\DirectionalLight.hlsli" />
+    <None Include="resources\shader\Object3d.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

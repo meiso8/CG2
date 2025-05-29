@@ -1,5 +1,6 @@
-﻿
+
 #include"../Header/MakeRotateMatrix.h"
+#include"../Header/Multiply.h"
 #include <cmath>
 
 //1.X軸回転行列
@@ -86,3 +87,9 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 
     return result;
 };
+
+//XYZ回転
+Matrix4x4 MakeRotateXYZMatrix(Vector3 radian) {
+    Matrix4x4 result = Multiply(Multiply(MakeRotateXMatrix(radian.x), MakeRotateYMatrix(radian.y)), MakeRotateZMatrix(radian.z));
+    return result;
+}
