@@ -1493,7 +1493,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-            commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+            //commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
             ////描画！（DrawCall/ドローコール）
             //commandList->DrawInstanced(6, 1, 0, 0);
 #pragma endregion
