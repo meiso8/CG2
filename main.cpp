@@ -1170,10 +1170,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     //三角形の行列
     Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-
     //WVpMatrixを作る
     Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
-
     *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
     Log(logStream, "MakeResourceForTransformationMatrix");
@@ -1372,7 +1370,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             if (input.IsTriggerKey(DIK_RETURN)) {
-
                 debugCamera.SetIsOrthographic(true);
             }
 
@@ -1397,10 +1394,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //Model行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-
             //WVpMatrixを作る 
             worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
-
             //データを書き込む
             *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
@@ -1503,7 +1498,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-            commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+           /* commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);*/
 
 #pragma endregion
 
