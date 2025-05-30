@@ -9,22 +9,21 @@
 #include<numbers>
 #include<cmath>
 
-#define WIN_WIDTH 1280
-#define WIN_HEIGHT 720
 #define FPS 60
 
-void DebugCamera::Initialize(Input* input) {
+void DebugCamera::Initialize(Input* input, const float& width, const float& height) {
 
     input_ = input;
 
+    width_ = width;
+    height_ = height;
+
     rotateSpeed_ = std::numbers::pi_v<float> / 10.0f / FPS;
     speed_ = 1.0f;
-    //仮に単位行列の逆行列を入れる
-    viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_));
 
-    //投資投影
-    projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(WIN_WIDTH) / float(WIN_HEIGHT), 0.1f, 100.0f);
-    //MakeOrthographicMatrix(0.0f, 0.0f, float(WIN_WIDTH), float(WIN_HEIGHT), 0.0f, 100.0f);
+    viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_));
+    projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+
 };
 
 void DebugCamera::Update() {
@@ -33,6 +32,15 @@ void DebugCamera::Update() {
     InputTranslate();
 
     viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_));
+
+    if (isOrthographic_) {
+        //平行投影
+        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, 100.0f);
+
+    } else {
+        //投資投影
+        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+    }
 }
 
 void DebugCamera::InputTranslate() {

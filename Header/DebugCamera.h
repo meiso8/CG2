@@ -22,9 +22,13 @@ private:
     float speed_ = {};
     //入力
     Input* input_ = nullptr;
+    float width_;
+    float height_;
+    //平行投影フラグ
+    bool isOrthographic_ = false;
 public:
     /// @brief 初期化
-    void Initialize(Input* input);
+    void Initialize(Input* input, const float& width, const float& height);
     /// @brief 更新
     void Update();
     void MoveZ(const float& speed);
@@ -35,5 +39,6 @@ public:
     Matrix4x4 GetViewMatrix() { return viewMatrix_; };
     Matrix4x4 GetProjectionMatrix() { return projectionMatrix_; };
     Matrix4x4 GetViewProjectionMatrix();
+    void SetIsOrthographic(const bool& flag) { isOrthographic_ = flag; };
 };
 

@@ -70,10 +70,10 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Sound.h"
 #include"Header/Input.h"
 #include"Header/DebugCamera.h"
+#include"Header/Camera.h"
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
 #include"Header/ModelData.h"
-
 #pragma endregion
 
 // ウィンドウプロシージャ
@@ -548,14 +548,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Input input;
     input.Initalize(wc, hwnd);
-
-#pragma endregion
-
-#pragma region//DebugCamera
-
-    DebugCamera debugCamera;
-
-    debugCamera.Initialize(&input);
 
 #pragma endregion
 
@@ -1147,6 +1139,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//Camera
+
+    DebugCamera debugCamera;
+
+    debugCamera.Initialize(&input, kClientWidth, kClientHeight);
+
+    bool isDebug = false;
+
+    Camera camera;
+    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
+    camera.SetTransform(cameraTransform);
+    camera.Initialize(kClientWidth, kClientHeight, false);
+
+    Camera cameraSprite;
+    cameraSprite.Initialize(kClientWidth, kClientHeight, true);
+
+#pragma endregion
+
 #pragma region//TransformationMatrix用のResourceを作る
 
     //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
@@ -1160,16 +1170,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     //三角形の行列
     Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-    //カメラ座標
-    Transform cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
-    //カメラ行列
-    Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-    //カメラの逆行列
-    Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-    //透視投影行列
-    Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+
     //WVpMatrixを作る
-    Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+    Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
 
     *wvpDate = { worldViewProjectionMatrix,worldMatrix };
 
@@ -1187,10 +1190,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-    Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-    //平行投影のためOrthographicを利用している
-    Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
-    Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
+    Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, cameraSprite.GetViewProjectionMatrix());
     *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite, worldMatrixSprite };
 
 #pragma endregion
@@ -1290,20 +1290,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui_ImplDX12_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
-
-            debugCamera.Update();
 #endif
 
 #pragma endregion
 
             //ゲームの処理
 
-
 #pragma region //ゲームの処理
 
 #ifdef _DEBUG
 
-            //Lightを設定
+
+
+#pragma region//Lightを設定
             ImGui::Begin("DirectionalLight");
             ImGui::DragFloat4("color", &directionalLightData->color.x);
             Vector3 direction = directionalLightData->direction;
@@ -1312,6 +1311,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
+#pragma endregion
 
 #pragma region//Modelのデバッグ 
 
@@ -1366,6 +1366,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 sound.SoundPlayMP3(soundData2);
             }
 
+            if (input.IsTriggerKey(DIK_SPACE)) {
+                //デバッグの切り替え
+                isDebug = (isDebug) ? false : true;
+            }
+
+            if (input.IsTriggerKey(DIK_RETURN)) {
+
+                debugCamera.SetIsOrthographic(true);
+            }
+
+            //カメラの切り替え処理
+            if (isDebug) {
+                //デバッグカメラに切り替え
+                camera.SetViewMatrix(debugCamera.GetViewMatrix());
+                camera.SetprojectionMatrix(debugCamera.GetProjectionMatrix());
+                debugCamera.Update();
+
+            } else {
+                //カメラの更新処理
+                camera.Update();
+            }
+
 #pragma region//UVの更新処理
             uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
             materialDataSprite->uvTransform = uvTransformMatrix;
@@ -1375,18 +1397,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //Model行列
             worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-            //カメラ座標
-            cameraTransform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
-            //カメラ行列
-            cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-            //カメラの逆行列
-            viewMatrix = Inverse(cameraMatrix);
-            //透視投影行列
-            projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
-            ////WVpMatrixを作る
-            //worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-            //WVpMatrixを作る DebugCameraに切り替え
-            worldViewProjectionMatrix = Multiply(worldMatrix, debugCamera.GetViewProjectionMatrix());
+
+            //WVpMatrixを作る 
+            worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
 
             //データを書き込む
             *wvpDate = { worldViewProjectionMatrix,worldMatrix };
@@ -1396,10 +1409,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Spriteの更新処理
 
             worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-            viewMatrixSprite = MakeIdentity4x4();
-            //平行投影のためOrthographicを利用している
-            projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
-            worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
+            worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, cameraSprite.GetViewProjectionMatrix());
             *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite,worldMatrixSprite };
 
 #pragma endregion
@@ -1493,9 +1503,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
             commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-            //commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
-            ////描画！（DrawCall/ドローコール）
-            //commandList->DrawInstanced(6, 1, 0, 0);
+            commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+
 #pragma endregion
 
 #ifdef _DEBUG
