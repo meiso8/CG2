@@ -117,6 +117,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\MakeScaleMatrix.cpp" />
     <ClCompile Include="Source\MakeTranslateMatrix.cpp" />
     <ClCompile Include="Source\MakeViewportMatrix.cpp" />
+    <ClCompile Include="Source\MaterialData.cpp" />
     <ClCompile Include="Source\ModelData.cpp" />
     <ClCompile Include="Source\Multiply.cpp" />
     <ClCompile Include="Source\Normalize.cpp" />
@@ -168,6 +169,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MakeTranslateMatrix.h" />
     <ClInclude Include="Header\MakeViewportMatrix.h" />
     <ClInclude Include="Header\Material.h" />
+    <ClInclude Include="Header\MaterialData.h" />
     <ClInclude Include="Header\Matrix3x3.h" />
     <ClInclude Include="Header\Matrix4x4.h" />
     <ClInclude Include="Header\ModelData.h" />
