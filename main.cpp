@@ -995,7 +995,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Resourceにデータを書き込む
 
     //モデルの読み込み
-    ModelData modelData = LoadObjeFile("resources", "multiMaterial.obj");
+    ModelData modelData = LoadObjeFile("resources", "test.obj");
     //頂点リソースを作る
     Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
     Log(logStream, "CreateVertexResource");
