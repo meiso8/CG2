@@ -74,30 +74,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
 #include"Header/ModelData.h"
+#include"Header/Window.h"
 #pragma endregion
-
-// ウィンドウプロシージャ
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-
-#ifdef _DEBUG
-    //ImGuiにメッセージを渡す
-    if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
-        return true;
-    }
-#endif
-
-    //メッセージに応じてゲーム固有の処理を行う
-    switch (msg) {
-        //ウィンドウが破棄された
-    case WM_DESTROY:
-        //OSに対して、アプリの終了を伝える
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    //標準メッセージ処理を行う
-    return DefWindowProc(hwnd, msg, wparam, lparam);
-}
 
 //CrashHandler
 static LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
@@ -395,78 +373,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     std::ofstream logStream(logFilePath);
 #pragma endregion
 
-#pragma region ウィンドウクラスの登録
+    Window wc;
 
-    WNDCLASS wc{};
-    //ウィンドウプロシージャ
-    wc.lpfnWndProc = WindowProc;
-    //ウィンドウクラス名
-    wc.lpszClassName = L"CG2WindowClass";
-    //インスタンスハンドル
-    wc.hInstance = GetModuleHandle(nullptr);
-    //カーソル
-    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-
-    //ウィンドウクラス名を登録する
-    RegisterClass(&wc);
-
-    //ファイルへのログ出力
-    Log(logStream, "registrationWindowClass");
-
-#pragma endregion
-
-#pragma region ウィンドウサイズの設定
-
-    //クライアント領域のサイズ
-    const int32_t kClientWidth = 1280;
-    const int32_t kClientHeight = 720;
-
-    //ウィンドウサイズを表す構造体にクライアント領域を入れる
-    RECT wrc = { 0,0,kClientWidth,kClientHeight };
-
-    //クライアント領域をもとに実際のサイズにwrcを変更してもらう
-    AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
-
-    //ファイルへのログ出力
-    Log(logStream, "setWindowSize");
-
-#pragma endregion
-
-#pragma region ウィンドウの生成と表示
-
-    //ウィンドウの生成
-    //CreateWindowの戻り値であるHWNDはウィンドウハンドルを呼びウィンドウを表す識別子である
-    HWND hwnd = CreateWindow(
-        wc.lpszClassName,         // 利用するクラス名
-        L"CG2",                   // タイトルバーの文字(何でもいい)
-        WS_OVERLAPPEDWINDOW,      // よく見るウィンドウスタイル
-        CW_USEDEFAULT,            // 表示X座標(Windowsに任せる)
-        CW_USEDEFAULT,            // 表示Y座標(WindowsOsに任せる)
-        wrc.right - wrc.left,     // ウィンドウ横幅
-        wrc.bottom - wrc.top,      // ウィンドウ縦幅
-        nullptr,                  // 親ウィンドウハンドル
-        nullptr,                  // メニューハンドル
-        wc.hInstance,             // インスタンスハンドル
-        nullptr);                 // オプション
-
-
-    //ファイルへのログ出力
-    Log(logStream, "create&displayWindow");
-
-#ifdef _DEBUG
-    Microsoft::WRL::ComPtr <ID3D12Debug1> debugController = nullptr;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-        //デバッグレイヤーを有効化する
-        debugController->EnableDebugLayer();
-        //さらにGPU側でもチェックを行うようにする
-        debugController->SetEnableGPUBasedValidation(TRUE);
-    }
-#endif
-
-    //ウィンドウを表示する
-    ShowWindow(hwnd, SW_SHOW);
-
-#pragma endregion 
+    wc.Initialize(1280, 720);
 
 #pragma region//DXGIFactoryの生成
 
@@ -547,7 +456,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//DirectInputオブジェクト
 
     Input input;
-    input.Initalize(wc, hwnd);
+    input.Initalize(wc.GetWindowClass(), wc.GetHwnd());
 
 #pragma endregion
 
@@ -654,8 +563,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//スワップチェインの生成
     Microsoft::WRL::ComPtr <IDXGISwapChain4> swapChain = nullptr;
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-    swapChainDesc.Width = kClientWidth;   //画面の幅。ウィンドウのクライアント領域を同じものにしておく
-    swapChainDesc.Height = kClientHeight;//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
+    swapChainDesc.Width = wc.GetClientWidth();   //画面の幅。ウィンドウのクライアント領域を同じものにしておく
+    swapChainDesc.Height = wc.GetClientHeight();//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
     swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//色の形式
     swapChainDesc.SampleDesc.Count = 1;//マルチサンプルしない
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//描画のターゲットとして利用する
@@ -664,7 +573,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //コマンドキュー、ウィンドウハンドル、設定を渡して生成する
     hr = dxgiFactory->CreateSwapChainForHwnd(
         commandQueue.Get(),
-        hwnd, &swapChainDesc,
+        wc.GetHwnd(), &swapChainDesc,
         nullptr, nullptr,
         reinterpret_cast<IDXGISwapChain1**>(swapChain.GetAddressOf()));
     assert(SUCCEEDED(hr));
@@ -991,7 +900,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device, commandList);
 #pragma endregion
 
-
 #pragma region//Resourceにデータを書き込む
 
     //モデルの読み込み
@@ -1143,17 +1051,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     DebugCamera debugCamera;
 
-    debugCamera.Initialize(&input, kClientWidth, kClientHeight);
+    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
 
     bool isDebug = false;
 
     Camera camera;
     Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
     camera.SetTransform(cameraTransform);
-    camera.Initialize(kClientWidth, kClientHeight, false);
+    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
 
     Camera cameraSprite;
-    cameraSprite.Initialize(kClientWidth, kClientHeight, true);
+    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
 
 #pragma endregion
 
@@ -1194,7 +1102,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//stencileTextureResourceの作成
-    Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, kClientWidth, kClientHeight);
+    Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
 
     //DSV用ヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
@@ -1225,9 +1133,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//ViewportとScissor(シザー)
     //ビューポート
     D3D12_VIEWPORT viewport{};
-    //クライアント領域のサイズと一緒にして画面全体に表示
-    viewport.Width = kClientWidth;
-    viewport.Height = kClientHeight;
+    //クライアント領域のサイズと一緒にして画面全体に表示 , windowClass.GetClientHeight()
+    viewport.Width = static_cast<float>(wc.GetClientWidth());
+    viewport.Height = static_cast<float>(wc.GetClientHeight());
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
     viewport.MinDepth = 0.0f;
@@ -1237,9 +1145,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     D3D12_RECT scissorRect{};
     //基本的にビューポートと同じ矩形が構成されるようにする
     scissorRect.left = 0;
-    scissorRect.right = kClientWidth;
+    scissorRect.right = wc.GetClientWidth();
     scissorRect.top = 0;
-    scissorRect.bottom = kClientHeight;
+    scissorRect.bottom = wc.GetClientHeight();
 
     Log(logStream, "ViewportAndScissor");
 
@@ -1250,7 +1158,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplWin32_Init(wc.GetHwnd());
     ImGui_ImplDX12_Init(device.Get(),
         swapChainDesc.BufferCount,
         rtvDesc.Format,
@@ -1576,7 +1484,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //xAudio2のReset
     sound.Reset();
 
-    CloseWindow(hwnd);
+    CloseWindow(wc.GetHwnd());
 
     CoUninitialize();
 #pragma endregion
