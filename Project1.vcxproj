@@ -92,6 +92,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CommandList.cpp" />
+    <ClCompile Include="Source\CommandQueue.cpp" />
+    <ClCompile Include="Source\DXGIFactory.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\DebugCamera.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
@@ -126,6 +129,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\CoordinateTransform.cpp" />
     <ClCompile Include="Source\Transpose.cpp" />
     <ClCompile Include="Source\Window.cpp" />
+    <ClCompile Include="Source\SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -142,6 +146,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\CommandList.h" />
+    <ClInclude Include="Header\CommandQueue.h" />
+    <ClInclude Include="Header\DXGIFactory.h" />
     <ClInclude Include="Header\Camera.h" />
     <ClInclude Include="Header\D3DResourceLeakChecker.h" />
     <ClInclude Include="Header\DebugCamera.h" />
@@ -188,6 +195,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Vector4.h" />
     <ClInclude Include="Header\VertexData.h" />
     <ClInclude Include="Header\Window.h" />
+    <ClInclude Include="Header\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

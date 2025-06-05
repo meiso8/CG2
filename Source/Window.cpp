@@ -44,7 +44,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 }
 
 
-void Window::Initialize(int32_t clientWidth, int32_t clientHeight) {
+void Window::Create(int32_t clientWidth, int32_t clientHeight) {
 
     clientWidth_ = clientWidth;
     clientHeight_ = clientHeight;
