@@ -94,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Source\CommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
+    <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\DXGIFactory.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\DebugCamera.cpp" />
@@ -148,6 +149,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="Header\CommandList.h" />
     <ClInclude Include="Header\CommandQueue.h" />
+    <ClInclude Include="Header\DescriptorHeap.h" />
     <ClInclude Include="Header\DXGIFactory.h" />
     <ClInclude Include="Header\Camera.h" />
     <ClInclude Include="Header\D3DResourceLeakChecker.h" />
