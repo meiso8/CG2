@@ -64,6 +64,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/DebugError.h"
 #include"Header/TransitionBarrier.h"
 #include"Header/Fence.h"
+#include"Header/FenceEvent.h"
 
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
@@ -538,12 +539,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //FenceとEventを生成する
 
-    Fence fenceClass;
-    fenceClass.Create(device);
+    Fence fence;
+    fence.Create(device);
 
     // FenceのSignalを持つためのイベントを作成する
-    HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    assert(fenceEvent != nullptr);
+    FenceEvent fenceEventClass;
+    fenceEventClass.Create();
 
     //ファイルへのログ出力
     Log(logStream, "CreateFence&Event");
@@ -1308,21 +1309,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //画面の更新が終わった直後GPUにシグナルを送る
             //Fenceの値を更新
-            fenceClass.AddValue();
+            fence.AddValue();
 
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            commandQueue.GetCommandQueue()->Signal(fenceClass.GetFence().Get(), fenceClass.GetValue());
+            commandQueue.GetCommandQueue()->Signal(fence.GetFence().Get(), fence.GetValue());
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
-            fenceClass.CheckValue(fenceEvent);
-
-            ////GetCompletedValueの初期値はFence作成時に渡した初期値
-            //if (fenceClass.GetFence()->GetCompletedValue() < fenceClass.GetValue()) {
-            //    //指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
-            //    fenceClass.GetFence()->SetEventOnCompletion(fenceClass.GetValue(), fenceEvent);
-            //    //イベントを待つ
-            //    WaitForSingleObject(fenceEvent, INFINITE);
-            //}
+            fence.CheckValue(fenceEventClass.GetEvent());
 
             //7.次のフレーム用のコマンドリストを準備
             commandList.PrepareCommand();
@@ -1346,7 +1339,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     CoUninitialize();
 
-    CloseHandle(fenceEvent);
+    CloseHandle(fenceEventClass.GetEvent());
 
     //音声データの解放
     sound.SoundUnload(&soundData1);
