@@ -9,7 +9,8 @@ class SwapChain
 public:
     void Create(UINT width, UINT height,
         const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory,
-        const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue, const HWND& hwnd);
+        const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue,
+        const HWND& hwnd);
     Microsoft::WRL::ComPtr <IDXGISwapChain4> GetSwapChain() {
         return swapChain_;
     };

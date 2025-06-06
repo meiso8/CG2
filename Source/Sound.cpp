@@ -214,7 +214,3 @@ void Sound::SoundPlayMP3(const SoundDataMP3& soundData) {
     result = pSourceVoice->Start();//再生開始
     assert(SUCCEEDED(result));
 };
-
-void Sound::Reset() {
-    xAudio2_.Reset();
-};

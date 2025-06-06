@@ -58,6 +58,14 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/DXGIFactory.h"
 #include"Header/SwapChain.h"
 #include"Header/DescriptorHeap.h"
+#include"Header/RenderTargetView.h"
+#include"Header/GetCPUDescriptorHandle.h"
+#include"Header/GetGPUDescriptorHandle.h"
+#include"Header/DebugError.h"
+#include"Header/TransitionBarrier.h"
+
+#include"Header/D3DResourceLeakChecker.h"
+#include "Header/Depth.h"//StencilTextureの作成関数　奥行き
 
 #include"Header/Log.h"
 
@@ -75,13 +83,12 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/MakePerspectiveFovMatrix.h"
 #include"Header/MakeOrthographicMatrix.h"
 #include"Header/Multiply.h"
-#include"Header/ResourceObject.h"
+
 #include"Header/Sound.h"
 #include"Header/Input.h"
 #include"Header/DebugCamera.h"
 #include"Header/Camera.h"
-#include"Header/D3DResourceLeakChecker.h"
-#include "Header/Depth.h"//StencilTextureの作成関数　奥行き
+
 #include"Header/ModelData.h"
 
 #pragma endregion
@@ -235,20 +242,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(
 };
 
 
-//インデックスのDescriptorHandleを取得する関数
-D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
-
-    D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    handleCPU.ptr += (descriptorSize * index);
-    return handleCPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
-
-    D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    handleGPU.ptr += (descriptorSize * index);
-    return handleGPU;
-};
 
 #pragma region //Textureの関数
 //テクスチャの読み込み関数
@@ -413,6 +406,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//D3D12Deviceの生成
 
     Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
+
     //機能レベル(FEATURE_LEVEL)とログの出力用の文字列
     D3D_FEATURE_LEVEL featureLevels[] = {
       D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0
@@ -465,48 +459,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//エラーや警告時のデバッグ
+#ifdef _DEBUG
 
-    //デバイスに対してデバッグ
-    Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
-    if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
-        //ヤバいエラー時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        //エラー時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        //警告時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-
-        //解放を忘れたことが判明した場合、警告で停止する設定を外すことで、詳細な情報をログに出力することが出来る。
-        //上記をコメントアウトし、情報を得て修正が終わったら必ず元に戻し停止しないことを確認する。
-
-#pragma region//エラーと警告の抑制
-
-        //抑制するメッセージのID
-        D3D12_MESSAGE_ID denyIds[] = {
-            //Windows11でのDXGIデバッグレイヤーとDX12デバッグレイヤーの相互作用バグによるエラーメッセージ
-                //https://stackoverflow.com/questions/69805245/directx-12-application-is-crashing-in-windows-11
-                D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
-        };
-
-        //抑制するレベル
-        D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
-        D3D12_INFO_QUEUE_FILTER filter{};
-        filter.DenyList.NumIDs = _countof(denyIds);
-        filter.DenyList.pIDList = denyIds;
-        filter.DenyList.NumSeverities = _countof(severities);
-        filter.DenyList.pSeverityList = severities;
-        //指定したメッセージの表示を抑制する
-        infoQueue->PushStorageFilter(&filter);
-
-#pragma endregion
-
-        //解放
-        infoQueue->Release();
-    }
-
+    DebugError debugError;
+    debugError.Create(device);
     //ファイルへのログ出力をしました
     Log(logStream, "SetDebugError");
+
+#endif
 
 #pragma endregion
 
@@ -516,13 +476,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルへのログ出力
     Log(logStream, "CreateCommandQueue");
 
-
     //コマンドリストの生成
     CommandList commandList;
     commandList.Create(device);
     //ファイルへのログ出力
     Log(logStream, "CreateCommandList");
-
 
     //スワップチェインの生成
     SwapChain swapChainClass;
@@ -543,8 +501,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ファイルへのログ出力
     Log(logStream, "CreateRTVDescriptorHeap");
-
-
 
 #pragma endregion
 
@@ -573,37 +529,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     const uint32_t descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 #pragma endregion
 
-#pragma region//RTVを作る
-
-    //Descriptorは必ずDescriptorHandleというポインタのようなものを介して扱う必要がある
-    //Viewを作るときは、どこのDescriptorに情報を格納するかを明示的に指定する必要がる
-
-    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-    rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
-    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2dテクスチャとして書き込む
-    //ディスクリプタの先頭を取得する
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    // GetCPUDescriptorHandleForHeapStart();DescriptorHeapが管理する最初のDescriptorHandleを返す
-
-    //RTVを2つ作るのでディスクリプタを2つ用意
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
-    //まず1つ目を作る。1つ目は最初のところに作る。作る場所をこちらで指定してあげる必要がある
-    rtvHandles[0] = rtvStartHandle;
-    device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc, rtvHandles[0]);
-    //2つ目のディスクリプタハンドルを得る（自力で）
-
-    rtvHandles[1] = GetCPUDescriptorHandle(rtvDescriptorHeap.Get(), descriptorSizeRTV, 1);
-
-    //GetDescriptorHandleIncrementSize() Descriptorのサイズは、最適化のため、GPUまたはドライバによって異なることが許可されている
-    //なのでDirectX12に問い合わせて実際のサイズを取得する　このサイズはゲーム中に変化することはないので初期化時に取得しておけばよい
-
-    //2つ目を作る
-    device->CreateRenderTargetView(swapChainResources[1].Get(), &rtvDesc, rtvHandles[1]);
-
+    //RTVを作る
+    RenderTargetView rtvClass;
+    rtvClass.Create(device, swapChainResources, rtvDescriptorHeap, descriptorSizeRTV);
     //ファイルへのログ出力
     Log(logStream, "CreateRTV");
-
-#pragma endregion
 
 #pragma region //FenceとEventを生成する
     //初期値0でFenceを作る
@@ -847,7 +777,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
     Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device, commandList.Get());
+    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device, commandList.GetComandList());
 #pragma endregion
 
 #pragma region//Resourceにデータを書き込む
@@ -875,7 +805,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     DirectX::ScratchImage mipImages2 = LoadTexture(modelData.material.textureFilePath);
     const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
     Microsoft::WRL::ComPtr<ID3D12Resource>textureResource2 = CreateTextureResource(device, metadata2);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device, commandList.Get());
+    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device, commandList.GetComandList());
 
 #pragma endregion
 
@@ -1111,7 +1041,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ImGui_ImplWin32_Init(wc.GetHwnd());
     ImGui_ImplDX12_Init(device.Get(),
         swapChainClass.GetSwapChainDesc().BufferCount,
-        rtvDesc.Format,
+        rtvClass.GetDesc().Format,
         srvDescriptorHeap.Get(),
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
@@ -1285,77 +1215,66 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             UINT backBufferIndex = swapChainClass.GetSwapChain()->GetCurrentBackBufferIndex();
 
             //TransitionBarrierの設定
-            D3D12_RESOURCE_BARRIER barrier{};
-            //今回はバリアはTransition
-            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-            //Noneにしておく
-            barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-            //バリアを張る対象のリソース。現在のバックバッファに対して行う
-            barrier.Transition.pResource = swapChainResources[backBufferIndex].Get();
-            //遷移前（現在）のResourceState
-            barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-            //遷移後のResourceState
-            barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-            //TransitionBarrierを張る
-            commandList.Get()->ResourceBarrier(1, &barrier);
+            TransitionBarrier barrierClass;
+            barrierClass.SettingBarrier(swapChainResources[backBufferIndex], commandList.GetComandList());
 
             //2.描画用のRTVとDSVを設定する
             D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-            commandList.Get()->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
+            commandList.GetComandList()->OMSetRenderTargets(1, &rtvClass.GetHandle(backBufferIndex), false, &dsvHandle);
             //3.指定した色で画面全体をクリアする
             float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
-            commandList.Get()->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
+            commandList.GetComandList()->ClearRenderTargetView(rtvClass.GetHandle(backBufferIndex), clearColor, 0, nullptr);
 
             //指定した深度で画面全体をクリアする
-            commandList.Get()->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            commandList.GetComandList()->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
-            commandList.Get()->SetDescriptorHeaps(1, descriptorHeaps);
+            commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
 
 #pragma region //Modelを描画する
 
             //ファイルへのログ出力
             Log(logStream, "DrawModel");
 
-            commandList.Get()->RSSetViewports(1, &viewport);//Viewportを設定
-            commandList.Get()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
+            commandList.GetComandList()->RSSetViewports(1, &viewport);//Viewportを設定
+            commandList.GetComandList()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
             //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-            commandList.Get()->SetGraphicsRootSignature(rootSignature.Get());
-            commandList.Get()->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
-            commandList.Get()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
+            commandList.GetComandList()->SetGraphicsRootSignature(rootSignature.Get());
+            commandList.GetComandList()->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
+            commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
             //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-            commandList.Get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            commandList.GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-            commandList.Get()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
             Log(logStream, "SetMaterialToCBuffer");
             //wvp用のCBufferの場所を設定
-            commandList.Get()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
             Log(logStream, "SetWVPToCBuffer");
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList.Get()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+            commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 
             //LightのCBufferの場所を設定
-            commandList.Get()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-            commandList.Get()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
+            commandList.GetComandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 
 #pragma endregion
 
 #pragma region//IndexSpriteの描画
 
             //頂点バッファビューを設定
-            commandList.Get()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
+            commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
             //IBVを設定new
-            commandList.Get()->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
+            commandList.GetComandList()->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
             //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-            commandList.Get()->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
             //TransformationMatrixCBufferの場所を設定
-            commandList.Get()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
             //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList.Get()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+            commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
             //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
            /* commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);*/
 
@@ -1364,27 +1283,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
             //実際のcommandListのImGuiの描画コマンドを積む
-            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.Get().Get());
+            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.GetComandList().Get());
 
 #endif // _DEBUG
 
 
             //画面に書く処理は終わり、画面に移すので、状態を遷移
-            //今回はRenderTargetからPresentにする
-            barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-            barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-            //　TransitionBarrierを張る
-            commandList.Get()->ResourceBarrier(1, &barrier);
 
+            barrierClass.Transition();
+
+            //TransitionBarrierを張る
+            commandList.GetComandList()->ResourceBarrier(1, &barrierClass.GetBarrier());
 
             //4.コマンドリストの内容を確定させる。全てのコマンドを詰んでから　Closesすること。
-            hr = commandList.Get()->Close();
+            hr = commandList.GetComandList()->Close();
             assert(SUCCEEDED(hr));
 
             Log(logStream, "CloseCommandList");
 
             //5.GPUにコマンドリストの実行を行わせる
-            ID3D12CommandList* commandLists[] = { commandList.Get().Get() };
+            ID3D12CommandList* commandLists[] = { commandList.GetComandList().Get() };
             commandQueue.GetCommandQueue()->ExecuteCommandLists(1, commandLists);
             //6.GPUとOSに画面の交換を行うよう通知する
             swapChainClass.GetSwapChain()->Present(1, 0);
@@ -1424,17 +1342,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //解放処理
 
+    CoUninitialize();
+
     CloseHandle(fenceEvent);
 
     //音声データの解放
     sound.SoundUnload(&soundData1);
     sound.SoundUnloadMP3(&soundData2);
-    //xAudio2のReset
-    sound.Reset();
 
     CloseWindow(wc.GetHwnd());
-
-    CoUninitialize();
 #pragma endregion
 
     return 0;

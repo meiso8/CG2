@@ -92,6 +92,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DebugError.cpp" />
+    <ClCompile Include="Source\GetCPUDescriptorHandle.cpp" />
+    <ClCompile Include="Source\GetGPUDescriptorHandle.cpp" />
+    <ClCompile Include="Source\RenderTargetView.cpp" />
     <ClCompile Include="Source\CommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
@@ -131,6 +135,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Transpose.cpp" />
     <ClCompile Include="Source\Window.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
+    <ClCompile Include="Source\TransitionBarrier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -147,6 +152,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\DebugError.h" />
     <ClInclude Include="Header\CommandList.h" />
     <ClInclude Include="Header\CommandQueue.h" />
     <ClInclude Include="Header\DescriptorHeap.h" />
@@ -167,6 +173,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Depth.h" />
     <ClInclude Include="Header\DirectionalLight.h" />
     <ClInclude Include="Header\Dot.h" />
+    <ClInclude Include="Header\GetCPUDescriptorHandle.h" />
+    <ClInclude Include="Header\GetGPUDescriptorHandle.h" />
     <ClInclude Include="Header\Input.h" />
     <ClInclude Include="Header\Inverse.h" />
     <ClInclude Include="Header\Length.h" />
@@ -198,6 +206,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\VertexData.h" />
     <ClInclude Include="Header\Window.h" />
     <ClInclude Include="Header\SwapChain.h" />
+    <ClInclude Include="Header\RenderTargetView.h" />
+    <ClInclude Include="Header\TransitionBarrier.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

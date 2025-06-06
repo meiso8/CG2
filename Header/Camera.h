@@ -14,8 +14,8 @@ private:
     //射影行列
     Matrix4x4 projectionMatrix_ = {};
 
-    float width_;
-    float height_;
+    float width_{};
+    float height_{};
 
     bool isOrthographic_ = false;
 

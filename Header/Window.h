@@ -21,6 +21,6 @@ private:
     /// @brief ウィンドウハンドル  
     HWND hwnd_{};
     //クライアント領域のサイズ  
-    int32_t clientWidth_;
-    int32_t clientHeight_;
+    int32_t clientWidth_{};
+    int32_t clientHeight_{};
 };

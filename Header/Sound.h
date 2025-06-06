@@ -86,9 +86,6 @@ public:
     /// @brief 音声データの解放関数  
     /// @param soundData 音声データ  
     void SoundUnloadMP3(SoundDataMP3* soundData);
-
-    void Reset();
-
 private:
 
     Microsoft::WRL::ComPtr<IXAudio2> xAudio2_; // ComオブジェクトなのでComPtrで管理する。  

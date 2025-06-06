@@ -1,9 +1,5 @@
 #include "../Header/DXGIFactory.h"
-
 #include<cassert> //assertも利用するため
-#pragma comment(lib,"d3d12.lib")
-#pragma comment(lib,"dxgi.lib")
-
 
 void DXGIFactory::Create() {
 
