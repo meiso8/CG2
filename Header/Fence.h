@@ -18,6 +18,8 @@ public:
     };
     void AddValue();
 
+    void SendSignal(const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue);
+
     void CheckValue(HANDLE fenceEvent);
 
 private:

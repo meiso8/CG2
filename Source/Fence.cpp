@@ -23,3 +23,7 @@ void Fence::CheckValue(HANDLE fenceEvent) {
         WaitForSingleObject(fenceEvent, INFINITE);
     }
 }
+
+void Fence::SendSignal(const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue) {
+    commandQueue->Signal(fence_.Get(), fenceValue_);
+};

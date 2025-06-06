@@ -1312,7 +1312,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             fence.AddValue();
 
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            commandQueue.GetCommandQueue()->Signal(fence.GetFence().Get(), fence.GetValue());
+            fence.SendSignal(commandQueue.GetCommandQueue());
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
             fence.CheckValue(fenceEventClass.GetEvent());
