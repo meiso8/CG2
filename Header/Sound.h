@@ -8,11 +8,6 @@
 #include <mfreadwrite.h>  
 #include <string>
 
-#pragma comment(lib, "Mf.lib")  
-#pragma comment(lib, "mfplat.lib")  
-#pragma comment(lib, "MFreadwrite.lib")  
-#pragma comment(lib, "mfuuid.lib")  
-
 struct SoundDataMP3 {
     WAVEFORMATEX* waveFormat;
     std::vector<BYTE> mediaData;
@@ -23,10 +18,9 @@ struct SoundDataMP3 {
 #pragma region WaveFileの形式  
 
 #include <xaudio2.h> // wavファイル用  
-#pragma comment(lib, "xaudio2.lib") // xaudio2.libをリンクする。  
+#include <stdint.h> // int32_t  
 
 #include <wrl.h> // ComPtr(コムポインタ)  
-#include <stdint.h> // int32_t  
 
 // チャンクヘッダ  
 struct ChunkHeader {

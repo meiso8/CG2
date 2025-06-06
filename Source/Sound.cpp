@@ -2,6 +2,13 @@
 #include <fstream>
 #include<assert.h>
 
+#pragma comment(lib, "Mf.lib")  
+#pragma comment(lib, "mfplat.lib")  
+#pragma comment(lib, "MFreadwrite.lib")  
+#pragma comment(lib, "mfuuid.lib")  
+
+#pragma comment(lib, "xaudio2.lib") // xaudio2.libをリンクする。  
+
 SoundData Sound::SoundLoadWave(const char* filename) {
     //HRESULT result;
     //1.ファイルオープン
