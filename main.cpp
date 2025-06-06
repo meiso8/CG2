@@ -63,6 +63,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/GetGPUDescriptorHandle.h"
 #include"Header/DebugError.h"
 #include"Header/TransitionBarrier.h"
+#include"Header/Fence.h"
 
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
@@ -536,11 +537,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "CreateRTV");
 
 #pragma region //FenceとEventを生成する
-    //初期値0でFenceを作る
-    Microsoft::WRL::ComPtr<ID3D12Fence> fence = nullptr;
-    uint64_t fenceValue = 0;
-    hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-    assert(SUCCEEDED(hr));
+
+    Fence fenceClass;
+    fenceClass.Create(device);
 
     // FenceのSignalを持つためのイベントを作成する
     HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -1309,18 +1308,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //画面の更新が終わった直後GPUにシグナルを送る
             //Fenceの値を更新
-            fenceValue++;
+            fenceClass.AddValue();
+
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            commandQueue.GetCommandQueue()->Signal(fence.Get(), fenceValue);
+            commandQueue.GetCommandQueue()->Signal(fenceClass.GetFence().Get(), fenceClass.GetValue());
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
-            //GetCompletedValueの初期値はFence作成時に渡した初期値
-            if (fence->GetCompletedValue() < fenceValue) {
-                //指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
-                fence->SetEventOnCompletion(fenceValue, fenceEvent);
-                //イベントを待つ
-                WaitForSingleObject(fenceEvent, INFINITE);
-            }
+            fenceClass.CheckValue(fenceEvent);
+
+            ////GetCompletedValueの初期値はFence作成時に渡した初期値
+            //if (fenceClass.GetFence()->GetCompletedValue() < fenceClass.GetValue()) {
+            //    //指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
+            //    fenceClass.GetFence()->SetEventOnCompletion(fenceClass.GetValue(), fenceEvent);
+            //    //イベントを待つ
+            //    WaitForSingleObject(fenceEvent, INFINITE);
+            //}
 
             //7.次のフレーム用のコマンドリストを準備
             commandList.PrepareCommand();

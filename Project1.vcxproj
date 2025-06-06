@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Fence.cpp" />
     <ClCompile Include="Source\DebugError.cpp" />
     <ClCompile Include="Source\GetCPUDescriptorHandle.cpp" />
     <ClCompile Include="Source\GetGPUDescriptorHandle.cpp" />
@@ -152,6 +153,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Fence.h" />
     <ClInclude Include="Header\DebugError.h" />
     <ClInclude Include="Header\CommandList.h" />
     <ClInclude Include="Header\CommandQueue.h" />
