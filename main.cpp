@@ -26,9 +26,9 @@
 //ファイルやディレクトリに関する操作を行うライブラリ
 #include <filesystem>
 
-//HLSLをGPUが解釈できる形にするためのインクルード
-#include <dxcapi.h>
-#pragma comment(lib,"dxcompiler.lib")
+////HLSLをGPUが解釈できる形にするためのインクルード
+//#include <dxcapi.h>
+//#pragma comment(lib,"dxcompiler.lib")
 
 //Textureデータを読み込むためにDirectXTex.hをインクルード
 #include"externals/DirectXTex/DirectXTex.h"
@@ -65,9 +65,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/TransitionBarrier.h"
 #include"Header/Fence.h"
 #include"Header/FenceEvent.h"
-
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
+#include"Header/CompileShader.h"
 
 #include"Header/Log.h"
 
@@ -118,97 +118,6 @@ static LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-//CompileShader関数
-IDxcBlob* CompileShader(
-    //CompilerするShaderファイルへのパス
-    const std::wstring& filePath,
-    //Compilerに使用するProfile
-    const wchar_t* profile,
-    //初期化で生成されたものを3つ
-    IDxcUtils* dxcUtils,
-    IDxcCompiler3* dxcCompiler,
-    IDxcIncludeHandler* includeHandler) {
-    // ここの中身をこの後書いていく
-    // 1.hlslファイルを読み込む
-
-#pragma region //1.hlslファイルを読む
-//ここからシェーダーをコンパイルする旨をログに出す
-    Log(ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}\n", filePath, profile)));
-    //hlslファイルを読む
-    IDxcBlobEncoding* shaderSource = nullptr;
-    HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
-    //読めなかったら止める
-    assert(SUCCEEDED(hr));
-    //読み込んだファイルの内容を設定する
-    DxcBuffer shaderSourceBuffer;
-    shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
-    shaderSourceBuffer.Size = shaderSource->GetBufferSize();
-    shaderSourceBuffer.Encoding = DXC_CP_UTF8;//UTF8の文字コードであることを追加
-
-#pragma endregion
-
-    // 2.Compileする
-#pragma region//2.Compileする
-
-    LPCWSTR arguments[] = {
-    filePath.c_str(),//コンパイル対象のhlslファイル名
-    L"-E",L"main",//エントリーポイントの設定。基本的にはmain以外にはしない
-    L"-T",profile,//ShaderProfileの設定
-    L"-Zi",L"-Qembed_debug",//デバック用の情報を埋め込む
-    L"-Od",//最適化を外しておく
-    L"-Zpr",//メモリレイアウトは行優先
-    };
-
-    //実際にShaderをコンパイルする
-    IDxcResult* shaderResult = nullptr;
-    hr = dxcCompiler->Compile(
-        &shaderSourceBuffer,//読み込んだファイル
-        arguments,//コンパイルオプション
-        _countof(arguments),//コンパイルオプションの数
-        includeHandler,//includeが含まれた諸々
-        IID_PPV_ARGS(&shaderResult)//コンパイル結果
-    );
-
-
-    //コンパイルエラーではなくdxcが起動できないなどの致命的な状況
-    assert(SUCCEEDED(hr));
-
-
-#pragma endregion
-
-    // 3.警告・エラーが出ていないか確認する
-#pragma region //警告・エラーが出ていないか確認する
-//警告・エラーが出ていたらログに出して止める
-    IDxcBlobUtf8* shaderError = nullptr;
-    shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
-
-    if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
-
-        Log(shaderError->GetStringPointer());
-
-        //警告・エラーダメ絶対
-        assert(false);
-    } else {
-        Log("No shader compilation errors detected.");
-    }
-#pragma endregion
-
-    // 4.Compile結果を受け取って返す
-#pragma region//Compile結果を受け取って返す
-    //コンパイル結果空実行用のバイナリ部分を取得 Blob = BinaryLargeObjectの略
-    IDxcBlob* shaderBlob = nullptr;
-    hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
-    assert(SUCCEEDED(hr));
-    //成功したログを出す
-    Log(ConvertString(std::format(L"Compile Succeeded,path:{}profile;{}\n", filePath, profile)));
-    //もう使わないリソース解放
-    shaderSource->Release();
-    shaderResult->Release();
-    //実行用のバイナリを返却
-    return shaderBlob;
-#pragma endregion
-
-}
 
 //Resource作成の関数化
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(
