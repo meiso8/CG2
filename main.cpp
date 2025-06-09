@@ -10,12 +10,13 @@
 #include<format>//フォーマットを推論してくれる
 #include<d3d12.h>
 #include<dxgi1_6.h>
-#include<cassert> //assertも利用するため
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 //libのリンクはヘッダに書いてはいけない
 //任意のひとつのcppに記述するかプロジェクトの設定で行う
 //libのリンク includeのすぐ後ろに書くとよい
+
+#include<cassert> //assertも利用するため
 
 //Debug用のあれこれを使えるようにする
 #include <dbghelp.h>
@@ -25,10 +26,6 @@
 
 //ファイルやディレクトリに関する操作を行うライブラリ
 #include <filesystem>
-
-////HLSLをGPUが解釈できる形にするためのインクルード
-//#include <dxcapi.h>
-//#pragma comment(lib,"dxcompiler.lib")
 
 //Textureデータを読み込むためにDirectXTex.hをインクルード
 #include"externals/DirectXTex/DirectXTex.h"
@@ -151,8 +148,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(
     return nullptr;
 
 };
-
-
 
 #pragma region //Textureの関数
 //テクスチャの読み込み関数
@@ -358,13 +353,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
     hr = sound.Initialize();
     assert(SUCCEEDED(hr));
-    hr = sound.InitializeMF();
-    assert(SUCCEEDED(hr));
 
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = sound.SoundLoadWave("resources/Alarm01.wav");
-    SoundDataMP3 soundData2 = sound.SoundLoadMP3(L"resources/dreamcore.mp3");
+    SoundData soundData1 = sound.SoundLoad(L"resources/Alarm01.wav");
+    SoundData soundData2 = sound.SoundLoad(L"resources/dreamcore.mp3");
     //std::string path = "resources/dreamcore.mp3";
     //SoundDataMP3 soundData2 = sound.SoundLoadMP3(ConvertString(path));
 
@@ -509,7 +502,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //CBufferを利用することになったので、RootParameterに設定を追加する
    /* RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform*/
-    D3D12_ROOT_PARAMETER rootParameters[4] = {};
+    D3D12_ROOT_PARAMETER rootParameters[5] = {};
     rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
@@ -523,6 +516,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
+    rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
+    rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
+    rootParameters[4].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
 
     descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
@@ -692,7 +688,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Resourceにデータを書き込む
 
     //モデルの読み込み
-    ModelData modelData = LoadObjeFile("resources", "test.obj");
+    ModelData modelData = LoadObjeFile("resources", "plane.obj");
     //頂点リソースを作る
     Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
     Log(logStream, "CreateVertexResource");
@@ -749,7 +745,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     device->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
 
 #pragma endregion
-
 
 #pragma region //Sprite用の頂点データの設定
     VertexData* vertexDataSprite = nullptr;
@@ -833,6 +828,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     };
 
     Matrix4x4 uvTransformMatrix = MakeIdentity4x4();
+
+#pragma endregion
+
+#pragma region//time
+
+    Microsoft::WRL::ComPtr <ID3D12Resource> timeResource = CreateBufferResource(device, sizeof(float));
+
+    //データを書き込む
+    float* timeData = nullptr;
+    //書き込むためのアドレスを取得
+    timeResource->Map(0, nullptr, reinterpret_cast<void**>(&timeData));
+
+    *timeData = { 0.0f };
 
 #pragma endregion
 
@@ -995,7 +1003,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-
+            ImGui::Begin("time");
+            ImGui::DragFloat("time", timeData, 0.03f);
+            ImGui::End();
 
 #pragma region//Lightを設定
             ImGui::Begin("DirectionalLight");
@@ -1052,13 +1062,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
-                sound.SoundPlayWave(soundData1);
+                sound.SoundPlay(soundData1);
                 useMonsterBall = (useMonsterBall) ? false : true;
             }
 
             if (input.IsTriggerKey(DIK_2)) {
                 //音声再生
-                sound.SoundPlayMP3(soundData2);
+                sound.SoundPlay(soundData2);
             }
 
             if (input.IsTriggerKey(DIK_SPACE)) {
@@ -1167,6 +1177,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
+            //timeのCBufferの場所を設定
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(4, timeResource->GetGPUVirtualAddress());
+
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList.GetComandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 
@@ -1252,7 +1265,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //音声データの解放
     sound.SoundUnload(&soundData1);
-    sound.SoundUnloadMP3(&soundData2);
+    sound.SoundUnload(&soundData2);
 
     CloseWindow(wc.GetHwnd());
 #pragma endregion

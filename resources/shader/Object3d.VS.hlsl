@@ -7,6 +7,12 @@ struct TransformationMatrix
     float32_t4x4 World;
 };
 ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
+cbuffer ConstantBuffer : register(b1)
+{
+    float time; // アニメーション用の時間変数
+};
+
+
 
 struct VertexShaderInput
 {
@@ -19,6 +25,10 @@ VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderOutput output;
     //行列の積を計算する関数がhlslの組み込み関数で定義されている
+    
+    //波のようにしてみる？
+    input.position.y += sin(time) * 0.5f;
+  
     output.position = mul(input.position, gTransformationMatrix.WVP);
     output.texcoord = input.texcoord;
     output.normal = normalize(mul(input.normal, (float32_t3x3)gTransformationMatrix.World));
