@@ -6,3 +6,7 @@
 float Length(const Vector3& v) {
     return { sqrtf(Dot(v,v)) };
 };
+
+float Length(const Vector2& v) {
+    return { sqrtf(Dot(v,v)) };
+};

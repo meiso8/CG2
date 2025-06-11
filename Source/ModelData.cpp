@@ -29,7 +29,7 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
         if (identifier == "v") {
             Vector4 position;
             s >> position.x >> position.y >> position.z;
-            //position.x *= -1.0f;//座標系の統一のため
+            position.x *= -1.0f;//座標系の統一のため
             position.w = 1.0f;//同次座標のため
             positions.push_back(position);
 
@@ -42,7 +42,7 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
         } else if (identifier == "vn") {
             Vector3 normal;
             s >> normal.x >> normal.y >> normal.z;
-            //normal.x *= -1.0f;//座標系の統一のため
+            normal.x *= -1.0f;//座標系の統一のため
             normals.push_back(normal);
         } else if (identifier == "f") {
             //三角形を作る

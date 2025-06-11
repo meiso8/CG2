@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include<cstdint>//int32_tを使うため
+#include<numbers>
 
 //ファイルの書いたり読んだりするライブラリ　音声の読み込みにも使用する
 #include <fstream>
@@ -89,6 +90,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Camera.h"
 
 #include"Header/ModelData.h"
+
+#include"Header/Wave.h"//波打ちアニメーション用
 
 #pragma endregion
 
@@ -516,9 +519,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
-    rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
+    rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;//SRVを使う
     rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
-    rootParameters[4].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
+    rootParameters[4].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
 
     descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
@@ -688,7 +691,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Resourceにデータを書き込む
 
     //モデルの読み込み
-    ModelData modelData = LoadObjeFile("resources", "plane.obj");
+    ModelData modelData = LoadObjeFile("resources", "plane2.obj");
     //頂点リソースを作る
     Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
     Log(logStream, "CreateVertexResource");
@@ -833,14 +836,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//time
 
-    Microsoft::WRL::ComPtr <ID3D12Resource> timeResource = CreateBufferResource(device, sizeof(float));
+    int waveCount = 2;
+
+    Microsoft::WRL::ComPtr <ID3D12Resource> WaveResource = CreateBufferResource(device, sizeof(Wave) * waveCount);
 
     //データを書き込む
-    float* timeData = nullptr;
+    Wave* waveData = nullptr;
     //書き込むためのアドレスを取得
-    timeResource->Map(0, nullptr, reinterpret_cast<void**>(&timeData));
+    WaveResource->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
 
-    *timeData = { 0.0f };
+    waveData[0].direction = { 1.0f,0.0f,0.0f };
+    waveData[0].time = 0.0f;
+    waveData[0].amplitude = 0.5f;
+    waveData[0].frequency = 4;
+
+    waveData[1].direction = { 1.0f,0.0f,0.0f };
+    waveData[1].time = 0.0f;
+    waveData[1].amplitude = 0.5f;
+    waveData[1].frequency = 4;
+
+    //*waveData = { 0.0f,0.5f,0.0f,1.0f,0.0f };
 
 #pragma endregion
 
@@ -872,7 +887,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
 
     //三角形の座標
-    Transform transform = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+    Transform transform = { {1.0f,1.0f,1.0f},{std::numbers::pi_v<float>*7.0f / 4.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     //三角形の行列
     Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
     //WVpMatrixを作る
@@ -1003,17 +1018,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-            ImGui::Begin("time");
-            ImGui::DragFloat("time", timeData, 0.03f);
+            ImGui::Begin("Wave1");
+            ImGui::DragFloat("time1", &waveData[0].time, 0.03f);
+            ImGui::DragFloat("amplitude1", &waveData[0].amplitude, 0.03f);
+            ImGui::DragFloat3("direction1", &waveData[0].direction.x, 0.03f, 0.0f, 1.0f);
+            ImGui::SliderFloat("frequency1", &waveData[0].frequency, 1.0f, 10.0f);
             ImGui::End();
+            Vector3 waveDirection1 = waveData[0].direction;
+            waveData[0].direction = Normalize(waveDirection1);
+
+
+            ImGui::Begin("Wave2");
+            ImGui::DragFloat("time2", &waveData[1].time, 0.03f);
+            ImGui::DragFloat("amplitude2", &waveData[1].amplitude, 0.03f);
+            ImGui::DragFloat3("direction2", &waveData[1].direction.x, 0.03f, 0.0f, 1.0f);
+            ImGui::End();
+            Vector3 waveDirection2 = waveData[1].direction;
+            waveData[1].direction = Normalize(waveDirection2);
+
 
 #pragma region//Lightを設定
-            ImGui::Begin("DirectionalLight");
-            ImGui::DragFloat4("color", &directionalLightData->color.x);
+
             Vector3 direction = directionalLightData->direction;
-            ImGui::SliderFloat3("direction2", &direction.x, -1.0f, 1.0f);//後で正規化する
             directionalLightData->direction = Normalize(direction);
 
+            ImGui::Begin("DirectionalLight");
+            ImGui::DragFloat4("color", &directionalLightData->color.x);
+            ImGui::SliderFloat3("direction2", &direction.x, -1.0f, 1.0f);//後で正規化する
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 #pragma endregion
@@ -1025,7 +1056,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::Begin("Model");
             ImGui::Checkbox("useMonsterBall", &useMonsterBall);
             ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
-            ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
             ImGui::ColorPicker4("materialColor", &(materialData->color.x));
             ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
@@ -1047,7 +1078,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::Begin("Sprite");
 
             ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
             ImGui::ColorPicker4("materialColor", &(materialDataSprite->color.x));
             ImGui::DragFloat2("uv : translate", &(uvTransformSprite.translate.x), 0.01f, -10.0f, 10.0f);
@@ -1060,16 +1091,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            if (input.IsTriggerKey(DIK_1)) {
-                //音声再生
-                sound.SoundPlay(soundData1);
-                useMonsterBall = (useMonsterBall) ? false : true;
-            }
+            //if (input.IsTriggerKey(DIK_1)) {
+            //    //音声再生
+            //    sound.SoundPlay(soundData1);
+            //    useMonsterBall = (useMonsterBall) ? false : true;
+            //}
 
-            if (input.IsTriggerKey(DIK_2)) {
-                //音声再生
-                sound.SoundPlay(soundData2);
-            }
+            //if (input.IsTriggerKey(DIK_2)) {
+            //    //音声再生
+            //    sound.SoundPlay(soundData2);
+            //}
 
             if (input.IsTriggerKey(DIK_SPACE)) {
                 //デバッグの切り替え
@@ -1177,8 +1208,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
-            //timeのCBufferの場所を設定
-            commandList.GetComandList()->SetGraphicsRootConstantBufferView(4, timeResource->GetGPUVirtualAddress());
+            //timeのSRVの場所を設定
+            commandList.GetComandList()->SetGraphicsRootShaderResourceView(4, WaveResource->GetGPUVirtualAddress());
 
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList.GetComandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);

@@ -211,6 +211,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Vector3.h" />
     <ClInclude Include="Header\Vector4.h" />
     <ClInclude Include="Header\VertexData.h" />
+    <ClInclude Include="Header\Wave.h" />
     <ClInclude Include="Header\Window.h" />
     <ClInclude Include="Header\SwapChain.h" />
     <ClInclude Include="Header\RenderTargetView.h" />
