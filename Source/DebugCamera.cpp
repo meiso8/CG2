@@ -2,6 +2,8 @@
 #include"../Header/Inverse.h"
 #include"../Header/MakeAffineMatrix.h"
 #include"../Header/MakeRotateMatrix.h"
+#include"../Header/MakeIdentity4x4.h"
+#include"../Header/MakeTranslateMatrix.h"
 #include"../Header/MakePerspectiveFovMatrix.h"
 #include"../Header/MakeOrthographicMatrix.h"
 #include"../Header/CoordinateTransform.h"
@@ -9,22 +11,22 @@
 #include<numbers>
 #include<cmath>
 
-#define WIN_WIDTH 1280
-#define WIN_HEIGHT 720
 #define FPS 60
 
-void DebugCamera::Initialize(Input* input) {
+void DebugCamera::Initialize(Input* input, const float& width, const float& height) {
 
     input_ = input;
 
-    rotateSpeed_ = std::numbers::pi_v<float> / 10.0f / FPS;
-    speed_ = 1.0f;
-    //仮に単位行列の逆行列を入れる
-    viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_));
+    width_ = width;
+    height_ = height;
 
-    //投資投影
-    projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, float(WIN_WIDTH) / float(WIN_HEIGHT), 0.1f, 100.0f);
-    //MakeOrthographicMatrix(0.0f, 0.0f, float(WIN_WIDTH), float(WIN_HEIGHT), 0.0f, 100.0f);
+    rotateSpeed_ = std::numbers::pi_v<float> / 20.0f / FPS;
+    speed_ = 1.0f;
+
+    viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, translation_));
+    projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+
+    matRot_ = MakeIdentity4x4();
 };
 
 void DebugCamera::Update() {
@@ -32,7 +34,25 @@ void DebugCamera::Update() {
     InputRotate();
     InputTranslate();
 
-    viewMatrix_ = Inverse(MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_));
+    Matrix4x4 matRotDelta = MakeIdentity4x4();
+    matRotDelta = Multiply(matRotDelta, MakeRotateXMatrix(deltaRotate_.x));
+    matRotDelta = Multiply(matRotDelta, MakeRotateYMatrix(deltaRotate_.y));
+    matRotDelta = Multiply(matRotDelta, MakeRotateZMatrix(deltaRotate_.z));
+
+    deltaRotate_ = { 0.0f,0.0f,0.0f };
+
+    //累積の回転行列を合成
+    matRot_ = Multiply(matRot_, matRotDelta);
+    viewMatrix_ = Inverse(Multiply(matRot_, MakeTranslateMatrix(translation_)));
+
+    if (isOrthographic_) {
+        //平行投影
+        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, 100.0f);
+
+    } else {
+        //投資投影
+        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+    }
 }
 
 void DebugCamera::InputTranslate() {
@@ -72,15 +92,15 @@ void DebugCamera::InputRotate() {
         }
 
         if (input_->IsPressStateKey(DIK_X)) {
-            rotation_.x += rotateSpeed_;
+            deltaRotate_.x = rotateSpeed_;
         }
 
         if (input_->IsPressStateKey(DIK_Y)) {
-            rotation_.y += rotateSpeed_;
+            deltaRotate_.y = rotateSpeed_;
         }
 
         if (input_->IsPressStateKey(DIK_Z)) {
-            rotation_.z += rotateSpeed_;
+            deltaRotate_.z = rotateSpeed_;
         }
 
     }
@@ -90,15 +110,15 @@ void DebugCamera::InputRotate() {
 void DebugCamera::MoveZ(const float& speed) {
     //カメラ移動ベクトル
     Vector3 move = { 0.0f,0.0f,speed };
-    translation_ += CoordinateTransform(move, MakeRotateXYZMatrix(rotation_));
+    translation_ += CoordinateTransform(move, matRot_);
 }
 
 void DebugCamera::MoveX(const float& speed) {
-    translation_ += CoordinateTransform({ speed, 0.0f, 0.0f }, MakeRotateXYZMatrix(rotation_));;
+    translation_ += CoordinateTransform({ speed, 0.0f, 0.0f }, matRot_);
 };
 
 void DebugCamera::MoveY(const float& speed) {
-    translation_ += CoordinateTransform({ 0.0f, speed, 0.0f }, MakeRotateXYZMatrix(rotation_));;
+    translation_ += CoordinateTransform({ 0.0f, speed, 0.0f }, matRot_);
 };
 
 Matrix4x4 DebugCamera::GetViewProjectionMatrix() {

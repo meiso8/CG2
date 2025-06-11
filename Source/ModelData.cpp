@@ -1,5 +1,6 @@
 #include"../Header/ModelData.h"
-
+//ファイルやディレクトリに関する操作を行うライブラリ
+#include <filesystem>
 #include <fstream>//ファイルの書いたり読んだりするライブラリ
 #include<cassert> //assertも利用するため
 
@@ -28,23 +29,24 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
         if (identifier == "v") {
             Vector4 position;
             s >> position.x >> position.y >> position.z;
-            position.y *= -1.0f;//座標系の統一のため
+            position.x *= -1.0f;//座標系の統一のため
             position.w = 1.0f;//同次座標のため
             positions.push_back(position);
 
         } else if (identifier == "vt") {
             Vector2 texcoord;
             s >> texcoord.x >> texcoord.y;
+            texcoord.y = 1.0f - texcoord.y;
             texcoords.push_back(texcoord);
 
         } else if (identifier == "vn") {
             Vector3 normal;
             s >> normal.x >> normal.y >> normal.z;
-            normal.y *= -1.0f;//座標系の統一のため
+            normal.x *= -1.0f;//座標系の統一のため
             normals.push_back(normal);
         } else if (identifier == "f") {
             //三角形を作る
-
+            VertexData triangle[3];
             //面は三角形限定。その他は未対応
             for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
                 std::string vertexDefinition;
@@ -64,15 +66,22 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
                 Vector3 normal = normals[elementIndices[2] - 1];
 
                 //まずobj通りに保存、格納する際に逆にする　座標系の統一のため
-                VertexData triangle = { position,texcoord,normal };
-                modelData.vertices.push_back(triangle);
+                triangle[faceVertex] = {position,texcoord,normal};
+              /*  modelData.vertices.push_back(triangle[faceVertex]);*/
             }
 
             //////頂点を逆順で登録することで、回り順を逆順にする
-            //modelData.vertices.push_back(triangle[0]);
-            //modelData.vertices.push_back(triangle[1]);
-            //modelData.vertices.push_back(triangle[2]);
+            modelData.vertices.push_back(triangle[2]);
+            modelData.vertices.push_back(triangle[1]);
+            modelData.vertices.push_back(triangle[0]);
 
+        } else if (identifier == "mtllib") {
+        
+        //materialTemplateLibraryファイルの名前を取得する
+            std::string materialFilename;
+            s >> materialFilename;
+            //基本的にobjファイルと同一階層にmtlは存在させるので、ディレクトリ名とファイル名を渡す
+            modelData.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
         }
 
     }
