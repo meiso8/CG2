@@ -92,6 +92,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/ModelData.h"
 
 #include"Header/Wave.h"//波打ちアニメーション用
+#include"Header/Balloon.h"
 
 #pragma endregion
 
@@ -505,7 +506,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //CBufferを利用することになったので、RootParameterに設定を追加する
    /* RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform*/
-    D3D12_ROOT_PARAMETER rootParameters[5] = {};
+    D3D12_ROOT_PARAMETER rootParameters[6] = {};
     rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
     rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
     rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
@@ -522,6 +523,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;//SRVを使う
     rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
     rootParameters[4].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
+    rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
+    rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
+    rootParameters[5].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
 
     descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
     descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
@@ -859,6 +863,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+#pragma region//Balloon
+
+    Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource = CreateBufferResource(device, sizeof(Balloon));
+
+    //データを書き込む
+    Balloon* expansionData = nullptr;
+    //書き込むためのアドレスを取得
+    expansionResource->Map(0, nullptr, reinterpret_cast<void**>(&expansionData));
+
+    expansionData->expansion = 0.0f;
+    expansionData->sphere = 0.0f;
+    expansionData->cube = 0.0f;
+    expansionData->isSphere = false;
+
+#pragma endregion
+
 #pragma region//Camera
 
     DebugCamera debugCamera;
@@ -1032,9 +1052,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat("time2", &waveData[1].time, 0.03f);
             ImGui::DragFloat("amplitude2", &waveData[1].amplitude, 0.03f);
             ImGui::DragFloat3("direction2", &waveData[1].direction.x, 0.03f, 0.0f, 1.0f);
+            ImGui::SliderFloat("frequency2", &waveData[1].frequency, 1.0f, 10.0f);
             ImGui::End();
             Vector3 waveDirection2 = waveData[1].direction;
             waveData[1].direction = Normalize(waveDirection2);
+
+
+            ImGui::Begin("expansion");
+            ImGui::DragFloat("expansionData", &expansionData->expansion, 0.03f);
+            ImGui::DragFloat("sphere", &expansionData->sphere, 0.03f, 0.0f, 1.0f);
+            ImGui::DragFloat("cube", &expansionData->cube, 0.03f, 0.0f, 1.0f);
+            ImGui::Checkbox("isSphere", &expansionData->isSphere);
+
+            ImGui::End();
 
 
 #pragma region//Lightを設定
@@ -1210,6 +1240,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //timeのSRVの場所を設定
             commandList.GetComandList()->SetGraphicsRootShaderResourceView(4, WaveResource->GetGPUVirtualAddress());
+
+            //LightのCBufferの場所を設定
+            commandList.GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
+
 
             //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
             commandList.GetComandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);

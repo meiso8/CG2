@@ -156,6 +156,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Balloon.h" />
     <ClInclude Include="Header\CompileShader.h" />
     <ClInclude Include="Header\FenceEvent.h" />
     <ClInclude Include="Header\Fence.h" />
