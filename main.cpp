@@ -66,6 +66,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/D3DResourceLeakChecker.h"
 #include "Header/Depth.h"//StencilTextureの作成関数　奥行き
 #include"Header/CompileShader.h"
+#include "Header/BlendState.h"
+#include"Header/RasterizerState.h"
+#include"Header/PSO.h"
 
 #include"Header/Log.h"
 
@@ -118,7 +121,6 @@ static LONG WINAPI ExportDump(EXCEPTION_POINTERS* exception) {
     //他に関連付けられているSEH例外ハンドラがあれば実行。通常はプロセスを終了する
     return EXCEPTION_EXECUTE_HANDLER;
 }
-
 
 //Resource作成の関数化
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(
@@ -577,32 +579,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma  region//BlendStateの設定を行う
-
-    //書き込む色要素を決めることなども出来る
-    D3D12_BLEND_DESC blendDesc{};
-    //全ての色要素を書き込む
-    blendDesc.RenderTarget[0].RenderTargetWriteMask =
-        D3D12_COLOR_WRITE_ENABLE_ALL;
-
+    //BlendStateの設定を行う
+    BlendState blendState;
+    blendState.Create();
     Log(logStream, "SetBlendState");
 
-#pragma endregion
-
-#pragma  region//RasterizerStateの設定を行う
-    //三角形の内部をピクセルに分解して、PixelShaderを起動する
-
-    //RasterizerStateの設定
-    D3D12_RASTERIZER_DESC rasterizerDesc{};
-    //裏面（時計回り）を表示しない　裏面をカウリング
-    rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-    //三角形の中を塗りつぶす
-    rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
+    //RasterizerStateの設定を行う
+    RasterizerState rasterizerState;
+    rasterizerState.Create();
     Log(logStream, "SetRasterizerState");
-
-
-#pragma endregion
 
 #pragma region//ShaderをCompileする
 
@@ -634,33 +619,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSO
 #pragma region//PSOを生成する
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-    graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();//RootSignature
-    graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;//InputLayout
-    graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
-    vertexShaderBlob->GetBufferSize() };//VertexShader
-    graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
-    pixelShaderBlob->GetBufferSize() };//PixelShader
-    graphicsPipelineStateDesc.BlendState = blendDesc;//BlendState
-    graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;//RasterizerState
-    //書き込むRTVの情報
-    graphicsPipelineStateDesc.NumRenderTargets = 1;
-    graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-    //利用するトポロジ（形状）のタイプ。三角形
-    graphicsPipelineStateDesc.PrimitiveTopologyType =
-        D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    //どのように画面に色を打ち込むかの設定（気にしなくていい）
-    graphicsPipelineStateDesc.SampleDesc.Count = 1;
-    graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-    //DepthStencilの設定
-    graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
-    graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-    //実際に生成
-    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState = nullptr;
-    hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
-        IID_PPV_ARGS(&graphicsPipelineState));
-    assert(SUCCEEDED(hr));
+    PSO pso;
+    pso.Create(
+        rootSignature, inputLayoutDesc, vertexShaderBlob, pixelShaderBlob,
+        blendState.GetBlendDesc(), rasterizerState.GetRasterizerDesc(), depthStencilDesc, device);
 
     Log(logStream, "CreatePSO");
 
@@ -1222,7 +1184,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList.GetComandList()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
             //RootSignatureを設定。PSOに設定しているけど別途設定が必要
             commandList.GetComandList()->SetGraphicsRootSignature(rootSignature.Get());
-            commandList.GetComandList()->SetPipelineState(graphicsPipelineState.Get());//PSOを設定
+            commandList.GetComandList()->SetPipelineState(pso.GetGraphicsPipelineState().Get());//PSOを設定
             commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
             //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
             commandList.GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

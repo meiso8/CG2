@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BlendState.cpp" />
     <ClCompile Include="Source\CompileShader.cpp" />
     <ClCompile Include="Source\Log.cpp" />
     <ClCompile Include="Source\FenceEvent.cpp" />
@@ -99,6 +100,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\DebugError.cpp" />
     <ClCompile Include="Source\GetCPUDescriptorHandle.cpp" />
     <ClCompile Include="Source\GetGPUDescriptorHandle.cpp" />
+    <ClCompile Include="Source\PSO.cpp" />
+    <ClCompile Include="Source\RasterizerState.cpp" />
     <ClCompile Include="Source\RenderTargetView.cpp" />
     <ClCompile Include="Source\CommandList.cpp" />
     <ClCompile Include="Source\CommandQueue.cpp" />
@@ -157,6 +160,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Balloon.h" />
+    <ClInclude Include="Header\BlendState.h" />
     <ClInclude Include="Header\CompileShader.h" />
     <ClInclude Include="Header\FenceEvent.h" />
     <ClInclude Include="Header\Fence.h" />
@@ -201,6 +205,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\Multiply.h" />
     <ClInclude Include="Header\Normalize.h" />
+    <ClInclude Include="Header\PSO.h" />
+    <ClInclude Include="Header\RasterizerState.h" />
     <ClInclude Include="Header\ResourceObject.h" />
     <ClInclude Include="Header\Sound.h" />
     <ClInclude Include="Header\Subtract.h" />
