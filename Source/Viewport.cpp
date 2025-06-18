@@ -2,7 +2,7 @@
 
 //ビューポート
 
-D3D12_VIEWPORT Viewport::Create(const float& width, const float& height) {
+D3D12_VIEWPORT CreateViewport(const float& width, const float& height) {
 
     D3D12_VIEWPORT viewport;
 

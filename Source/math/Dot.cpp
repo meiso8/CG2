@@ -1,4 +1,4 @@
-#include"../Header/Dot.h"
+#include"../../Header/math/Dot.h"
 
 //内積
 float Dot(const Vector3& v1, const Vector3& v2) {

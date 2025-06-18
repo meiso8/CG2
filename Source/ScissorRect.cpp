@@ -1,6 +1,6 @@
 #include "../Header/ScissorRect.h"
 
-D3D12_RECT ScissorRect::Create(const int32_t& width, const int32_t& height) {
+D3D12_RECT CreateScissorRect(const int32_t& width, const int32_t& height) {
     //シザー矩形
     D3D12_RECT scissorRect;
 

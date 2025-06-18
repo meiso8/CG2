@@ -21,49 +21,49 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Add.cpp">
+    <ClCompile Include="Source\math\Add.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Inverse.cpp">
+    <ClCompile Include="Source\math\Inverse.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeAffineMatrix.cpp">
+    <ClCompile Include="Source\math\MakeAffineMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeIdentity4x4.cpp">
+    <ClCompile Include="Source\math\MakeIdentity4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeOrthographicMatrix.cpp">
+    <ClCompile Include="Source\math\MakeOrthographicMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakePerspectiveFovMatrix.cpp">
+    <ClCompile Include="Source\math\MakePerspectiveFovMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeRotateMatrix.cpp">
+    <ClCompile Include="Source\math\MakeRotateMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeScaleMatrix.cpp">
+    <ClCompile Include="Source\math\MakeScaleMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeTranslateMatrix.cpp">
+    <ClCompile Include="Source\math\MakeTranslateMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MakeViewportMatrix.cpp">
+    <ClCompile Include="Source\math\MakeViewportMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Multiply.cpp">
+    <ClCompile Include="Source\math\Multiply.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Subtract.cpp">
+    <ClCompile Include="Source\math\Subtract.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Transpose.cpp">
+    <ClCompile Include="Source\math\Transpose.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\CoordinateTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\cotangent.cpp">
+    <ClCompile Include="Source\math\cotangent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -87,13 +87,13 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Normalize.cpp">
+    <ClCompile Include="Source\math\Normalize.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Length.cpp">
+    <ClCompile Include="Source\math\Length.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Dot.cpp">
+    <ClCompile Include="Source\math\Dot.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Sound.cpp">
@@ -177,55 +177,70 @@
     <ClCompile Include="Source\ScissorRect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CreateBufferResource.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Texture.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderResourceView.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelClass.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.VS.hlsl" />
     <FxCompile Include="resources\shader\Object3d.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header\Add.h">
+    <ClInclude Include="Header\math\Add.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Inverse.h">
+    <ClInclude Include="Header\math\Inverse.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeAffineMatrix.h">
+    <ClInclude Include="Header\math\MakeAffineMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeIdentity4x4.h">
+    <ClInclude Include="Header\math\MakeIdentity4x4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeOrthographicMatrix.h">
+    <ClInclude Include="Header\math\MakeOrthographicMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakePerspectiveFovMatrix.h">
+    <ClInclude Include="Header\math\MakePerspectiveFovMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeRotateMatrix.h">
+    <ClInclude Include="Header\math\MakeRotateMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeScaleMatrix.h">
+    <ClInclude Include="Header\math\MakeScaleMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeTranslateMatrix.h">
+    <ClInclude Include="Header\math\MakeTranslateMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\MakeViewportMatrix.h">
+    <ClInclude Include="Header\math\MakeViewportMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Multiply.h">
+    <ClInclude Include="Header\math\Multiply.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Subtract.h">
+    <ClInclude Include="Header\math\Subtract.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\CoordinateTransform.h">
+    <ClInclude Include="Header\math\CoordinateTransform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Transpose.h">
+    <ClInclude Include="Header\math\Transpose.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\cotangent.h">
+    <ClInclude Include="Header\math\cotangent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -252,34 +267,34 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Normalize.h">
+    <ClInclude Include="Header\math\Normalize.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Length.h">
+    <ClInclude Include="Header\math\Length.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Dot.h">
+    <ClInclude Include="Header\math\Dot.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Header\Material.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Matrix4x4.h">
+    <ClInclude Include="Header\math\Matrix4x4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Transform.h">
+    <ClInclude Include="Header\math\Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Header\TransformationMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Vector2.h">
+    <ClInclude Include="Header\math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Vector3.h">
+    <ClInclude Include="Header\math\Vector3.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Vector4.h">
+    <ClInclude Include="Header\math\Vector4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Header\VertexData.h">
@@ -306,7 +321,7 @@
     <ClInclude Include="Header\D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Matrix3x3.h">
+    <ClInclude Include="Header\math\Matrix3x3.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Header\Depth.h">
@@ -379,6 +394,24 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Header\ScissorRect.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Texture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\CreateBufferResource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ShaderResourceView.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\math\WorldTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\ModelClass.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

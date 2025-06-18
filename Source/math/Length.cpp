@@ -1,5 +1,5 @@
-#include"../Header/Length.h"
-#include"../Header/Dot.h"
+#include"../../Header/math/Length.h"
+#include"../../Header/math/Dot.h"
 #include <cmath>
 
 //長さ(ノルム)
