@@ -3,6 +3,12 @@
 
 void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
+    CreateVertex(device);
+    CreateIndexResource(device);
+}
+
+void Sprite::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+
     //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点4つ)
     vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
 
@@ -33,7 +39,11 @@ void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 #pragma endregion
 
-#pragma region//IndexResourceSpriteを作成
+}
+
+void Sprite::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+
+#pragma region//IndexResourceを作成
     indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 6);
     //Viewを作成する IndexBufferView(IBV)
 
@@ -59,7 +69,6 @@ void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     indexData_[5] = 2;
 
 #pragma endregion
-
 }
 
 void Sprite::Draw(

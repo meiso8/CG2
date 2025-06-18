@@ -9,17 +9,19 @@ class Sprite
 {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device
-);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
     void Draw(
-        CommandList& commandList, 
+        CommandList& commandList,
         const Microsoft::WRL::ComPtr <ID3D12Resource>& materialResource,
         const Microsoft::WRL::ComPtr <ID3D12Resource>& transformationMatrixResource,
         ShaderResourceView& srv
     );
 
     void DrawCall(CommandList& commandList);
+private:
+    void CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
+    void CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     Microsoft::WRL::ComPtr <ID3D12Resource> vertexResource_;
     //頂点バッファビューを作成する
