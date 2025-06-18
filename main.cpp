@@ -72,11 +72,17 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Log.h"
 #include"Header/ShaderResourceView.h"
 #include"Header/ModelClass.h"
+#include"Header/Sprite.h"
+#include"Header/Sound.h"
+#include"Header/Input.h"
+#include"Header/DebugCamera.h"
+#include"Header/Camera.h"
 
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/DirectionalLight.h"
 #include"Header/TransformationMatrix.h"
+#include"Header/ModelData.h"
 
 #include"Header/math/Normalize.h"
 #include"Header/math/Transform.h"
@@ -86,13 +92,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/math/MakePerspectiveFovMatrix.h"
 #include"Header/math/MakeOrthographicMatrix.h"
 #include"Header/math/Multiply.h"
-
-#include"Header/Sound.h"
-#include"Header/Input.h"
-#include"Header/DebugCamera.h"
-#include"Header/Camera.h"
-
-#include"Header/ModelData.h"
 
 #include"Header/Wave.h"//波打ちアニメーション用
 #include"Header/Balloon.h"
@@ -504,25 +503,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region //Sprite 用の頂点リソースを作る
-    //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点6つ)
-    Microsoft::WRL::ComPtr <ID3D12Resource> vertexResourceSprite = CreateBufferResource(device, sizeof(VertexData) * 6);
-
-    Log(logStream, "Create Sprite VertexResource");
-
-    //頂点バッファビューを作成する
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
-    //リソースの先頭アドレスから使う
-    vertexBufferViewSprite.BufferLocation = vertexResourceSprite->GetGPUVirtualAddress();
-    //使用するリソースのサイズ頂点6つ分のサイズ
-    vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 6;
-    //1頂点あたりのサイズ
-    vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
-
-    Log(logStream, "Create Sprite VertexBufferView");
-
-#pragma endregion
-
 #pragma region //Texrureを読んで転送する
 
     DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
@@ -553,7 +533,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());//頂点データをリソースにコピー
     Log(logStream, "WriteDateToResource");
 
-    //2枚目のテクスチャを読む
+    //モデルのテクスチャを読む
     DirectX::ScratchImage mipImages2 = LoadTexture(modelData.material.textureFilePath);
     const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
     Microsoft::WRL::ComPtr<ID3D12Resource>textureResource2 = CreateTextureResource(device, metadata2);
@@ -568,54 +548,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     ShaderResourceView srvClass2;
     srvClass2.Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
-
-#pragma endregion
-
-#pragma region //Sprite用の頂点データの設定
-
-    VertexData* vertexDataSprite = nullptr;
-    vertexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
-    //1枚目の三角形 四頂点でスプライト描画が完成
-    vertexDataSprite[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
-    vertexDataSprite[0].texcoord = { 0.0f,1.0f };
-    vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };//法線
-    vertexDataSprite[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
-    vertexDataSprite[1].texcoord = { 0.0f,0.0f };
-    vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
-    vertexDataSprite[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
-    vertexDataSprite[2].texcoord = { 1.0f,1.0f };
-    vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
-    vertexDataSprite[3].position = { 640.0f,0.0f,0.0f,1.0f };//右上
-    vertexDataSprite[3].texcoord = { 1.0f,0.0f };
-    vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
-
-#pragma endregion
-
-#pragma region//IndexResourceSpriteを作成
-    Microsoft::WRL::ComPtr <ID3D12Resource> indexResourceSprite = CreateBufferResource(device, sizeof(uint32_t) * 6);
-    //Viewを作成する IndexBufferView(IBV)
-    D3D12_INDEX_BUFFER_VIEW  indexBufferViewSprite{};
-    //リソースの先頭アドレスから使う
-    indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
-    //使用するリソースのサイズはインデックス6つ分のサイズ
-    indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
-    //インデックスはuint32_tとする
-    indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
-#pragma endregion
-
-#pragma region//IndexResourceにデータを書き込む
-    //インデックスリーソースにデータを書き込む
-    uint32_t* indexDataSprite = nullptr;
-    indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
-
-    //頂点数を削減
-    indexDataSprite[0] = 0;
-    indexDataSprite[1] = 1;
-    indexDataSprite[2] = 2;
-
-    indexDataSprite[3] = 1;
-    indexDataSprite[4] = 3;
-    indexDataSprite[5] = 2;
 
 #pragma endregion
 
@@ -805,6 +737,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
     ModelClass model;
+    Sprite spriteClass;
+    spriteClass.Create(device);
 
     bool useMonsterBall = false;
 
@@ -1020,6 +954,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelを描画する
 
+
             commandList.GetComandList()->RSSetViewports(1, &viewport);//Viewportを設定
             commandList.GetComandList()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
             //RootSignatureを設定。PSOに設定しているけど別途設定が必要
@@ -1047,18 +982,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//IndexSpriteの描画
 
-            //頂点バッファビューを設定
-            commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);//VBVを設定
-            //IBVを設定new
-            commandList.GetComandList()->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
-            //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-            commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResourceSprite->GetGPUVirtualAddress());
-            //TransformationMatrixCBufferの場所を設定
-            commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-            //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-            commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, srvClass.GetTextureSrvHandleGPU());
-            //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-           /* commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);*/
+            spriteClass.Draw(commandList, materialResourceSprite, transformationMatrixResourceSprite, srvClass);
+            spriteClass.DrawCall(commandList);
 
 #pragma endregion
 

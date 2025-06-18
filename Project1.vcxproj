@@ -150,6 +150,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\TransitionBarrier.cpp" />
     <ClCompile Include="Source\Viewport.cpp" />
     <ClCompile Include="Source\Texture.cpp" />
+    <ClCompile Include="Source\Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -238,6 +239,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Game\Player.h" />
     <ClInclude Include="Header\math\WorldTransform.h" />
     <ClInclude Include="Header\ModelClass.h" />
+    <ClInclude Include="Header\Sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
