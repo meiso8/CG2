@@ -69,6 +69,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "Header/BlendState.h"
 #include"Header/RasterizerState.h"
 #include"Header/PSO.h"
+#include"Header/ViewPort.h"
+#include "Header/ScissorRect.h"
 
 #include"Header/Log.h"
 
@@ -364,8 +366,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
     SoundData soundData1 = sound.SoundLoad(L"resources/Alarm01.wav");
     SoundData soundData2 = sound.SoundLoad(L"resources/dreamcore.mp3");
-    //std::string path = "resources/dreamcore.mp3";
-    //SoundDataMP3 soundData2 = sound.SoundLoadMP3(ConvertString(path));
 
 #pragma endregion
 
@@ -408,16 +408,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//DescriptorHeapを生成する
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-
     //ファイルへのログ出力
-    Log(logStream, "CreateRTVDescriptorHeap");
+    Log(logStream, "Create RTV DescriptorHeap");
 
 #pragma endregion
 
 #pragma region //SRV　SRVやCBV用のDescriptorHeapは一旦ゲーム中に一つだけ
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-
+    Log(logStream, "Create SRV DescriptorHeap");
 #pragma endregion
 
 #pragma region//SwapChainからResourceを引っ張ってくる
@@ -925,24 +924,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//ViewportとScissor(シザー)
-    //ビューポート
-    D3D12_VIEWPORT viewport{};
-    //クライアント領域のサイズと一緒にして画面全体に表示 , windowClass.GetClientHeight()
-    viewport.Width = static_cast<float>(wc.GetClientWidth());
-    viewport.Height = static_cast<float>(wc.GetClientHeight());
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
 
-    //シザー矩形
-    D3D12_RECT scissorRect{};
-    //基本的にビューポートと同じ矩形が構成されるようにする
-    scissorRect.left = 0;
-    scissorRect.right = wc.GetClientWidth();
-    scissorRect.top = 0;
-    scissorRect.bottom = wc.GetClientHeight();
-
+    Viewport viewporClass;
+    D3D12_VIEWPORT viewport = viewporClass.Create(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
+    ScissorRect scissorRectClass;
+    D3D12_RECT scissorRect = scissorRectClass.Create(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
 
 #pragma endregion

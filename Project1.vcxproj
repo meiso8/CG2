@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ScissorRect.cpp" />
     <ClCompile Include="Source\BlendState.cpp" />
     <ClCompile Include="Source\CompileShader.cpp" />
     <ClCompile Include="Source\Log.cpp" />
@@ -143,6 +144,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Window.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
     <ClCompile Include="Source\TransitionBarrier.cpp" />
+    <ClCompile Include="Source\Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -223,6 +225,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\SwapChain.h" />
     <ClInclude Include="Header\RenderTargetView.h" />
     <ClInclude Include="Header\TransitionBarrier.h" />
+    <ClInclude Include="Header\Viewport.h" />
+    <ClInclude Include="Header\ScissorRect.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
