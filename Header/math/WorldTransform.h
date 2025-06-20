@@ -1,12 +1,20 @@
 #pragma once
 
-#include"../Header/math/Vector3.h"
-#include"../Header/math/Matrix4x4.h"
+#include"Vector3.h"
+#include"Matrix4x4.h"
 
-struct WorldTransform {
+class WorldTransform {
+private:
+    Vector3 scale_;
+    Vector3 rotate_;
+    Vector3 transform_;
+    Matrix4x4 matWorld_;
+public:
+    void Initialize();
+    void SetTransform(const Vector3& transform) {
+        transform_ = transform
+            ;
+    };
 
-    Vector3 scale;
-    Vector3 rotate;
-    Vector3 transform;
-    Matrix4x4 matWorld;
+
 };

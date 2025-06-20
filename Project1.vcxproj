@@ -92,8 +92,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Game\Player.cpp" />
-    <ClCompile Include="Source\ModelClass.cpp" />
+    <ClCompile Include="Source\MaterialResource.cpp" />
+    <ClCompile Include="Source\math\AABB.cpp" />
+    <ClCompile Include="Source\math\WorldTransform.cpp" />
+    <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\ShaderResourceView.cpp" />
     <ClCompile Include="Source\CreateBufferResource.cpp" />
     <ClCompile Include="Source\ScissorRect.cpp" />
@@ -189,6 +191,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="Header\MaterialResource.h" />
+    <ClInclude Include="Header\math\AABB.h" />
     <ClInclude Include="Header\math\Add.h" />
     <ClInclude Include="Header\math\cotangent.h" />
     <ClInclude Include="Header\Depth.h" />
@@ -211,6 +215,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\MaterialData.h" />
     <ClInclude Include="Header\math\Matrix3x3.h" />
     <ClInclude Include="Header\math\Matrix4x4.h" />
+    <ClInclude Include="Header\math\TransformVector.h" />
     <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\math\Multiply.h" />
     <ClInclude Include="Header\math\Normalize.h" />
@@ -236,9 +241,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\ScissorRect.h" />
     <ClInclude Include="Header\Texture.h" />
     <ClInclude Include="Header\ShaderResourceView.h" />
-    <ClInclude Include="Game\Player.h" />
     <ClInclude Include="Header\math\WorldTransform.h" />
-    <ClInclude Include="Header\ModelClass.h" />
+    <ClInclude Include="Header\Model.h" />
     <ClInclude Include="Header\Sprite.h" />
   </ItemGroup>
   <ItemGroup>

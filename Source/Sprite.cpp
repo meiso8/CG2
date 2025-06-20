@@ -1,10 +1,27 @@
 #include "../Header/Sprite.h"
 #include"../Header/CreateBufferResource.h"
+#include"../Header/TransformationMatrix.h"
+#include"../Header/math/MakeAffineMatrix.h"
+#include"../Header/math/MakeIdentity4x4.h"
+#include"../Header/math/Multiply.h"
 
-void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera) {
+
+    camera_ = &camera;
 
     CreateVertex(device);
     CreateIndexResource(device);
+    CreateTransformationMatrix(device);
+    CreateMaterial(device);
+
+    uvTransform_ = {
+          {1.0f,1.0f,1.0f},
+          {0.0f,0.0f,0.0f},
+          {0.0f,0.0f,0.0f},
+    };
+
+    uvTransformMatrix_ = MakeIdentity4x4();
+
 }
 
 void Sprite::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -71,10 +88,45 @@ void Sprite::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& dev
 #pragma endregion
 }
 
+void Sprite::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+
+    //Matrix4x4　1つ分のサイズを用意
+    transformationMatrixResource_ = CreateBufferResource(device, sizeof(TransformationMatrix));
+    //データを書き込む
+    //書き込むためのアドレスを取得
+    transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+
+    transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_, worldMatrix_ };
+}
+
+void Sprite::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+
+    //マテリアルリソースを作成
+    materialResource_.CreateMaterial(device, false);
+
+}
+
+void Sprite::Update() {
+
+    UpdateUV();
+
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
+}
+
+void Sprite::UpdateUV() {
+
+    uvTransformMatrix_ = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
+    materialResource_.SetUV(uvTransformMatrix_);
+}
+
 void Sprite::Draw(
     CommandList& commandList,
-    const Microsoft::WRL::ComPtr <ID3D12Resource>& materialResource,
-    const Microsoft::WRL::ComPtr <ID3D12Resource>& transformationMatrixResource,
+
     ShaderResourceView& srv
 ) {
 
@@ -83,15 +135,13 @@ void Sprite::Draw(
     //IBVを設定new
     commandList.GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+    commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
     //TransformationMatrixCBufferの場所を設定
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource->GetGPUVirtualAddress());
+    commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
     commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
 
-};
-
-void Sprite::DrawCall(CommandList& commandList) {
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
     commandList.GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 };
+

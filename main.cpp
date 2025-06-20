@@ -71,7 +71,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/CreateBufferResource.h"
 #include"Header/Log.h"
 #include"Header/ShaderResourceView.h"
-#include"Header/ModelClass.h"
+#include"Header/Model.h"
 #include"Header/Sprite.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
@@ -551,45 +551,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Material用のResourceを作る
-    //マテリアル用のリソースを作る。
-    Microsoft::WRL::ComPtr <ID3D12Resource> materialResource = CreateBufferResource(device, sizeof(Material));
-    //マテリアルにデータを書き込む
-    Material* materialData = nullptr;
-    //書き込むためのアドレスを取得
-    materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-    //今回は白
-    materialData->color = { 1.0f, 1.0f, 1.0f, 1.0f };
-    materialData->enableLighting = true;
-    materialData->uvTransform = MakeIdentity4x4();
-    Log(logStream, "MakeResourceForMaterial");
-
-    //Sprite用のマテリアルを作成
-    //マテリアル用のリソースを作る。
-    Microsoft::WRL::ComPtr <ID3D12Resource> materialResourceSprite = CreateBufferResource(device, sizeof(Material));
-    //マテリアルにデータを書き込む
-    Material* materialDataSprite = nullptr;
-    //書き込むためのアドレスを取得
-    materialResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&materialDataSprite));
-    materialDataSprite->color = { 1.0f, 1.0f, 1.0f, 1.0f };
-    materialDataSprite->enableLighting = false;
-    materialDataSprite->uvTransform = MakeIdentity4x4();
-
-    Log(logStream, "MakeResourceForMaterialSprite");
-
-#pragma endregion
-
-#pragma region//UVTransform
-    Transform uvTransformSprite{
-        {1.0f,1.0f,1.0f},
-        {0.0f,0.0f,0.0f},
-        {0.0f,0.0f,0.0f},
-    };
-
-    Matrix4x4 uvTransformMatrix = MakeIdentity4x4();
-
-#pragma endregion
-
 #pragma region//time
 
     int waveCount = 2;
@@ -642,46 +603,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     camera.SetTransform(cameraTransform);
     camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
 
-    Camera cameraSprite;
-    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
-
 #pragma endregion
 
-#pragma region//TransformationMatrix用のResourceを作る
-
-    //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
-    Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource = CreateBufferResource(device, sizeof(TransformationMatrix));
-    //データを書き込む
-    TransformationMatrix* wvpDate = nullptr;
-    //書き込むためのアドレスを取得
-    wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
-
-    //三角形の座標
-    Transform transform = { {1.0f,1.0f,1.0f},{std::numbers::pi_v<float>*7.0f / 4.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-    //三角形の行列
-    Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-    //WVpMatrixを作る
-    Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
-    *wvpDate = { worldViewProjectionMatrix,worldMatrix };
-
-    Log(logStream, "MakeResourceForTransformationMatrix");
-
-#pragma endregion
-
-#pragma region//Sprite用のTransformationMatrix用のリソースを作る。
-    //Matrix4x4　1つ分のサイズを用意
-    Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResourceSprite = CreateBufferResource(device, sizeof(TransformationMatrix));
-    //データを書き込む
-    TransformationMatrix* transformationMatrixDataSprite = nullptr;
-    //書き込むためのアドレスを取得
-    transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
-
-    Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-    Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-    Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, cameraSprite.GetViewProjectionMatrix());
-    *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite, worldMatrixSprite };
-
-#pragma endregion
 
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
@@ -736,9 +659,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 #pragma endregion
 
-    ModelClass model;
-    Sprite spriteClass;
-    spriteClass.Create(device);
+    Model model;
+    model.Create(device, camera);
+
+    Camera cameraSprite;
+    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
+
+    Sprite sprite;
+    sprite.Create(device, cameraSprite);
 
     bool useMonsterBall = false;
 
@@ -786,7 +714,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             Vector3 waveDirection1 = waveData[0].direction;
             waveData[0].direction = Normalize(waveDirection1);
 
-
             ImGui::Begin("Wave2");
             ImGui::DragFloat("time2", &waveData[1].time, 0.03f);
             ImGui::DragFloat("amplitude2", &waveData[1].amplitude, 0.03f);
@@ -795,7 +722,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::End();
             Vector3 waveDirection2 = waveData[1].direction;
             waveData[1].direction = Normalize(waveDirection2);
-
 
             ImGui::Begin("expansion");
             ImGui::DragFloat("expansionData", &expansionData->expansion, 0.03f);
@@ -824,18 +750,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
          /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Model");
             ImGui::Checkbox("useMonsterBall", &useMonsterBall);
-            ImGui::SliderFloat3("scale", &transform.scale.x, 0.0f, 8.0f);
-            ImGui::SliderFloat3("rotate", &transform.rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &transform.translate.x, -2.0f, 2.0f);
-            ImGui::ColorPicker4("materialColor", &(materialData->color.x));
+            ImGui::SliderFloat3("scale", &model.GetTransformRef().scale.x, 0.0f, 8.0f);
+            ImGui::SliderFloat3("rotate", &model.GetTransformRef().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("translate", &model.GetTransformRef().translate.x, -2.0f, 2.0f);
+            ImGui::ColorPicker4("materialColor", &(model.Getmaterial()->color.x));
             ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
             ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
             ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
 
             if (ImGui::Button("Init")) {
-                transform.scale = { 1.0f, 1.0f, 1.0f };
-                transform.rotate = { 0.0f };
-                transform.translate = { 0.0f };
+
+                model.InitTraslate();
+
             }
 
             ImGui::End();
@@ -846,13 +772,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::Begin("Sprite");
 
-            ImGui::SliderFloat3("scale", &transformSprite.scale.x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &transformSprite.rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &transformSprite.translate.x, -128.0f, 1280.0f);
-            ImGui::ColorPicker4("materialColor", &(materialDataSprite->color.x));
-            ImGui::DragFloat2("uv : translate", &(uvTransformSprite.translate.x), 0.01f, -10.0f, 10.0f);
-            ImGui::DragFloat2("uv : scale", &(uvTransformSprite.scale.x), 0.01f, -10.0f, 10.0f);
-            ImGui::SliderAngle("uv : rotate", &(uvTransformSprite.rotate.z));
+            ImGui::SliderFloat3("scale", &sprite.GetTranslateRef().x, 0.0f, 4.0f);
+            ImGui::SliderFloat3("rotate", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("translate", &sprite.GetTranslateRef().x, -128.0f, 1280.0f);
+            ImGui::ColorPicker4("materialColor", &sprite.Getmaterial()->color.x);
+            ImGui::DragFloat2("uv : scale", &sprite.GetUVTranslateRef().x, 0.01f, -10.0f, 10.0f);
+            ImGui::DragFloat2("uv : rotate", &sprite.GetUVRotateRef().x, 0.01f, -10.0f, 10.0f);
+            ImGui::SliderAngle("uv : translate", &sprite.GetUVTranslateRef().x);
 
             ImGui::End();
 
@@ -860,16 +786,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            //if (input.IsTriggerKey(DIK_1)) {
-            //    //音声再生
-            //    sound.SoundPlay(soundData1);
-            //    useMonsterBall = (useMonsterBall) ? false : true;
-            //}
+            if (input.IsTriggerKey(DIK_1)) {
+                //音声再生
+                sound.SoundPlay(soundData1);
+                useMonsterBall = (useMonsterBall) ? false : true;
+            }
 
-            //if (input.IsTriggerKey(DIK_2)) {
-            //    //音声再生
-            //    sound.SoundPlay(soundData2);
-            //}
+            if (input.IsTriggerKey(DIK_2)) {
+                //音声再生
+                sound.SoundPlay(soundData2);
+            }
 
             if (input.IsTriggerKey(DIK_SPACE)) {
                 //デバッグの切り替え
@@ -892,29 +818,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
-#pragma region//UVの更新処理
-            uvTransformMatrix = MakeAffineMatrix(uvTransformSprite.scale, uvTransformSprite.rotate, uvTransformSprite.translate);
-            materialDataSprite->uvTransform = uvTransformMatrix;
-#pragma endregion
+            //Modelの更新
+            model.Update();
 
-#pragma region //Modelの更新
-
-            //Model行列
-            worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-            //WVpMatrixを作る 
-            worldViewProjectionMatrix = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
-            //データを書き込む
-            *wvpDate = { worldViewProjectionMatrix,worldMatrix };
-
-#pragma endregion
-
-#pragma region//Spriteの更新処理
-
-            worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-            worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, cameraSprite.GetViewProjectionMatrix());
-            *transformationMatrixDataSprite = { worldViewProjectionMatrixSprite,worldMatrixSprite };
-
-#pragma endregion
+            //Spriteの更新処理
+            sprite.Update();
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
@@ -966,7 +874,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //ファイルへのログ出力
             Log(logStream, "DrawModel");
 
-            model.Draw(commandList, vertexBufferView, materialResource, wvpResource, srvClass2);
+            model.Draw(commandList, vertexBufferView, srvClass2);
 
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
@@ -980,12 +888,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//IndexSpriteの描画
-
-            spriteClass.Draw(commandList, materialResourceSprite, transformationMatrixResourceSprite, srvClass);
-            spriteClass.DrawCall(commandList);
-
-#pragma endregion
+            //IndexSpriteの描画
+            sprite.Draw(commandList, srvClass);
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む

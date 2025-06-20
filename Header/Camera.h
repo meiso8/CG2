@@ -13,6 +13,7 @@ private:
     Matrix4x4 viewMatrix_ = {};
     //射影行列
     Matrix4x4 projectionMatrix_ = {};
+    float farZ_;
 
     float width_{};
     float height_{};
@@ -32,4 +33,14 @@ public:
         rotation_ = transform.rotate;
         translate_ = transform.translate;
     };
+
+    Vector3 GetTranslate() {
+        return translate_
+            ;
+    };
+
+    void SetFarZ(const float& farZ) { farZ_ = farZ; };
+    void SetTarnslate(const Vector3& translate) { translate_ = translate; };
+    void SetTarnslateX(const float& translateX) { translate_.x = translateX; };
+    void SetTarnslateY(const float& translateY) { translate_.y = translateY; };
 };
