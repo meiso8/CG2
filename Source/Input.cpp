@@ -37,7 +37,7 @@ HRESULT Input::Initalize(const WNDCLASS& wc, const HWND& hwnd) {
 };
 
 
-bool Input::IsPressStateKey(const uint8_t& keyNum) {
+bool Input::IsPushKey(const uint8_t& keyNum) {
 
     if (key_[keyNum]) {
         return true;

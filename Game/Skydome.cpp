@@ -1,38 +1,35 @@
 #include "Skydome.h"
+#include<cassert>
 
-
-#include "3d/WorldTransform.h"
-
+#include "../Header/math/WorldTransform.h"
 
 void Skydome::Initialize(Model* model, Camera* camera) {
 
-	//// NULLポインタチェック
-	//assert(model);
+    //// NULLポインタチェック
+    //assert(model);
 
-	// 引数として受け取ったデータをメンバ変数に記録する
-	model_ = model;
-	camera_ = camera;
+    // 引数として受け取ったデータをメンバ変数に記録する
+    model_ = model;
+    camera_ = camera;
 
-	// ワールド変換の初期化
-	worldTransform_.Initialize();
+    // ワールド変換の初期化
+    worldTransform_.Initialize();
 }
 
 void Skydome::Update() {
 
-	// 行列を定数バッファに転送
-	worldTransform_.TransferMatrix();
-	// 中身は定数バッファへの書き込み。
+    // 行列を定数バッファに転送
+    worldTransform_.TransferMatrix();
+    // 中身は定数バッファへの書き込み。
 }
 
 void Skydome::Draw() {
-	// DirectXCommonインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
+    // 3Dモデル描画前処理
+    Model::PreDraw(dxCommon->GetCommandList());
 
-	// 3Dモデルを描画
-	model_->Draw(worldTransform_, *camera_);
+    // 3Dモデルを描画
+    model_->Draw(worldTransform_, *camera_);
 
-	Model::PostDraw();
+    Model::PostDraw();
 }

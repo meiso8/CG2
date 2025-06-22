@@ -1,6 +1,9 @@
 #include<numbers>
 #include<format>//フォーマットを推論してくれる
 
+
+
+
 #pragma region //自作関数
 #include"Header/Window.h"
 #include"Header/CommandQueue.h"
@@ -55,6 +58,30 @@
 #include"Header/Balloon.h"
 
 #pragma endregion
+
+
+#include "Game/TitleScene.h"
+#include "Game/GameScene.h"
+
+GameScene* gameScene = nullptr;
+TitleScene* titleScene = nullptr;
+
+// シーン
+enum class Scene {
+    kUnknown = 0,
+    kTitle,
+    kGame,
+};
+
+// 現在のシーン(型)
+Scene scene = Scene::kUnknown;
+
+void ChangeScene();
+void UpdateScene();
+void DrawScene();
+
+
+
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -165,11 +192,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #ifdef _DEBUG
-
     DebugError debugError;
     debugError.Create(device);
     Log(logStream, "SetDebugError");
-
 #endif
 
 #pragma endregion
@@ -195,16 +220,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         wc.GetHwnd());
     Log(logStream, "CreateSwapChain");
 
-
 #pragma region//DescriptorHeapを生成する
-
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
     Log(logStream, "Create RTV DescriptorHeap");
-
 #pragma endregion
 
 #pragma region //SRV　SRVやCBV用のDescriptorHeapは一旦ゲーム中に一つだけ
-
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
     Log(logStream, "Create SRV DescriptorHeap");
 #pragma endregion
@@ -662,6 +683,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
+            scene = Scene::kTitle;
+            titleScene = new TitleScene();
+            // ゲームシーンの初期化
+            titleScene->Initialize();
+
+            ChangeScene();
+            // シーンの更新
+            UpdateScene();
+
+
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
@@ -767,6 +798,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //IndexSpriteの描画
             sprite.Draw(commandList, srvClass[0]);
 
+            // シーンの描画
+            DrawScene();
+
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
             imGuiClass.DrawImGui(commandList);
@@ -784,7 +818,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //4.コマンドリストの内容を確定させる。全てのコマンドを詰んでから　Closesすること。
             hr = commandList.GetComandList()->Close();
             assert(SUCCEEDED(hr));
-
             Log(logStream, "CloseCommandList");
 
             //5.GPUにコマンドリストの実行を行わせる
@@ -811,6 +844,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
+
+    if (titleScene != nullptr) {
+        delete titleScene;
+    }
+
+    if (gameScene != nullptr) {
+        delete gameScene;
+    }
+
     CoUninitialize();
 
 #ifdef _DEBUG
@@ -831,3 +873,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     return 0;
 }
+
+void UpdateScene() {
+
+    switch (scene) {
+    case Scene::kTitle:
+        titleScene->Update();
+        break;
+    case Scene::kGame:
+        gameScene->Update();
+        break;
+    }
+}
+
+void DrawScene() {
+
+    switch (scene) {
+    case Scene::kTitle:
+        titleScene->Draw();
+        break;
+    case Scene::kGame:
+        gameScene->Draw();
+        break;
+    }
+};

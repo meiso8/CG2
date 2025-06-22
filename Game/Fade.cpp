@@ -67,15 +67,7 @@ void Fade::Start(Status status, float duration) {
 void Fade::Stop() { status_ = Status::None; }
 
 bool Fade::IsFinished() const {
-	// フェード状態による分岐
-	//switch (status_) {
-	//case Status::FadeIn:
-	//	return (counter_ >= duration_) ? true : false;
-	//	break;
-	//case Status::FadeOut:
 
-	//	break;
-	//}
 	return (counter_ >= duration_) ? true : false;
 
 }

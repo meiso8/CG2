@@ -9,7 +9,7 @@ public:
     HRESULT Initalize(const WNDCLASS& wc, const HWND& hwnd);
 
     /// @brief キーを押した状態 
-    bool IsPressStateKey(const uint8_t& key);
+    bool IsPushKey(const uint8_t& key);
     /// @briefキーを押した瞬間
     bool IsTriggerKey(const uint8_t& key);
     /// @briefキーを離した状態

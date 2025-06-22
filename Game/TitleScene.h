@@ -5,6 +5,7 @@
 #include <numbers>
 #include"../Header/Model.h"
 #include"../Header/Camera.h"
+#include"../Header/Input.h"
 
 /// @brief タイトルシーン
 class TitleScene {
@@ -31,6 +32,8 @@ private:
     WorldTransform worldTransform_;
     // カメラ
     Camera camera_;
+    Input input_;
+
     // カメラ回転速度
     static inline float kCameraRotateSpeedZ = std::numbers::pi_v<float> / 120.0f;
     // 終了フラグ

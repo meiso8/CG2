@@ -76,9 +76,6 @@ void DeathParticles::Draw() {
 		return;
 	}
 
-	// DirectXCommonインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 

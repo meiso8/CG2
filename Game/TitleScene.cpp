@@ -5,10 +5,10 @@
 void TitleScene::Initialize() {
 
 	// カメラの初期化
-	camera_.Initialize();
-	camera_.farZ = 1000;
-	camera_.translation_.z = -5.0f;
-	camera_.UpdateMatrix();
+	camera_.Initialize(1280,720,false);
+	camera_.SetFarZ(1000.0f);
+	camera_.SetTarnslateZ(-5.0f);
+	camera_.Update();
 
 	// プレイヤーの生成 OBJからの生成
 	playerModel_ = Model::CreateFromOBJ("player", true);
@@ -37,7 +37,7 @@ void TitleScene::Update() {
 		break;
 	case Phase::kMain:
 
-		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+		if (input_.IsPushKey(DIK_SPACE)) {
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 			phase_ = Phase::kFadeOut;
 		}
@@ -57,8 +57,6 @@ void TitleScene::Update() {
 
 void TitleScene::Draw() {
 
-	// DirectXCommonインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());

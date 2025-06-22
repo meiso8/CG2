@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "../Header/math/AABB.h"
 #include "WorldTransformUpdate.h"
-
+#include"../Header/ImGuiClass.h"
 
 const int winWidth = 1280;
 const int winHeight = 720;
@@ -43,7 +43,7 @@ void GameScene::Initialize() {
     player_ = new Player();
     Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(4, 17);
     // 自キャラの初期化
-    player_->Initialize(playerModel_, &camera_, playerPosition);
+    player_->Initialize(playerModel_, &camera_, &input_,playerPosition);
     player_->SetMapChipField(mapChipField_);
 
     // 敵のモデル生成
@@ -99,7 +99,7 @@ void GameScene::GenerateBlocks() {
                 WorldTransform* worldTransform = new WorldTransform();
                 worldTransform->Initialize();
                 worldTransformBlocks_[i][j] = worldTransform;
-                worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+                worldTransformBlocks_[i][j]->translate_ = mapChipField_->GetMapChipPositionByIndex(j, i);
             }
         }
     }
@@ -142,25 +142,25 @@ void GameScene::DeathParticlesUpdate() {
 
 void GameScene::DebugCameraUpdate() {
 
-    if (Input::GetInstance()->TriggerKey(DIK_1)) {
+    if (input_.IsTriggerKey(DIK_1)) {
         // スペースキーを押すとデバッグカメラに切り替える
         isDebugCameraActive_ = isDebugCameraActive_ ? false : true;
     }
 
-    ImGui::SliderFloat3("camera translate", &camera_.translation_.x, -128.0f, 128.0f);
+    ImGui::SliderFloat3("camera translate", &camera_.translate_.x, -128.0f, 128.0f);
 
     // カメラの処理
     if (isDebugCameraActive_) {
         // デバッグカメラの更新
         debugCamera_->Update();
-        camera_.matView = debugCamera_->GetCamera().matView;
-        camera_.matProjection = debugCamera_->GetCamera().matProjection;
+        camera_.SetViewMatrix( debugCamera_->GetViewMatrix());
+        camera_.SetProjectionMatrix(debugCamera_->GetProjectionMatrix());
         // ビュープロジェクション行列の転送
         camera_.TransferMatrix();
 
     } else {
         // ビュープロジェクション行列の更新と転送
-        camera_.UpdateMatrix();
+        camera_.Update();
     }
 };
 
@@ -314,8 +314,6 @@ void GameScene::Draw() {
         newEnemy->Draw();
     }
 
-    // DirectXCommonインスタンスの取得
-    DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
     // 3Dモデルの描画前処理
     Model::PreDraw(dxCommon->GetCommandList());
