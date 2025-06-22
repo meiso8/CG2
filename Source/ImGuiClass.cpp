@@ -41,7 +41,7 @@ void ImGuiClass::DrawImGui(CommandList& commandList) {
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.GetComandList().Get());
 }
 
-void ImGuiClass::ShatDown() {
+void ImGuiClass::ShutDown() {
 
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();

@@ -1,18 +1,5 @@
-#include <Windows.h>
 #include<numbers>
-
 #include<format>//フォーマットを推論してくれる
-
-//#pragma region //ImGuiのincludeと関数の外部宣言
-//#ifdef _DEBUG
-//
-//#include"externals/imgui/imgui.h"
-//#include"externals/imgui/imgui_impl_dx12.h"
-//#include"externals/imgui/imgui_impl_win32.h"
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-//
-//#endif
-//#pragma endregion
 
 #pragma region //自作関数
 #include"Header/Window.h"
@@ -68,7 +55,6 @@
 #include"Header/Balloon.h"
 
 #pragma endregion
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -581,18 +567,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     ImGuiClass imGuiClass;
     imGuiClass.Initialize(wc.GetHwnd(), device.Get(), swapChainClass.GetSwapChainDesc(), rtvClass.GetDesc(), srvDescriptorHeap);
-
-    //IMGUI_CHECKVERSION();
-    //ImGui::CreateContext();
-    //ImGui::StyleColorsDark();
-    //ImGui_ImplWin32_Init(wc.GetHwnd());
-    //ImGui_ImplDX12_Init(device.Get(),
-    //    swapChainClass.GetSwapChainDesc().BufferCount,
-    //    rtvClass.GetDesc().Format,
-    //    srvDescriptorHeap.Get(),
-    //    srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-    //    srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
     Log(logStream, "InitImGui");
 #endif
 #pragma endregion
@@ -626,20 +600,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //キーボード情報の取得開始
             input.InputInfoGet();
 
-#pragma region//ImGuiにここからフレームが始まる旨を伝える
-
 #ifdef _DEBUG
-
+            //ImGuiにここからフレームが始まる旨を伝える
             imGuiClass.FrameStaert();
-
-            //ImGui_ImplDX12_NewFrame();
-            //ImGui_ImplWin32_NewFrame();
-            //ImGui::NewFrame();
 #endif
-
-#pragma endregion
-
-            //ゲームの処理
 
 #pragma region //ゲームの処理
 
@@ -836,9 +800,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
-            //実際のcommandListのImGuiの描画コマンドを積む
-  /*          ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.GetComandList().Get());*/
-
             imGuiClass.DrawImGui(commandList);
 
 #endif // _DEBUG
@@ -884,14 +845,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     CoUninitialize();
 
 #ifdef _DEBUG
-
     //ImGuiの終了処理 ゲームループが終わったら行う
-    //初期化と逆順に行う
-    //ImGui_ImplDX12_Shutdown();
-    //ImGui_ImplWin32_Shutdown();
-    //ImGui::DestroyContext();
-
-    imGuiClass.ShatDown();
+    imGuiClass.ShutDown();
 
 #endif
 

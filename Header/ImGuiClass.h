@@ -34,7 +34,7 @@ public:
 
     void DrawImGui(CommandList& commandList);
 
-    void ShatDown();
+    void ShutDown();
 
 };
 
