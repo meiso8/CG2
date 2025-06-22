@@ -23,34 +23,6 @@
 //void UpdateScene();
 //void DrawScene();
 
-#include"Header/Wave.h"//波打ちアニメーション用
-#include"Header/Balloon.h"
-
-#pragma endregion
-
-
-#include "Game/TitleScene.h"
-#include "Game/GameScene.h"
-
-GameScene* gameScene = nullptr;
-TitleScene* titleScene = nullptr;
-
-// シーン
-enum class Scene {
-    kUnknown = 0,
-    kTitle,
-    kGame,
-};
-
-// 現在のシーン(型)
-Scene scene = Scene::kUnknown;
-
-void ChangeScene();
-void UpdateScene();
-void DrawScene();
-
-
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -81,67 +53,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     dxgiFactory.Create();
     Log(logStream, "CreateDXGIFactory");
 
-#pragma region//使用するアダプタ(GPU)を決定する
-
-    Microsoft::WRL::ComPtr <IDXGIAdapter4> useAdapter = nullptr;
-    //良い順にアダプタを頼む
-    for (UINT i = 0;   dxgiFactory.GetDigiFactory()->EnumAdapterByGpuPreference(i,
-        DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) !=
-        DXGI_ERROR_NOT_FOUND; ++i) {
-        //アダプタの情報を取得する
-        DXGI_ADAPTER_DESC3 adapterDesc{};
-        hr = useAdapter->GetDesc3(&adapterDesc);
-        assert(SUCCEEDED(hr));//取得できないのは一大事
-
-        //ソフトウェアアダプタでなければ採用！
-        if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
-            //採用したアダプタ情報をログに出力。wstringの方なので注意
-            Log(ConvertString(std::format(L"Use Adapter:{}\n", adapterDesc.Description)));
-            break;
-        }
-
-        useAdapter = nullptr;//ソフトウェアアダプタの場合は見なかったことにする
-
-    }
-
-    //適切なアダプタが見つからなかったので起動できない
-    assert(useAdapter != nullptr);
-
-    //ファイルへのログ出力
+    //使用するアダプタ(GPU)を決定する
+    GPU gpu;
+    gpu.SettingGPU(dxgiFactory.GetDigiFactory());
     Log(logStream, "Set GPU");
 
-#pragma endregion
-
-#pragma region//D3D12Deviceの生成
-
-    Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
-
-    //機能レベル(FEATURE_LEVEL)とログの出力用の文字列
-    D3D_FEATURE_LEVEL featureLevels[] = {
-      D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0
-    };
-
-    const char* featureLevelStrings[] = { "12.2","12.1","12.0" };
-    //高い順に生成出来るか試していく
-    for (size_t i = 0; i < _countof(featureLevels); ++i) {
-        //採用したアダプターでデバイスを生成
-        hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(&device));
-        //指定した機能レベルでデバイスが生成できたかを確認する
-        if (SUCCEEDED(hr)) {
-
-            Log(std::format("FeatureLevel : {}\n", featureLevelStrings[i]));
-            break;
-        }
-    }
-
-    //デバイスの生成が上手くいかなかったので起動できない
-    assert(device != nullptr);
+    //D3D12Deviceの生成
+    Microsoft::WRL::ComPtr<ID3D12Device> device = gpu.CreateD3D12Device();
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
-
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
 
-#pragma endregion
 
     //DirectInputオブジェクト
     Input input;
@@ -652,14 +574,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            scene = Scene::kTitle;
-            titleScene = new TitleScene();
-            // ゲームシーンの初期化
-            titleScene->Initialize();
+            //scene = Scene::kTitle;
+            //titleScene = new TitleScene();
+            //// ゲームシーンの初期化
+            //titleScene->Initialize();
 
-            ChangeScene();
-            // シーンの更新
-            UpdateScene();
+            //ChangeScene();
+            //// シーンの更新
+            //UpdateScene();
 
 
             if (input.IsTriggerKey(DIK_1)) {
@@ -686,7 +608,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (isDebug) {
                 //デバッグカメラに切り替え
                 camera.SetViewMatrix(debugCamera.GetViewMatrix());
-                camera.SetprojectionMatrix(debugCamera.GetProjectionMatrix());
+                camera.SetProjectionMatrix(debugCamera.GetProjectionMatrix());
                 debugCamera.Update();
 
             } else {
@@ -767,8 +689,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //IndexSpriteの描画
             sprite.Draw(commandList, srvClass[0]);
 
-            // シーンの描画
-            DrawScene();
+            //// シーンの描画
+            //DrawScene();
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
@@ -814,13 +736,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
 
-    if (titleScene != nullptr) {
-        delete titleScene;
-    }
+    //if (titleScene != nullptr) {
+    //    delete titleScene;
+    //}
 
-    if (gameScene != nullptr) {
-        delete gameScene;
-    }
+    //if (gameScene != nullptr) {
+    //    delete gameScene;
+    //}
 
     CoUninitialize();
 
@@ -843,26 +765,55 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     return 0;
 }
 
-void UpdateScene() {
 
-    switch (scene) {
-    case Scene::kTitle:
-        titleScene->Update();
-        break;
-    case Scene::kGame:
-        gameScene->Update();
-        break;
-    }
-}
-
-void DrawScene() {
-
-    switch (scene) {
-    case Scene::kTitle:
-        titleScene->Draw();
-        break;
-    case Scene::kGame:
-        gameScene->Draw();
-        break;
-    }
-};
+//void ChangeScene() {
+//    switch (scene) {
+//    case Scene::kTitle:
+//        if (titleScene->IsFinished()) {
+//            // シーン処理
+//            scene = Scene::kGame;
+//            // 旧シーンの解放
+//            delete titleScene;
+//            titleScene = nullptr;
+//            // 新シーンの生成と初期化
+//            gameScene = new GameScene;
+//            gameScene->Initialize();
+//        }
+//        break;
+//    case Scene::kGame:
+//
+//        if (gameScene->IsFinished()) {
+//            scene = Scene::kTitle;
+//            delete gameScene;
+//            gameScene = nullptr;
+//            titleScene = new TitleScene;
+//            titleScene->Initialize();
+//        }
+//
+//        break;
+//    }
+//};
+//
+//void UpdateScene() {
+//
+//    switch (scene) {
+//    case Scene::kTitle:
+//        titleScene->Update();
+//        break;
+//    case Scene::kGame:
+//        gameScene->Update();
+//        break;
+//    }
+//}
+//
+//void DrawScene() {
+//
+//    switch (scene) {
+//    case Scene::kTitle:
+//        titleScene->Draw();
+//        break;
+//    case Scene::kGame:
+//        gameScene->Draw();
+//        break;
+//    }
+//};

@@ -1,4 +1,4 @@
 #pragma once
-#include"KamataEngine.h"
+#include"Vector3.h"
 
-KamataEngine::Vector3 Lerp(KamataEngine::Vector3 start, KamataEngine::Vector3 end, float t);
+Vector3 Lerp(Vector3 start, Vector3 end, float t);
