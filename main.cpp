@@ -326,15 +326,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Resourceにデータを書き込む
-
-
 #pragma endregion
 
     //ShaderResourceViewを作る
-    ShaderResourceView srvClass[2] = {};
-    srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
-   
+    ShaderResourceView srvClass = {};
+    srvClass.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
 
 #pragma region//Camera
 
@@ -353,8 +349,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    Model model;
-    model.Create("resources/cube", "cube.obj", camera, device, commandList, srvDescriptorHeap, descriptorSizeSRV);
 
 
 #pragma region//time
@@ -441,6 +435,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Sprite sprite;
     sprite.Create(device, cameraSprite);
+
+    Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
+    model.Create("resources/cube", "cube.obj",  device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
     //ファイルへのログ出力
@@ -563,7 +560,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-    
+
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -636,34 +633,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelを描画する
 
-
-            commandList.GetComandList()->RSSetViewports(1, &viewport);//Viewportを設定
-            commandList.GetComandList()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
-            //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-            commandList.GetComandList()->SetGraphicsRootSignature(rootSignature.Get());
-            commandList.GetComandList()->SetPipelineState(pso.GetGraphicsPipelineState().Get());//PSOを設定
-            //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-            commandList.GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-            //ファイルへのログ出力
             Log(logStream, "DrawModel");
-
-            model.Draw(commandList);
+            model.PreDraw();
+            model.Draw();
 
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
             //timeのSRVの場所を設定
             commandList.GetComandList()->SetGraphicsRootShaderResourceView(4, WaveResource->GetGPUVirtualAddress());
-            //LightのCBufferの場所を設定
+            //expansionのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
 
             //DrawCall
-            model.DrawCall(commandList);
+            model.DrawCall();
 
 #pragma endregion
 
             //IndexSpriteの描画
-            sprite.Draw(commandList, srvClass[0]);
+            sprite.Draw(commandList, srvClass);
 
             //// シーンの描画
             //DrawScene();

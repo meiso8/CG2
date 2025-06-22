@@ -7,20 +7,31 @@
 #include"../Header/math/Transform.h"
 #include<numbers>
 
+Model::Model(
+    Camera& camera, 
+    CommandList& commandList, 
+    D3D12_VIEWPORT& viewport,
+    D3D12_RECT& scissorRect,
+    const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
+    PSO& pso){
 
+    camera_ = &camera;
+    commandList_ = &commandList;
+    viewport_ = &viewport;
+    scissorRect_ = &scissorRect;
+    rootSignature_ = rootSignature;
+    pso_ = &pso;
+};
 
 void Model::Create(
     const std::string& directoryPath,
     const std::string& filename,
-    Camera& camera,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    CommandList& commandList,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
     const uint32_t& descriptorSizeSRV
-
 ) {
 
-    camera_ = &camera;
+
 
     //マテリアルの作成
     materialResource_.CreateMaterial(device, true);
@@ -45,7 +56,7 @@ void Model::Create(
     mipImages_ = LoadTexture(modelData_.material.textureFilePath);
     const DirectX::TexMetadata& metadata = mipImages_.GetMetadata();
     textureResource_ = CreateTextureResource(device, metadata);
-    intermediateResource_ = UploadTextureData(textureResource_.Get(), mipImages_, device, commandList.GetComandList());
+    intermediateResource_ = UploadTextureData(textureResource_.Get(), mipImages_, device, commandList_->GetComandList());
 
     srv_.Create(metadata, textureResource_, 2, device, srvDescriptorHeap, descriptorSizeSRV);
 }
@@ -85,21 +96,31 @@ void Model::Update() {
     *wvpDate_ = { worldViewProjectionMatrix_,worldMatrix_ };
 }
 
-void Model::Draw(
-    CommandList& commandList
-) {
-    commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
-    //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
-    //wvp用のCBufferの場所を設定
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
-    //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
+void Model::PreDraw() {
+    commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
+    commandList_->GetComandList()->RSSetScissorRects(1, scissorRect_);//Scirssorを設定
+    //RootSignatureを設定。PSOに設定しているけど別途設定が必要
+    commandList_->GetComandList()->SetGraphicsRootSignature(rootSignature_.Get());
+    commandList_->GetComandList()->SetPipelineState(pso_->GetGraphicsPipelineState().Get());//PSOを設定
+    //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
+    commandList_->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Model::DrawCall(CommandList& commandList) {
+void Model::Draw(
+
+) {
+    commandList_->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
+    //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
+    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
+    //wvp用のCBufferの場所を設定
+    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+    //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
+    commandList_->GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
+}
+
+void Model::DrawCall() {
 
     //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-    commandList.GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+    commandList_->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 
 }

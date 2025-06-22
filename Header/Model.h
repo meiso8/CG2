@@ -10,15 +10,17 @@
 class Model
 {
 public:
-
-    Model() : camera_(nullptr), wvpDate_(nullptr) {}
+    Model(Camera& camera, CommandList& commandList, D3D12_VIEWPORT& viewport,
+        D3D12_RECT& scissorRect,
+        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
+        PSO& pso);
 
     void Create(
         const std::string& directoryPath,
         const std::string& filename,
-        Camera& camera,
+     
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-        CommandList& commandList,
+      
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
         const uint32_t& descriptorSizeSRV);
 
@@ -28,11 +30,10 @@ public:
 
     void InitTraslate();
 
-    void Draw(
-        CommandList& commandList
-    );
+    void PreDraw();
+    void Draw();
 
-    void DrawCall(CommandList& commandList);
+    void DrawCall();
 
     Material* Getmaterial() { return materialResource_.GetMaterial(); };
 
@@ -45,13 +46,17 @@ public:
     }
 
 private:
-    MaterialResource materialResource_;
     ShaderResourceView srv_;
+    CommandList* commandList_ = nullptr;
+    D3D12_VIEWPORT* viewport_ = nullptr;
+    D3D12_RECT* scissorRect_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+    PSO* pso_ = nullptr;
 
-    Camera* camera_;
+    Camera* camera_ = nullptr;
 
     Microsoft::WRL::ComPtr <ID3D12Resource> wvpResource_;
-    TransformationMatrix* wvpDate_;
+    TransformationMatrix* wvpDate_ = nullptr;
 
     //三角形の座標
     Transform transform_ = { 0.0f };
@@ -60,6 +65,7 @@ private:
     //WVpMatrixを作る
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
 
+    MaterialResource materialResource_;
     ModelData modelData_;
 
     //頂点バッファビューを作成する
