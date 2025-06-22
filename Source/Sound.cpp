@@ -9,7 +9,7 @@
 
 #pragma comment(lib, "xaudio2.lib") // xaudio2.libをリンクする。  
 
-HRESULT Sound::Initialize() {
+void Sound::Initialize() {
     HRESULT result;
     result = XAudio2Create(xAudio2_.GetAddressOf(), 0, XAUDIO2_DEFAULT_PROCESSOR);
     assert(SUCCEEDED(result));
@@ -20,8 +20,6 @@ HRESULT Sound::Initialize() {
 
     result = MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
     assert(SUCCEEDED(result));
-
-    return result;
 };
 
 SoundData Sound::SoundLoad(const std::wstring& path) {

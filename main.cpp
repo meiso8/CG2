@@ -155,8 +155,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //DirectX初期化処理の末尾に追加する
     //音声クラスの作成
     Sound sound;
-    hr = sound.Initialize();
-    assert(SUCCEEDED(hr));
+    sound.Initialize();
 
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
@@ -169,7 +168,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     DebugError debugError;
     debugError.Create(device);
-    //ファイルへのログ出力をしました
     Log(logStream, "SetDebugError");
 
 #endif
@@ -179,13 +177,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //コマンドキューの生成
     CommandQueue commandQueue;
     commandQueue.Create(device);
-    //ファイルへのログ出力
     Log(logStream, "CreateCommandQueue");
 
     //コマンドリストの生成
     CommandList commandList;
     commandList.Create(device);
-    //ファイルへのログ出力
     Log(logStream, "CreateCommandList");
 
     //スワップチェインの生成
@@ -197,14 +193,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         dxgiFactory.GetDigiFactory(),
         commandQueue.GetCommandQueue(),
         wc.GetHwnd());
-    //ファイルへのログ出力
     Log(logStream, "CreateSwapChain");
 
 
 #pragma region//DescriptorHeapを生成する
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
-    //ファイルへのログ出力
     Log(logStream, "Create RTV DescriptorHeap");
 
 #pragma endregion
@@ -221,8 +215,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     swapChainClass.GetBuffer(0, swapChainResources[0]);
     swapChainClass.GetBuffer(1, swapChainResources[1]);
-
-    //ファイルへのログ出力
     Log(logStream, "Pull Resource from SwapChain");
 
 #pragma endregion
@@ -237,7 +229,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //RTVを作る
     RenderTargetView rtvClass;
     rtvClass.Create(device, swapChainResources, rtvDescriptorHeap, descriptorSizeRTV);
-    //ファイルへのログ出力
     Log(logStream, "CreateRTV");
 
 #pragma region //FenceとEventを生成する
@@ -248,8 +239,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // FenceのSignalを持つためのイベントを作成する
     FenceEvent fenceEventClass;
     fenceEventClass.Create();
-
-    //ファイルへのログ出力
     Log(logStream, "CreateFence&Event");
 
 #pragma endregion
@@ -390,13 +379,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shader/Object3D.VS.hlsl",
         L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(vertexShaderBlob != nullptr);
-
     Log(logStream, "CompileVertexShader");
 
     Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"resources/shader/Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
     assert(pixelShaderBlob != nullptr);
-
     Log(logStream, "CompilePixelShader");
 
 #pragma endregion
@@ -411,17 +398,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 #pragma endregion
 
-    //PSO
-#pragma region//PSOを生成する
-
+    //PSOを生成する
     PSO pso;
     pso.Create(
         rootSignature, inputLayoutDesc, vertexShaderBlob, pixelShaderBlob,
         blendState.GetBlendDesc(), rasterizerState.GetRasterizerDesc(), depthStencilDesc, device);
-
     Log(logStream, "CreatePSO");
-
-#pragma endregion
 
 #pragma region //Texrureを読んで転送する
 
@@ -461,14 +443,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region ShaderResourceViewを作る
-
+    //ShaderResourceViewを作る
     ShaderResourceView srvClass[2] = {};
-
     srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
     srvClass[1].Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
-
-#pragma endregion
 
 #pragma region//time
 
@@ -511,19 +489,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//Camera
 
-    DebugCamera debugCamera;
-
-    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
-
     bool isDebug = false;
+
+    DebugCamera debugCamera;
+    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
 
     Camera camera;
     Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
     camera.SetTransform(cameraTransform);
     camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
 
-#pragma endregion
+    Camera cameraSprite;
+    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
 
+#pragma endregion
 
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
@@ -554,28 +533,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//ViewportとScissor(シザー)
-
+    //ViewportとScissor(シザー)
     D3D12_VIEWPORT viewport = CreateViewport(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
     D3D12_RECT scissorRect = CreateScissorRect(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
 
-#pragma endregion
-
-#pragma region//ImGuiの初期化。
 #ifdef _DEBUG
-
+    //ImGuiの初期化。
     ImGuiClass imGuiClass;
     imGuiClass.Initialize(wc.GetHwnd(), device.Get(), swapChainClass.GetSwapChainDesc(), rtvClass.GetDesc(), srvDescriptorHeap);
     Log(logStream, "InitImGui");
 #endif
-#pragma endregion
 
     Model model;
     model.Create(device, camera);
-
-    Camera cameraSprite;
-    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
 
     Sprite sprite;
     sprite.Create(device, cameraSprite);
@@ -731,9 +702,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
-  /*          ImGui::Render();*/
             imGuiClass.Render();
-
 #endif
 
             //これからの流れ
@@ -847,7 +816,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
     //ImGuiの終了処理 ゲームループが終わったら行う
     imGuiClass.ShutDown();
-
 #endif
 
 #pragma region //解放処理
