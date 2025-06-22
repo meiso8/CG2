@@ -28,7 +28,7 @@ public:
     /// @param xAudio2 XAudioエンジン  
     /// @param masterVoice  
     /// @return  
-    HRESULT Initialize();
+   void Initialize();
 
     SoundData SoundLoad(const std::wstring& path);
 

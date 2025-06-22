@@ -1,7 +1,7 @@
 #pragma once
-#include"Vector4.h"
+#include"math/Vector4.h"
+#include"math/Matrix4x4.h"
 #include<cstdint>
-#include"Matrix4x4.h"
 
 struct Material {
     Vector4 color;
@@ -9,3 +9,4 @@ struct Material {
     float padding[3];
     Matrix4x4 uvTransform;
 };
+

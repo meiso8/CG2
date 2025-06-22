@@ -1,9 +1,9 @@
 #include"../Header/Camera.h"
-#include"../Header/Inverse.h"
-#include"../Header/MakeAffineMatrix.h"
-#include"../Header/Multiply.h"
-#include"../Header/MakePerspectiveFovMatrix.h"
-#include"../Header/MakeOrthographicMatrix.h"
+#include"../Header/math/Inverse.h"
+#include"../Header/math/MakeAffineMatrix.h"
+#include"../Header/math/Multiply.h"
+#include"../Header/math/MakePerspectiveFovMatrix.h"
+#include"../Header/math/MakeOrthographicMatrix.h"
 
 void Camera::Initialize(const float& width, const float& height, const bool& isOrthographic) {
 
@@ -11,16 +11,16 @@ void Camera::Initialize(const float& width, const float& height, const bool& isO
 
     width_ = width;
     height_ = height;
-
+    farZ_ = 100.0f;
     isOrthographic_ = isOrthographic;
 
     if (isOrthographic_) {
         //平行投影
-        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, 100.0f);
+        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, farZ_);
 
     } else {
         //投資投影
-        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, farZ_);
     }
 }
 
@@ -30,15 +30,14 @@ void Camera::Update() {
 
     if (isOrthographic_) {
         //平行投影
-        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, 100.0f);
+        projectionMatrix_ = MakeOrthographicMatrix(0.0f, 0.0f, width_, height_, 0.0f, farZ_);
 
     } else {
         //投資投影
-        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, 100.0f);
+        projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, farZ_);
     }
 
 }
-
 
 Matrix4x4 Camera::GetViewProjectionMatrix() {
     return Multiply(viewMatrix_, projectionMatrix_);

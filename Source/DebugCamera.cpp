@@ -1,13 +1,13 @@
 #include "../Header/DebugCamera.h"
-#include"../Header/Inverse.h"
-#include"../Header/MakeAffineMatrix.h"
-#include"../Header/MakeRotateMatrix.h"
-#include"../Header/MakeIdentity4x4.h"
-#include"../Header/MakeTranslateMatrix.h"
-#include"../Header/MakePerspectiveFovMatrix.h"
-#include"../Header/MakeOrthographicMatrix.h"
-#include"../Header/CoordinateTransform.h"
-#include"../Header/Multiply.h"
+#include"../Header/math/Inverse.h"
+#include"../Header/math/MakeAffineMatrix.h"
+#include"../Header/math/MakeRotateMatrix.h"
+#include"../Header/math/MakeIdentity4x4.h"
+#include"../Header/math/MakeTranslateMatrix.h"
+#include"../Header/math/MakePerspectiveFovMatrix.h"
+#include"../Header/math/MakeOrthographicMatrix.h"
+#include"../Header/math/CoordinateTransform.h"
+#include"../Header/math/Multiply.h"
 #include<numbers>
 #include<cmath>
 
@@ -58,48 +58,48 @@ void DebugCamera::Update() {
 void DebugCamera::InputTranslate() {
 
 
-    if (input_->IsPressStateKey(DIK_A)) {
+    if (input_->IsPushKey(DIK_A)) {
         MoveX(-speed_);
     }
 
-    if (input_->IsPressStateKey(DIK_D)) {
+    if (input_->IsPushKey(DIK_D)) {
         MoveX(speed_);
     }
 
-    if (input_->IsPressStateKey(DIK_W)) {
+    if (input_->IsPushKey(DIK_W)) {
         MoveY(speed_);
     }
 
-    if (input_->IsPressStateKey(DIK_S)) {
+    if (input_->IsPushKey(DIK_S)) {
         MoveY(-speed_);
     }
 
-    if (input_->IsPressStateKey(DIK_Q)) {
+    if (input_->IsPushKey(DIK_Q)) {
         MoveZ(-speed_);
     }
 
-    if (input_->IsPressStateKey(DIK_E)) {
+    if (input_->IsPushKey(DIK_E)) {
         MoveZ(speed_);
     }
 };
 
 void DebugCamera::InputRotate() {
 
-    if (input_->IsPressStateKey(DIK_R)) {
+    if (input_->IsPushKey(DIK_R)) {
 
         if (input_->IsTriggerKey(DIK_UP)) {
             rotateSpeed_ *= -1.0f;
         }
 
-        if (input_->IsPressStateKey(DIK_X)) {
+        if (input_->IsPushKey(DIK_X)) {
             deltaRotate_.x = rotateSpeed_;
         }
 
-        if (input_->IsPressStateKey(DIK_Y)) {
+        if (input_->IsPushKey(DIK_Y)) {
             deltaRotate_.y = rotateSpeed_;
         }
 
-        if (input_->IsPressStateKey(DIK_Z)) {
+        if (input_->IsPushKey(DIK_Z)) {
             deltaRotate_.z = rotateSpeed_;
         }
 
