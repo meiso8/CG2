@@ -13,7 +13,7 @@ private:
     Matrix4x4 viewMatrix_ = {};
     //射影行列
     Matrix4x4 projectionMatrix_ = {};
-    float farZ_;
+    float farZ_ = 100.0f;
 
     float width_{};
     float height_{};

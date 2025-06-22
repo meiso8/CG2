@@ -3,22 +3,16 @@
 
 #include<format>//フォーマットを推論してくれる
 
-#pragma comment(lib,"d3d12.lib")
-#pragma comment(lib,"dxgi.lib")
-//libのリンクはヘッダに書いてはいけない
-//任意のひとつのcppに記述するかプロジェクトの設定で行う
-//libのリンク includeのすぐ後ろに書くとよい
-
-#pragma region //ImGuiのincludeと関数の外部宣言
-#ifdef _DEBUG
-
-#include"externals/imgui/imgui.h"
-#include"externals/imgui/imgui_impl_dx12.h"
-#include"externals/imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-#endif
-#pragma endregion
+//#pragma region //ImGuiのincludeと関数の外部宣言
+//#ifdef _DEBUG
+//
+//#include"externals/imgui/imgui.h"
+//#include"externals/imgui/imgui_impl_dx12.h"
+//#include"externals/imgui/imgui_impl_win32.h"
+//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//
+//#endif
+//#pragma endregion
 
 #pragma region //自作関数
 #include"Header/Window.h"
@@ -53,6 +47,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"Header/Camera.h"
 #include"Header/CrashHandler.h"
 #include"Header/Log.h"
+#include"Header/ImGuiClass.h"
 
 #include"Header/Material.h"
 #include"Header/VertexData.h"
@@ -482,7 +477,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region ShaderResourceViewを作る
 
-    ShaderResourceView srvClass[2];
+    ShaderResourceView srvClass[2] = {};
 
     srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
     srvClass[1].Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
@@ -583,16 +578,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//ImGuiの初期化。
 #ifdef _DEBUG
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(wc.GetHwnd());
-    ImGui_ImplDX12_Init(device.Get(),
-        swapChainClass.GetSwapChainDesc().BufferCount,
-        rtvClass.GetDesc().Format,
-        srvDescriptorHeap.Get(),
-        srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-        srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
+    ImGuiClass imGuiClass;
+    imGuiClass.Initialize(wc.GetHwnd(), device.Get(), swapChainClass.GetSwapChainDesc(), rtvClass.GetDesc(), srvDescriptorHeap);
+
+    //IMGUI_CHECKVERSION();
+    //ImGui::CreateContext();
+    //ImGui::StyleColorsDark();
+    //ImGui_ImplWin32_Init(wc.GetHwnd());
+    //ImGui_ImplDX12_Init(device.Get(),
+    //    swapChainClass.GetSwapChainDesc().BufferCount,
+    //    rtvClass.GetDesc().Format,
+    //    srvDescriptorHeap.Get(),
+    //    srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+    //    srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
     Log(logStream, "InitImGui");
 #endif
 #pragma endregion
@@ -629,9 +629,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//ImGuiにここからフレームが始まる旨を伝える
 
 #ifdef _DEBUG
-            ImGui_ImplDX12_NewFrame();
-            ImGui_ImplWin32_NewFrame();
-            ImGui::NewFrame();
+
+            imGuiClass.FrameStaert();
+
+            //ImGui_ImplDX12_NewFrame();
+            //ImGui_ImplWin32_NewFrame();
+            //ImGui::NewFrame();
 #endif
 
 #pragma endregion
@@ -764,7 +767,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
-            ImGui::Render();
+  /*          ImGui::Render();*/
+            imGuiClass.Render();
+
 #endif
 
             //これからの流れ
@@ -832,7 +837,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
             //実際のcommandListのImGuiの描画コマンドを積む
-            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.GetComandList().Get());
+  /*          ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList.GetComandList().Get());*/
+
+            imGuiClass.DrawImGui(commandList);
 
 #endif // _DEBUG
 
@@ -880,9 +887,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ImGuiの終了処理 ゲームループが終わったら行う
     //初期化と逆順に行う
-    ImGui_ImplDX12_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+    //ImGui_ImplDX12_Shutdown();
+    //ImGui_ImplWin32_Shutdown();
+    //ImGui::DestroyContext();
+
+    imGuiClass.ShatDown();
 
 #endif
 

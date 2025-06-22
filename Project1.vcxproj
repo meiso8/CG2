@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ImGuiClass.cpp" />
     <ClCompile Include="Source\MaterialResource.cpp" />
     <ClCompile Include="Source\math\AABB.cpp" />
     <ClCompile Include="Source\math\WorldTransform.cpp" />
@@ -245,6 +246,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\math\WorldTransform.h" />
     <ClInclude Include="Header\Model.h" />
     <ClInclude Include="Header\Sprite.h" />
+    <ClInclude Include="Header\ImGuiClass.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

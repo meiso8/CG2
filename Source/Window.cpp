@@ -1,33 +1,28 @@
 #include "../Header/Window.h"
+#include"../Header/ImGuiClass.h"
 
 //ComPtr(コムポインタ)
 #include<wrl.h>
 
-#pragma region //ImGuiのincludeと関数の外部宣言
-#ifdef _DEBUG
-
-#include"../externals/imgui/imgui.h"
-#include"../externals/imgui/imgui_impl_dx12.h"
-#include"../externals/imgui/imgui_impl_win32.h"
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-#endif
-#pragma endregion
-
 #include<d3d12.h>
-//#include<dxgi1_6.h>
+#include<dxgi1_6.h>
 #include<cassert> //assertも利用するため
 #pragma comment(lib,"d3d12.lib")
-//#pragma comment(lib,"dxgi.lib")
+#pragma comment(lib,"dxgi.lib")
+//libのリンクはヘッダに書いてはいけない
+//任意のひとつのcppに記述するかプロジェクトの設定で行う
+//libのリンク includeのすぐ後ろに書くとよい
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
 #ifdef _DEBUG
+
     //ImGuiにメッセージを渡す
     if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
         return true;
     }
+
 #endif
 
     //メッセージに応じてゲーム固有の処理を行う

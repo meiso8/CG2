@@ -16,8 +16,6 @@ void Model::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& c
 
     CreateWorldVP(device);
 
-    //CreateVertex(device);
-
 }
 
 void Model::CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -44,25 +42,6 @@ void Model::InitTraslate() {
     transform_.translate = { 0.0f };
 
 };
-
-//
-//void Model::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
-//
-//    //頂点リソースを作る
-//    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * modelData_.vertices.size());
-//
-//    //頂点バッファビューを作成する
-//    vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();//リソースの先頭アドレスから使う
-//    vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());//使用するリソースのサイズは頂点のサイズ
-//    vertexBufferView_.StrideInBytes = sizeof(VertexData);//1頂点あたりのサイズ
-//
-//    //頂点リソースにデータを書き込む
-//    VertexData* vertexData = nullptr;
-//    vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));//書き込むためのアドレスを取得
-//    std::memcpy(vertexData, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());//頂点データをリソースにコピー
-//
-//};
-
 
 void Model::Update() {
 
