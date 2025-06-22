@@ -328,37 +328,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//Resourceにデータを書き込む
 
-    //モデルの読み込み
-    ModelData modelData = LoadObjeFile("resources/cube", "cube.obj");
-    //頂点リソースを作る
-    Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
-    Log(logStream, "CreateVertexResource");
-
-    //頂点バッファビューを作成する
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-    vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();//リソースの先頭アドレスから使う
-    vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());//使用するリソースのサイズは頂点のサイズ
-    vertexBufferView.StrideInBytes = sizeof(VertexData);//1頂点あたりのサイズ
-    Log(logStream, "CreateVertexBufferView");
-
-    //頂点リソースにデータを書き込む
-    VertexData* vertexData = nullptr;
-    vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));//書き込むためのアドレスを取得
-    std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());//頂点データをリソースにコピー
-    Log(logStream, "WriteDateToResource");
-
-    //モデルのテクスチャを読む
-    DirectX::ScratchImage mipImages2 = LoadTexture(modelData.material.textureFilePath);
-    const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
-    Microsoft::WRL::ComPtr<ID3D12Resource>textureResource2 = CreateTextureResource(device, metadata2);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device, commandList.GetComandList());
 
 #pragma endregion
 
     //ShaderResourceViewを作る
     ShaderResourceView srvClass[2] = {};
     srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
-    srvClass[1].Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
+   
+
+#pragma region//Camera
+
+    bool isDebug = false;
+
+    DebugCamera debugCamera;
+    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
+
+    Camera camera;
+    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
+    camera.SetTransform(cameraTransform);
+    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
+
+    Camera cameraSprite;
+    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
+
+#pragma endregion
+
+    Model model;
+    model.Create("resources/cube", "cube.obj", camera, device, commandList, srvDescriptorHeap, descriptorSizeSRV);
+
 
 #pragma region//time
 
@@ -399,22 +396,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Camera
-
-    bool isDebug = false;
-
-    DebugCamera debugCamera;
-    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
-
-    Camera camera;
-    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
-    camera.SetTransform(cameraTransform);
-    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
-
-    Camera cameraSprite;
-    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
-
-#pragma endregion
 
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
@@ -457,13 +438,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-    Model model;
-    model.Create(device, camera);
 
     Sprite sprite;
     sprite.Create(device, cameraSprite);
-
-    bool uvCheck = false;
 
     MSG msg{};
     //ファイルへのログ出力
@@ -537,14 +514,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Model");
-            ImGui::Checkbox("useMonsterBall", &uvCheck);
             ImGui::SliderFloat3("scale", &model.GetTransformRef().scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &model.GetTransformRef().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("translate", &model.GetTransformRef().translate.x, -2.0f, 2.0f);
             ImGui::ColorPicker4("materialColor", &(model.Getmaterial()->color.x));
-            ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
-            ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
-            ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
+            ImGui::DragFloat4("vertexData0", &(model.GetVertexData()[0].position.x));
+            ImGui::DragFloat4("vertexData1", &(model.GetVertexData()[1].position.x));
+            ImGui::DragFloat4("vertexData2", &(model.GetVertexData()[2].position.x));
 
             if (ImGui::Button("Init")) {
 
@@ -587,7 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-                uvCheck = (uvCheck) ? false : true;
+    
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -672,7 +648,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //ファイルへのログ出力
             Log(logStream, "DrawModel");
 
-            model.Draw(commandList, vertexBufferView, srvClass, uvCheck);
+            model.Draw(commandList);
 
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
@@ -682,7 +658,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
 
             //DrawCall
-            model.DrawCall(commandList, modelData);
+            model.DrawCall(commandList);
 
 #pragma endregion
 

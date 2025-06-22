@@ -10,10 +10,18 @@
 class Model
 {
 public:
-    // Explicitly define a default constructor to resolve the error
+
     Model() : camera_(nullptr), wvpDate_(nullptr) {}
 
-    void Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera);
+    void Create(
+        const std::string& directoryPath,
+        const std::string& filename,
+        Camera& camera,
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device,
+        CommandList& commandList,
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
+        const uint32_t& descriptorSizeSRV);
+
     void CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
     void Update();
@@ -21,12 +29,10 @@ public:
     void InitTraslate();
 
     void Draw(
-        CommandList& commandList,
-        D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-        ShaderResourceView(&srv)[2], const bool& uvCheck
+        CommandList& commandList
     );
 
-    void DrawCall(CommandList& commandList, ModelData& modelData);
+    void DrawCall(CommandList& commandList);
 
     Material* Getmaterial() { return materialResource_.GetMaterial(); };
 
@@ -34,8 +40,13 @@ public:
         return transform_;
     };
 
+    VertexData* GetVertexData() {
+        return vertexData_;
+    }
+
 private:
     MaterialResource materialResource_;
+    ShaderResourceView srv_;
 
     Camera* camera_;
 
@@ -48,4 +59,16 @@ private:
     Matrix4x4 worldMatrix_ = { 0.0f };
     //WVpMatrixを作る
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
+
+    ModelData modelData_;
+
+    //頂点バッファビューを作成する
+    D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+    Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource_;
+    VertexData* vertexData_ = nullptr;
+
+    DirectX::ScratchImage mipImages_;
+    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
+    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
+
 };
