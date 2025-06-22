@@ -3,10 +3,10 @@
 
 //ComPtr(コムポインタ)
 #include<wrl.h>
+#include<cassert>
 
 #include<d3d12.h>
 #include<dxgi1_6.h>
-#include<cassert> //assertも利用するため
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 //libのリンクはヘッダに書いてはいけない
