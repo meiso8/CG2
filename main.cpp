@@ -1,31 +1,13 @@
 #include <Windows.h>
-#include<cstdint>//int32_tを使うため
 #include<numbers>
 
-//ファイルの書いたり読んだりするライブラリ　音声の読み込みにも使用する
-#include <fstream>
-//istringstreamのためにインクルードする
-#include<sstream>
-
 #include<format>//フォーマットを推論してくれる
-#include<d3d12.h>
-#include<dxgi1_6.h>
+
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 //libのリンクはヘッダに書いてはいけない
 //任意のひとつのcppに記述するかプロジェクトの設定で行う
 //libのリンク includeのすぐ後ろに書くとよい
-
-#include<cassert> //assertも利用するため
-
-//ファイルやディレクトリに関する操作を行うライブラリ
-#include <filesystem>
-
-//動的配列を扱うための標準ライブラリ
-#include <vector>
-
-//ComPtr(コムポインタ)
-#include<wrl.h>
 
 #pragma region //ImGuiのincludeと関数の外部宣言
 #ifdef _DEBUG
@@ -500,11 +482,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region ShaderResourceViewを作る
 
-    ShaderResourceView srvClass;
-    srvClass.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    ShaderResourceView srvClass[2];
 
-    ShaderResourceView srvClass2;
-    srvClass2.Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
+    srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    srvClass[1].Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
 
 #pragma endregion
 
@@ -521,12 +502,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     waveData[0].direction = { 1.0f,0.0f,0.0f };
     waveData[0].time = 0.0f;
-    waveData[0].amplitude = 0.5f;
+    waveData[0].amplitude = 0.0f;
     waveData[0].frequency = 4;
 
     waveData[1].direction = { 1.0f,0.0f,0.0f };
     waveData[1].time = 0.0f;
-    waveData[1].amplitude = 0.5f;
+    waveData[1].amplitude = 0.0f;
     waveData[1].frequency = 4;
 
 #pragma endregion
@@ -625,7 +606,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sprite sprite;
     sprite.Create(device, cameraSprite);
 
-    bool useMonsterBall = false;
+    bool uvCheck = false;
 
     MSG msg{};
     //ファイルへのログ出力
@@ -691,11 +672,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Lightを設定
 
             Vector3 direction = directionalLightData->direction;
-            directionalLightData->direction = Normalize(direction);
 
             ImGui::Begin("DirectionalLight");
             ImGui::DragFloat4("color", &directionalLightData->color.x);
-            ImGui::SliderFloat3("direction2", &direction.x, -1.0f, 1.0f);//後で正規化する
+            ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
+            directionalLightData->direction = Normalize(direction);
+
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 #pragma endregion
@@ -705,7 +687,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Model");
-            ImGui::Checkbox("useMonsterBall", &useMonsterBall);
+            ImGui::Checkbox("useMonsterBall", &uvCheck);
             ImGui::SliderFloat3("scale", &model.GetTransformRef().scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &model.GetTransformRef().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("translate", &model.GetTransformRef().translate.x, -2.0f, 2.0f);
@@ -745,7 +727,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-                useMonsterBall = (useMonsterBall) ? false : true;
+                uvCheck = (uvCheck) ? false : true;
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -830,7 +812,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //ファイルへのログ出力
             Log(logStream, "DrawModel");
 
-            model.Draw(commandList, vertexBufferView, srvClass2);
+            model.Draw(commandList, vertexBufferView, srvClass, uvCheck);
 
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
@@ -845,7 +827,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
             //IndexSpriteの描画
-            sprite.Draw(commandList, srvClass);
+            sprite.Draw(commandList, srvClass[0]);
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む

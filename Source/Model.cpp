@@ -77,7 +77,7 @@ void Model::Update() {
 void Model::Draw(
     CommandList& commandList,
     D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-    ShaderResourceView& srv
+    ShaderResourceView(&srv)[2], const bool& uvCheck
 ) {
     commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView);//VBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
@@ -85,7 +85,7 @@ void Model::Draw(
     //wvp用のCBufferの場所を設定
     commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
+    commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, uvCheck ? srv[0].GetTextureSrvHandleGPU() : srv[1].GetTextureSrvHandleGPU());
 
 }
 

@@ -23,7 +23,7 @@ public:
    void Draw(
        CommandList& commandList,
        D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-       ShaderResourceView& srv
+       ShaderResourceView(&srv)[2], const bool& uvCheck
    );
 
    void DrawCall(CommandList& commandList, ModelData& modelData);
