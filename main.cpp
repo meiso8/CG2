@@ -1,28 +1,5 @@
 #include<numbers>
-#include<format>//フォーマットを推論してくれる
-
 #include"MyEngine.h"
-
-//#include "Game/TitleScene.h"
-//#include "Game/GameScene.h"
-//
-//GameScene* gameScene = nullptr;
-//TitleScene* titleScene = nullptr;
-//
-//// シーン
-//enum class Scene {
-//    kUnknown = 0,
-//    kTitle,
-//    kGame,
-//};
-//
-//// 現在のシーン(型)
-//Scene scene = Scene::kUnknown;
-//
-//void ChangeScene();
-//void UpdateScene();
-//void DrawScene();
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -432,10 +409,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-
-    Sprite sprite;
-    sprite.Create(device, cameraSprite);
-
     Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
     model.Create("resources/cube", "cube.obj",  device, srvDescriptorHeap, descriptorSizeSRV);
 
@@ -529,33 +502,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Spriteのデバッグ
-
-            ImGui::Begin("Sprite");
-
-            ImGui::SliderFloat3("scale", &sprite.GetTranslateRef().x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &sprite.GetTranslateRef().x, -128.0f, 1280.0f);
-            ImGui::ColorPicker4("materialColor", &sprite.Getmaterial()->color.x);
-            ImGui::DragFloat2("uv : scale", &sprite.GetUVTranslateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::DragFloat2("uv : rotate", &sprite.GetUVRotateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::SliderAngle("uv : translate", &sprite.GetUVTranslateRef().x);
-
-            ImGui::End();
-
-#pragma endregion
-
 #endif
-
-            //scene = Scene::kTitle;
-            //titleScene = new TitleScene();
-            //// ゲームシーンの初期化
-            //titleScene->Initialize();
-
-            //ChangeScene();
-            //// シーンの更新
-            //UpdateScene();
-
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -591,9 +538,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //Modelの更新
             model.Update();
-
-            //Spriteの更新処理
-            sprite.Update();
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
@@ -649,12 +593,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-            //IndexSpriteの描画
-            sprite.Draw(commandList, srvClass);
-
-            //// シーンの描画
-            //DrawScene();
-
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
             imGuiClass.DrawImGui(commandList);
@@ -698,15 +636,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
-
-    //if (titleScene != nullptr) {
-    //    delete titleScene;
-    //}
-
-    //if (gameScene != nullptr) {
-    //    delete gameScene;
-    //}
-
     CoUninitialize();
 
 #ifdef _DEBUG
@@ -727,56 +656,3 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     return 0;
 }
-
-
-//void ChangeScene() {
-//    switch (scene) {
-//    case Scene::kTitle:
-//        if (titleScene->IsFinished()) {
-//            // シーン処理
-//            scene = Scene::kGame;
-//            // 旧シーンの解放
-//            delete titleScene;
-//            titleScene = nullptr;
-//            // 新シーンの生成と初期化
-//            gameScene = new GameScene;
-//            gameScene->Initialize();
-//        }
-//        break;
-//    case Scene::kGame:
-//
-//        if (gameScene->IsFinished()) {
-//            scene = Scene::kTitle;
-//            delete gameScene;
-//            gameScene = nullptr;
-//            titleScene = new TitleScene;
-//            titleScene->Initialize();
-//        }
-//
-//        break;
-//    }
-//};
-//
-//void UpdateScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Update();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Update();
-//        break;
-//    }
-//}
-//
-//void DrawScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Draw();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Draw();
-//        break;
-//    }
-//};
