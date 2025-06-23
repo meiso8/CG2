@@ -432,12 +432,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-
     Sprite sprite;
     sprite.Create(device, cameraSprite);
 
     Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
-    model.Create("resources/cube", "cube.obj",  device, srvDescriptorHeap, descriptorSizeSRV);
+    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
     //ファイルへのログ出力
@@ -698,7 +697,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
-
     //if (titleScene != nullptr) {
     //    delete titleScene;
     //}
@@ -724,6 +722,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     CloseWindow(wc.GetHwnd());
 
 #pragma endregion
+
 
     return 0;
 }
