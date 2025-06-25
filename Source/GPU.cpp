@@ -31,7 +31,7 @@ void GPU::SettingGPU(const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory) {
 
 }
 
-Microsoft::WRL::ComPtr<ID3D12Device> GPU::CreateD3D12Device() {
+Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(const Microsoft::WRL::ComPtr <IDXGIAdapter4>& useAdapter) {
 
     Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
 
@@ -44,7 +44,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> GPU::CreateD3D12Device() {
     //高い順に生成出来るか試していく
     for (size_t i = 0; i < _countof(featureLevels); ++i) {
         //採用したアダプターでデバイスを生成
-        HRESULT hr = D3D12CreateDevice(useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(device.ReleaseAndGetAddressOf()));
+        HRESULT hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(device.ReleaseAndGetAddressOf()));
         //指定した機能レベルでデバイスが生成できたかを確認する
         if (SUCCEEDED(hr)) {
 

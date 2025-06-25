@@ -8,7 +8,7 @@ class CommandList
 {
 public:
     void Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
-    Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> GetComandList() { return commandList_; };
+    Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetComandList() { return commandList_; };
 
     void PrepareCommand();
 

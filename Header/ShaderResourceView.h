@@ -6,8 +6,6 @@
 
 //Textureデータを読み込むためにDirectXTex.hをインクルード
 #include"../externals/DirectXTex/DirectXTex.h"
-////Textureの転送のために
-//#include"../externals/DirectXTex/d3dx12.h"
 
 class ShaderResourceView
 {

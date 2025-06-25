@@ -13,7 +13,7 @@ public:
     Material* GetMaterial() {
         return materialData_;
     };
-    Microsoft::WRL::ComPtr <ID3D12Resource> GetMaterialResource() {
+    Microsoft::WRL::ComPtr <ID3D12Resource>& GetMaterialResource() {
         return materialResource_
             ;
     };

@@ -14,7 +14,7 @@ public:
         const Microsoft::WRL::ComPtr <ID3D12Resource>(&swapChainResources)[2],
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& rtvDescriptorHeap,
         const uint32_t& descriptorSizeRTV);
-    D3D12_RENDER_TARGET_VIEW_DESC GetDesc() {return rtvDesc_ ;  }
+    D3D12_RENDER_TARGET_VIEW_DESC& GetDesc() {return rtvDesc_ ;  }
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetHandle(size_t index) const;
 private:
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_{};

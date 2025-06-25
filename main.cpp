@@ -13,9 +13,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //main関数始まってすぐに登録すると良い
     SetUnhandledExceptionFilter(ExportDump);
 
-    //　出力ウィンドウへの文字入力
-    OutputDebugStringA("Hello,DirectX!\n");
-
     LogFile logFile;
     std::ofstream logStream = logFile.CreateLogFile();
 
@@ -36,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "Set GPU");
 
     //D3D12Deviceの生成
-    Microsoft::WRL::ComPtr<ID3D12Device> device = gpu.CreateD3D12Device();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = CreateD3D12Device(gpu.GetUseAdapter());
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
@@ -410,7 +407,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
     Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
-    model.Create("resources/cube", "cube.obj",  device, srvDescriptorHeap, descriptorSizeSRV);
+    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
     //ファイルへのログ出力

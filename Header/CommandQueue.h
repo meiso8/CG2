@@ -10,7 +10,7 @@ class CommandQueue
 {
 public:
     void Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetCommandQueue() {
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetCommandQueue() {
         return commandQueue_
             ;
     };
