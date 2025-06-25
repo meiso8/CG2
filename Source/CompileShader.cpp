@@ -8,6 +8,34 @@
 //HLSLをGPUが解釈できる形にするためのインクルード
 #pragma comment(lib,"dxcompiler.lib")
 
+void DxcCompiler::Initialize() {
+
+    //dxcCompilerを初期化
+    HRESULT result = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
+    assert(SUCCEEDED(result));
+    result = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler_));
+    assert(SUCCEEDED(result));
+
+    //現時点ではincludeはしないが、includeに対応するための設定を行っていく
+    result = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
+    assert(SUCCEEDED(result));
+
+}
+
+
+void DxcCompiler::ShaderSeting() {
+
+    //Shaderをコンパイルする
+    vertexShaderBlob_ = CompileShader(L"resources/shader/Object3D.VS.hlsl",
+        L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
+    assert(vertexShaderBlob_ != nullptr);
+
+    pixelShaderBlob_ = CompileShader(L"resources/shader/Object3D.PS.hlsl",
+        L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
+    assert(pixelShaderBlob_ != nullptr);
+
+}
+
 //CompileShader関数
 IDxcBlob* CompileShader(
     //CompilerするShaderファイルへのパス

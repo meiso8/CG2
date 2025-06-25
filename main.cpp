@@ -130,19 +130,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region// DXCの初期化　dxcCompilerを初期化
-    //dxcCompilerを初期化
-    IDxcUtils* dxcUtils = nullptr;
-    IDxcCompiler3* dxcCompiler = nullptr;
-    hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-    assert(SUCCEEDED(hr));
-    hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-    assert(SUCCEEDED(hr));
 
-    //現時点ではincludeはしないが、includeに対応するための設定を行っていく
-    IDxcIncludeHandler* includeHandler = nullptr;
-    hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
-    assert(SUCCEEDED(hr));
-
+    DxcCompiler dxcCompiler;
+    dxcCompiler.Initialize();
     Log(logStream, "InitDxcCompiler");
 
 #pragma endregion
@@ -261,16 +251,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//ShaderをCompileする
 
-    //Shaderをコンパイルする
-    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shader/Object3D.VS.hlsl",
-        L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
-    assert(vertexShaderBlob != nullptr);
-    Log(logStream, "CompileVertexShader");
-
-    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"resources/shader/Object3D.PS.hlsl",
-        L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
-    assert(pixelShaderBlob != nullptr);
-    Log(logStream, "CompilePixelShader");
+    dxcCompiler.ShaderSeting();
+    Log(logStream, "CompileShader");
 
 #pragma endregion
 
@@ -287,7 +269,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature, inputLayoutDesc, vertexShaderBlob, pixelShaderBlob,
+        rootSignature, inputLayoutDesc, dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
         blendState.GetBlendDesc(), rasterizerState.GetRasterizerDesc(), depthStencilDesc, device);
     Log(logStream, "CreatePSO");
 
