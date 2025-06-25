@@ -1,8 +1,6 @@
 #include "../Header/CommandQueue.h"
 
 #include<cassert> //assertも利用するため
-//#pragma comment(lib,"d3d12.lib")
-//#pragma comment(lib,"dxgi.lib")
 
 void CommandQueue::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 

@@ -38,7 +38,6 @@
 #include"Header/InputLayout.h"
 #include "Header/RootSignature.h"
 
-
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/DirectionalLight.h"

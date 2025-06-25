@@ -39,8 +39,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(
     //2.利用するHeapの設定
     D3D12_HEAP_PROPERTIES heapProperties{};
     heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;//GPUで処理するために書き換え
-    //heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;//WriteBackポリシーとは
-    //heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;//プロセッサの近くに配置
 
     //3.Resourceを生成する
     Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
