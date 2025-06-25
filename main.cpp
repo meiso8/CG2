@@ -1,28 +1,5 @@
 #include<numbers>
-#include<format>//フォーマットを推論してくれる
-
 #include"MyEngine.h"
-
-//#include "Game/TitleScene.h"
-//#include "Game/GameScene.h"
-//
-//GameScene* gameScene = nullptr;
-//TitleScene* titleScene = nullptr;
-//
-//// シーン
-//enum class Scene {
-//    kUnknown = 0,
-//    kTitle,
-//    kGame,
-//};
-//
-//// 現在のシーン(型)
-//Scene scene = Scene::kUnknown;
-//
-//void ChangeScene();
-//void UpdateScene();
-//void DrawScene();
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -35,9 +12,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
     SetUnhandledExceptionFilter(ExportDump);
-
-    //　出力ウィンドウへの文字入力
-    OutputDebugStringA("Hello,DirectX!\n");
 
     LogFile logFile;
     std::ofstream logStream = logFile.CreateLogFile();
@@ -59,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "Set GPU");
 
     //D3D12Deviceの生成
-    Microsoft::WRL::ComPtr<ID3D12Device> device = gpu.CreateD3D12Device();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = CreateD3D12Device(gpu.GetUseAdapter());
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
@@ -326,39 +300,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Resourceにデータを書き込む
-
-    //モデルの読み込み
-    ModelData modelData = LoadObjeFile("resources/cube", "cube.obj");
-    //頂点リソースを作る
-    Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
-    Log(logStream, "CreateVertexResource");
-
-    //頂点バッファビューを作成する
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-    vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();//リソースの先頭アドレスから使う
-    vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());//使用するリソースのサイズは頂点のサイズ
-    vertexBufferView.StrideInBytes = sizeof(VertexData);//1頂点あたりのサイズ
-    Log(logStream, "CreateVertexBufferView");
-
-    //頂点リソースにデータを書き込む
-    VertexData* vertexData = nullptr;
-    vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));//書き込むためのアドレスを取得
-    std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());//頂点データをリソースにコピー
-    Log(logStream, "WriteDateToResource");
-
-    //モデルのテクスチャを読む
-    DirectX::ScratchImage mipImages2 = LoadTexture(modelData.material.textureFilePath);
-    const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
-    Microsoft::WRL::ComPtr<ID3D12Resource>textureResource2 = CreateTextureResource(device, metadata2);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = UploadTextureData(textureResource2.Get(), mipImages2, device, commandList.GetComandList());
-
 #pragma endregion
 
     //ShaderResourceViewを作る
-    ShaderResourceView srvClass[2] = {};
-    srvClass[0].Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
-    srvClass[1].Create(metadata2, textureResource2, 2, device, srvDescriptorHeap, descriptorSizeSRV);
+    ShaderResourceView srvClass = {};
+    srvClass.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+
+#pragma region//Camera
+
+    bool isDebug = false;
+
+    DebugCamera debugCamera;
+    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
+
+    Camera camera;
+    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
+    camera.SetTransform(cameraTransform);
+    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
+
+    Camera cameraSprite;
+    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
+
+#pragma endregion
+
+
 
 #pragma region//time
 
@@ -399,22 +364,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Camera
-
-    bool isDebug = false;
-
-    DebugCamera debugCamera;
-    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
-
-    Camera camera;
-    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
-    camera.SetTransform(cameraTransform);
-    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
-
-    Camera cameraSprite;
-    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
-
-#pragma endregion
 
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
@@ -457,13 +406,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-    Model model;
-    model.Create(device, camera);
-
-    Sprite sprite;
-    sprite.Create(device, cameraSprite);
-
-    bool uvCheck = false;
+    Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
+    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
     //ファイルへのログ出力
@@ -537,14 +481,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
          /*   ImGui::ShowDemoWindow();*/
             ImGui::Begin("Model");
-            ImGui::Checkbox("useMonsterBall", &uvCheck);
             ImGui::SliderFloat3("scale", &model.GetTransformRef().scale.x, 0.0f, 8.0f);
             ImGui::SliderFloat3("rotate", &model.GetTransformRef().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("translate", &model.GetTransformRef().translate.x, -2.0f, 2.0f);
             ImGui::ColorPicker4("materialColor", &(model.Getmaterial()->color.x));
-            ImGui::DragFloat4("vertexData0", &(vertexData[0].position.x));
-            ImGui::DragFloat4("vertexData1", &(vertexData[1].position.x));
-            ImGui::DragFloat4("vertexData2", &(vertexData[2].position.x));
+            ImGui::DragFloat4("vertexData0", &(model.GetVertexData()[0].position.x));
+            ImGui::DragFloat4("vertexData1", &(model.GetVertexData()[1].position.x));
+            ImGui::DragFloat4("vertexData2", &(model.GetVertexData()[2].position.x));
 
             if (ImGui::Button("Init")) {
 
@@ -556,38 +499,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Spriteのデバッグ
-
-            ImGui::Begin("Sprite");
-
-            ImGui::SliderFloat3("scale", &sprite.GetTranslateRef().x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &sprite.GetTranslateRef().x, -128.0f, 1280.0f);
-            ImGui::ColorPicker4("materialColor", &sprite.Getmaterial()->color.x);
-            ImGui::DragFloat2("uv : scale", &sprite.GetUVTranslateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::DragFloat2("uv : rotate", &sprite.GetUVRotateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::SliderAngle("uv : translate", &sprite.GetUVTranslateRef().x);
-
-            ImGui::End();
-
-#pragma endregion
-
 #endif
-
-            //scene = Scene::kTitle;
-            //titleScene = new TitleScene();
-            //// ゲームシーンの初期化
-            //titleScene->Initialize();
-
-            //ChangeScene();
-            //// シーンの更新
-            //UpdateScene();
-
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-                uvCheck = (uvCheck) ? false : true;
+
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -618,9 +535,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //Modelの更新
             model.Update();
-
-            //Spriteの更新処理
-            sprite.Update();
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
@@ -660,37 +574,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelを描画する
 
-
-            commandList.GetComandList()->RSSetViewports(1, &viewport);//Viewportを設定
-            commandList.GetComandList()->RSSetScissorRects(1, &scissorRect);//Scirssorを設定
-            //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-            commandList.GetComandList()->SetGraphicsRootSignature(rootSignature.Get());
-            commandList.GetComandList()->SetPipelineState(pso.GetGraphicsPipelineState().Get());//PSOを設定
-            //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-            commandList.GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-            //ファイルへのログ出力
             Log(logStream, "DrawModel");
-
-            model.Draw(commandList, vertexBufferView, srvClass, uvCheck);
+            model.PreDraw();
+            model.Draw();
 
             //LightのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
             //timeのSRVの場所を設定
             commandList.GetComandList()->SetGraphicsRootShaderResourceView(4, WaveResource->GetGPUVirtualAddress());
-            //LightのCBufferの場所を設定
+            //expansionのCBufferの場所を設定
             commandList.GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
 
             //DrawCall
-            model.DrawCall(commandList, modelData);
+            model.DrawCall();
 
 #pragma endregion
-
-            //IndexSpriteの描画
-            sprite.Draw(commandList, srvClass[0]);
-
-            //// シーンの描画
-            //DrawScene();
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
@@ -735,15 +633,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
-
-    //if (titleScene != nullptr) {
-    //    delete titleScene;
-    //}
-
-    //if (gameScene != nullptr) {
-    //    delete gameScene;
-    //}
-
     CoUninitialize();
 
 #ifdef _DEBUG
@@ -764,56 +653,3 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     return 0;
 }
-
-
-//void ChangeScene() {
-//    switch (scene) {
-//    case Scene::kTitle:
-//        if (titleScene->IsFinished()) {
-//            // シーン処理
-//            scene = Scene::kGame;
-//            // 旧シーンの解放
-//            delete titleScene;
-//            titleScene = nullptr;
-//            // 新シーンの生成と初期化
-//            gameScene = new GameScene;
-//            gameScene->Initialize();
-//        }
-//        break;
-//    case Scene::kGame:
-//
-//        if (gameScene->IsFinished()) {
-//            scene = Scene::kTitle;
-//            delete gameScene;
-//            gameScene = nullptr;
-//            titleScene = new TitleScene;
-//            titleScene->Initialize();
-//        }
-//
-//        break;
-//    }
-//};
-//
-//void UpdateScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Update();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Update();
-//        break;
-//    }
-//}
-//
-//void DrawScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Draw();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Draw();
-//        break;
-//    }
-//};

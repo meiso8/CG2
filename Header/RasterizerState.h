@@ -5,7 +5,7 @@
 class RasterizerState {
 public:
     void Create();
-    D3D12_RASTERIZER_DESC GetRasterizerDesc()
+    D3D12_RASTERIZER_DESC& GetRasterizerDesc()
     {
         return rasterizerDesc_;
     };

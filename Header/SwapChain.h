@@ -11,10 +11,10 @@ public:
         const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory,
         const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue,
         const HWND& hwnd);
-    Microsoft::WRL::ComPtr <IDXGISwapChain4> GetSwapChain() {
+    Microsoft::WRL::ComPtr <IDXGISwapChain4>& GetSwapChain() {
         return swapChain_;
     };
-    DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc() {
+    DXGI_SWAP_CHAIN_DESC1& GetSwapChainDesc() {
         return swapChainDesc_
             ;
     };

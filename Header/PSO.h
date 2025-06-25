@@ -17,7 +17,7 @@ public:
         D3D12_RASTERIZER_DESC rasterizerDesc,
         D3D12_DEPTH_STENCIL_DESC depthStencilDesc,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device);
-    Microsoft::WRL::ComPtr <ID3D12PipelineState> GetGraphicsPipelineState() {
+    Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState() {
         return graphicsPipelineState_
             ;
     }
