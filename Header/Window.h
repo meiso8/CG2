@@ -7,7 +7,7 @@ class Window
 public:
     void Create(int32_t clientWidth, int32_t clientHeight);
     WNDCLASS GetWindowClass() { return wc_; }
-    HWND GetHwnd() { return hwnd_; }
+    HWND& GetHwnd() { return hwnd_; }
     int32_t GetClientWidth() const {
         return clientWidth_;
     }

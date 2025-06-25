@@ -75,7 +75,7 @@ SoundData Sound::SoundLoad(const std::wstring& path) {
     //読み込んだ音声ファイルデータをreturn
     SoundData soundDataMP3 = {};
 
-    soundDataMP3.waveFormat = waveFormat;
+    soundDataMP3.pWaveFormat = waveFormat;
     soundDataMP3.mediaData = mediaData;
 
     return soundDataMP3;
@@ -88,7 +88,7 @@ void Sound::SoundUnload(SoundData* soundData) {
     soundData->mediaData.clear();
     soundData->mediaData.shrink_to_fit();
     // waveFormatの解放
-    soundData->waveFormat = {};
+    soundData->pWaveFormat = nullptr;
 
 };
 
@@ -96,7 +96,7 @@ void Sound::SoundPlay(const SoundData& soundData) {
     HRESULT result;
 
     IXAudio2SourceVoice* pSourceVoice{ nullptr };
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice, soundData.waveFormat);
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice, soundData.pWaveFormat);
     assert(SUCCEEDED(result));
 
     XAUDIO2_BUFFER buf{};

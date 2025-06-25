@@ -1,28 +1,5 @@
 #include<numbers>
-#include<format>//フォーマットを推論してくれる
-
 #include"MyEngine.h"
-
-//#include "Game/TitleScene.h"
-//#include "Game/GameScene.h"
-//
-//GameScene* gameScene = nullptr;
-//TitleScene* titleScene = nullptr;
-//
-//// シーン
-//enum class Scene {
-//    kUnknown = 0,
-//    kTitle,
-//    kGame,
-//};
-//
-//// 現在のシーン(型)
-//Scene scene = Scene::kUnknown;
-//
-//void ChangeScene();
-//void UpdateScene();
-//void DrawScene();
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -35,9 +12,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //誰も捕捉しなかった場合に(Unhandled),補足する関数を登録
     //main関数始まってすぐに登録すると良い
     SetUnhandledExceptionFilter(ExportDump);
-
-    //　出力ウィンドウへの文字入力
-    OutputDebugStringA("Hello,DirectX!\n");
 
     LogFile logFile;
     std::ofstream logStream = logFile.CreateLogFile();
@@ -59,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "Set GPU");
 
     //D3D12Deviceの生成
-    Microsoft::WRL::ComPtr<ID3D12Device> device = gpu.CreateD3D12Device();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = CreateD3D12Device(gpu.GetUseAdapter());
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
@@ -156,19 +130,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region// DXCの初期化　dxcCompilerを初期化
-    //dxcCompilerを初期化
-    IDxcUtils* dxcUtils = nullptr;
-    IDxcCompiler3* dxcCompiler = nullptr;
-    hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-    assert(SUCCEEDED(hr));
-    hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-    assert(SUCCEEDED(hr));
 
-    //現時点ではincludeはしないが、includeに対応するための設定を行っていく
-    IDxcIncludeHandler* includeHandler = nullptr;
-    hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
-    assert(SUCCEEDED(hr));
-
+    DxcCompiler dxcCompiler;
+    dxcCompiler.Initialize();
     Log(logStream, "InitDxcCompiler");
 
 #pragma endregion
@@ -176,108 +140,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//RootSignatureを生成する
 
     //具体的にShaderがどこかでデータを読めばいいのかの情報を取りまとめたもの
-
-    //rootSignature作成
-    D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-    descriptionRootSignature.Flags =
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-    //DescriptorRange
-    D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-    descriptorRange[0].BaseShaderRegister = 0;//0から始める
-    descriptorRange[0].NumDescriptors = 1;//1つ
-    descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRV
-    descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//オフセット自動計算
-
-    //Smaplerの設定
-    D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
-    staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイナリフィルタ
-    staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0-1の範囲外をリピート
-    staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-    staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-    staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較せぬ
-    staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-    staticSamplers[0].ShaderRegister = 0;
-    staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
-    descriptionRootSignature.pStaticSamplers = staticSamplers;
-    descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
-
-    //CBufferを利用することになったので、RootParameterに設定を追加する
-   /* RootParameter作成。PixelShaderのMaterialとVertexShaderのTransform*/
-    D3D12_ROOT_PARAMETER rootParameters[6] = {};
-    rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
-    rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
-    rootParameters[0].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
-    rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
-    rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
-    rootParameters[1].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
-    rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;//Table
-    rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
-    rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Tableの中身の配列を指定
-    rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Tableで利用する数
-    rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
-    rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//PixelShaderで使う
-    rootParameters[3].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
-    rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;//SRVを使う
-    rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
-    rootParameters[4].Descriptor.ShaderRegister = 0;//レジスタ番号0を使う
-    rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//CBVを使う
-    rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;//VertexShaderで使う
-    rootParameters[5].Descriptor.ShaderRegister = 1;//レジスタ番号1を使う
-
-    descriptionRootSignature.pParameters = rootParameters;//ルートパラメータ配列へのポインタ
-    descriptionRootSignature.NumParameters = _countof(rootParameters);//配列の長さ
-
-    //シリアライズしてバイナリにする
-    Microsoft::WRL::ComPtr <ID3DBlob> signatureBlob = nullptr;
-    Microsoft::WRL::ComPtr <ID3DBlob> errorBlob = nullptr;
-    hr = D3D12SerializeRootSignature(&descriptionRootSignature,
-        D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
-
-    if (FAILED(hr)) {
-        Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
-        assert(false);
-    }
-
-    //バイナリ元に生成
-    Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
-    hr = device->CreateRootSignature(0,
-        signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
-        IID_PPV_ARGS(&rootSignature));
-    assert(SUCCEEDED(hr));
-
+    RootSignature rootSignature;
+    rootSignature.Create(device);
     Log(logStream, "CreateRootSignature");
 
 #pragma endregion
 
 #pragma region//InputLayout
 
-    //InputLayout
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-    inputElementDescs[0].SemanticName = "POSITION";
-    inputElementDescs[0].SemanticIndex = 0;
-    inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//RGBA
-    inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    inputElementDescs[1].SemanticName = "TEXCOORD";
-    inputElementDescs[1].SemanticIndex = 0;
-    inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;//Vector2のためRG
-    inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    inputElementDescs[2].SemanticName = "NORMAL";
-    inputElementDescs[2].SemanticIndex = 0;
-    inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;//RGB
-    inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-    inputLayoutDesc.pInputElementDescs = inputElementDescs;
-    inputLayoutDesc.NumElements = _countof(inputElementDescs);
-
+    InputLayout inputLayout;
+    inputLayout.Create();
     Log(logStream, "InputLayout");
 
 #pragma endregion
 
     //BlendStateの設定を行う
     BlendState blendState;
-    blendState.Create();
+    blendState.Create(false);
     Log(logStream, "SetBlendState");
 
     //RasterizerStateの設定を行う
@@ -287,34 +166,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//ShaderをCompileする
 
-    //Shaderをコンパイルする
-    Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob = CompileShader(L"resources/shader/Object3D.VS.hlsl",
-        L"vs_6_0", dxcUtils, dxcCompiler, includeHandler);
-    assert(vertexShaderBlob != nullptr);
-    Log(logStream, "CompileVertexShader");
-
-    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob = CompileShader(L"resources/shader/Object3D.PS.hlsl",
-        L"ps_6_0", dxcUtils, dxcCompiler, includeHandler);
-    assert(pixelShaderBlob != nullptr);
-    Log(logStream, "CompilePixelShader");
+    dxcCompiler.ShaderSeting();
+    Log(logStream, "CompileShader");
 
 #pragma endregion
 
 #pragma region //DepthStencilStateの設定
-    D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-    //Depthの機能を有効化する
-    depthStencilDesc.DepthEnable = true;
-    //書き込みします
-    depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    //比較関数はLessEqual。つまり、近ければ描画される
-    depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+    DepthStencile depthStencil;
+    depthStencil.Create();
+    Log(logStream, "Create depthStencilDesc");
 #pragma endregion
 
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature, inputLayoutDesc, vertexShaderBlob, pixelShaderBlob,
-        blendState.GetBlendDesc(), rasterizerState.GetRasterizerDesc(), depthStencilDesc, device);
+        rootSignature.GetrootSignature(), inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
+        blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 
 #pragma region //Texrureを読んで転送する
@@ -329,8 +197,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
     //ShaderResourceViewを作る
-    ShaderResourceView srvClass = {};
-    srvClass.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    ShaderResourceView srv = {};
+    srv.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
 
 #pragma region//Camera
 
@@ -432,10 +300,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-    Sprite sprite;
-    sprite.Create(device, cameraSprite);
 
-    Model model(camera, commandList, viewport, scissorRect, rootSignature, pso);
+    Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
+
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
@@ -528,33 +395,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-#pragma region//Spriteのデバッグ
-
-            ImGui::Begin("Sprite");
-
-            ImGui::SliderFloat3("scale", &sprite.GetTranslateRef().x, 0.0f, 4.0f);
-            ImGui::SliderFloat3("rotate", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &sprite.GetTranslateRef().x, -128.0f, 1280.0f);
-            ImGui::ColorPicker4("materialColor", &sprite.Getmaterial()->color.x);
-            ImGui::DragFloat2("uv : scale", &sprite.GetUVTranslateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::DragFloat2("uv : rotate", &sprite.GetUVRotateRef().x, 0.01f, -10.0f, 10.0f);
-            ImGui::SliderAngle("uv : translate", &sprite.GetUVTranslateRef().x);
-
-            ImGui::End();
-
-#pragma endregion
-
 #endif
-
-            //scene = Scene::kTitle;
-            //titleScene = new TitleScene();
-            //// ゲームシーンの初期化
-            //titleScene->Initialize();
-
-            //ChangeScene();
-            //// シーンの更新
-            //UpdateScene();
-
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -590,9 +431,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //Modelの更新
             model.Update();
-
-            //Spriteの更新処理
-            sprite.Update();
 
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
@@ -648,12 +486,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-            //IndexSpriteの描画
-            sprite.Draw(commandList, srvClass);
-
-            //// シーンの描画
-            //DrawScene();
-
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
             imGuiClass.DrawImGui(commandList);
@@ -697,16 +529,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
-    //if (titleScene != nullptr) {
-    //    delete titleScene;
-    //}
-
-    //if (gameScene != nullptr) {
-    //    delete gameScene;
-    //}
-
-    CoUninitialize();
-
 #ifdef _DEBUG
     //ImGuiの終了処理 ゲームループが終わったら行う
     imGuiClass.ShutDown();
@@ -723,59 +545,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+    CoUninitialize();
 
     return 0;
 }
-
-
-//void ChangeScene() {
-//    switch (scene) {
-//    case Scene::kTitle:
-//        if (titleScene->IsFinished()) {
-//            // シーン処理
-//            scene = Scene::kGame;
-//            // 旧シーンの解放
-//            delete titleScene;
-//            titleScene = nullptr;
-//            // 新シーンの生成と初期化
-//            gameScene = new GameScene;
-//            gameScene->Initialize();
-//        }
-//        break;
-//    case Scene::kGame:
-//
-//        if (gameScene->IsFinished()) {
-//            scene = Scene::kTitle;
-//            delete gameScene;
-//            gameScene = nullptr;
-//            titleScene = new TitleScene;
-//            titleScene->Initialize();
-//        }
-//
-//        break;
-//    }
-//};
-//
-//void UpdateScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Update();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Update();
-//        break;
-//    }
-//}
-//
-//void DrawScene() {
-//
-//    switch (scene) {
-//    case Scene::kTitle:
-//        titleScene->Draw();
-//        break;
-//    case Scene::kGame:
-//        gameScene->Draw();
-//        break;
-//    }
-//};

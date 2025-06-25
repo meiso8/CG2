@@ -35,6 +35,8 @@
 #include"Header/CrashHandler.h"
 #include"Header/Log.h"
 #include"Header/ImGuiClass.h"
+#include"Header/InputLayout.h"
+#include "Header/RootSignature.h"
 
 #include"Header/Material.h"
 #include"Header/VertexData.h"
@@ -55,41 +57,3 @@
 #include"Header/Balloon.h"
 
 #pragma endregion
-
-
-//class MyEngine
-//{
-//public:
-//    void Initialize(int width, int height);
-//    void BeginFrame();
-//    void EndFrame();
-//    void Finalize();
-//
-//    // 必要に応じてgetter
-//    Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const { return device_; }
-//    SwapChain& GetSwapChain() { return swapChain_; }
-//    Window& GetWC() {
-//        return window_;
-//    };
-//private:
-//    LogFile logFile_;
-//    Window window_;
-//    DXGIFactory dxgiFactory_;
-//    GPU gpu_;
-//    Microsoft::WRL::ComPtr<ID3D12Device> device_;
-//    CommandQueue commandQueue_;
-//    CommandList commandList_;
-//    SwapChain swapChain_;
-//    RenderTargetView rtv_;
-//#ifdef _DEBUG
-//    DebugError debugError_;
-//#endif
-//    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_;
-//    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_;
-//    Microsoft::WRL::ComPtr <ID3D12Resource> swapChainResources_[2] = { nullptr };
-//
-//    Fence fence_;
-//    FenceEvent fenceEvent_;
-//    D3D12_ROOT_PARAMETER rootParameters_[6] = {};
-//};
-

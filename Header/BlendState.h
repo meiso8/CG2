@@ -4,8 +4,8 @@
 
 class BlendState {
 public:
-    void Create();
-    D3D12_BLEND_DESC GetBlendDesc()
+    void Create(bool isBlend);
+    D3D12_BLEND_DESC& GetDesc()
     {
         return blendDesc_;
     }

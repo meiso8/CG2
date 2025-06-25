@@ -9,7 +9,7 @@
 #include <string>
 
 struct SoundData {
-    WAVEFORMATEX* waveFormat;
+    WAVEFORMATEX* pWaveFormat;
     std::vector<BYTE> mediaData;
 };
 
