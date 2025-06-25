@@ -217,23 +217,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//InputLayout
 
     //InputLayout
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-    inputElementDescs[0].SemanticName = "POSITION";
-    inputElementDescs[0].SemanticIndex = 0;
-    inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//RGBA
-    inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    inputElementDescs[1].SemanticName = "TEXCOORD";
-    inputElementDescs[1].SemanticIndex = 0;
-    inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;//Vector2のためRG
-    inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    inputElementDescs[2].SemanticName = "NORMAL";
-    inputElementDescs[2].SemanticIndex = 0;
-    inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;//RGB
-    inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-    inputLayoutDesc.pInputElementDescs = inputElementDescs;
-    inputLayoutDesc.NumElements = _countof(inputElementDescs);
+    InputLayout inputLayout;
+    inputLayout.Create();
 
     Log(logStream, "InputLayout");
 
@@ -269,8 +255,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature, inputLayoutDesc, dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
-        blendState.GetBlendDesc(), rasterizerState.GetRasterizerDesc(), depthStencilDesc, device);
+        rootSignature, inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
+        blendState.GetDesc(), rasterizerState.GetDesc(), depthStencilDesc, device);
     Log(logStream, "CreatePSO");
 
 #pragma region //Texrureを読んで転送する
@@ -614,8 +600,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
     }
-
-
 
 #ifdef _DEBUG
     //ImGuiの終了処理 ゲームループが終わったら行う

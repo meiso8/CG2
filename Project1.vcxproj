@@ -94,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Game\CameraController.cpp" />
     <ClCompile Include="Game\MapChipField.cpp" />
+    <ClCompile Include="Source\InputLayout.cpp" />
     <ClCompile Include="Source\GPU.cpp" />
     <ClCompile Include="Source\ImGuiClass.cpp" />
     <ClCompile Include="Source\MaterialResource.cpp" />
@@ -267,6 +268,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Model.h" />
     <ClInclude Include="Header\Sprite.h" />
     <ClInclude Include="Header\ImGuiClass.h" />
+    <ClInclude Include="Header\InputLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
