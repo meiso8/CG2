@@ -94,13 +94,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Game\CameraController.cpp" />
     <ClCompile Include="Game\MapChipField.cpp" />
+    <ClCompile Include="Header\math\Math.cpp" />
     <ClCompile Include="Source\GPU.cpp" />
     <ClCompile Include="Source\ImGuiClass.cpp" />
     <ClCompile Include="Source\MaterialResource.cpp" />
     <ClCompile Include="Source\math\AABB.cpp" />
     <ClCompile Include="Source\math\EaseInOutCubic.cpp" />
     <ClCompile Include="Source\math\Lerp.cpp" />
-    <ClCompile Include="Source\math\Operator.cpp" />
+    <ClCompile Include="Source\math\Matrix4x4.cpp" />
+    <ClCompile Include="Source\math\Vector3.cpp" />
     <ClCompile Include="Source\math\TransformVector.cpp" />
     <ClCompile Include="Source\math\WorldTransform.cpp" />
     <ClCompile Include="Source\Model.cpp" />
@@ -234,9 +236,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\math\MakeViewportMatrix.h" />
     <ClInclude Include="Header\Material.h" />
     <ClInclude Include="Header\MaterialData.h" />
+    <ClInclude Include="Header\math\Math.h" />
     <ClInclude Include="Header\math\Matrix3x3.h" />
     <ClInclude Include="Header\math\Matrix4x4.h" />
-    <ClInclude Include="Header\math\Operator.h" />
     <ClInclude Include="Header\math\TransformVector.h" />
     <ClInclude Include="Header\ModelData.h" />
     <ClInclude Include="Header\math\Multiply.h" />

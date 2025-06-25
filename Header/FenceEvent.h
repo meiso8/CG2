@@ -5,7 +5,7 @@ class FenceEvent
 {
 public:
     void Create();
-    HANDLE GetEvent() {
+    HANDLE& GetEvent() {
         return fenceEvent
             ;
     };

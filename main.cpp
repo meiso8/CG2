@@ -633,7 +633,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     }
 
-    CoUninitialize();
+
 
 #ifdef _DEBUG
     //ImGuiの終了処理 ゲームループが終わったら行う
@@ -650,6 +650,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     CloseWindow(wc.GetHwnd());
 
 #pragma endregion
+
+    CoUninitialize();
 
     return 0;
 }
