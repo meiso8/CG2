@@ -4,7 +4,7 @@
 #include"../Header/ImGuiClass.h"
 #include "../Header/math/AABB.h"
 #include "../Header/math/EaseInOutCubic.h"
-#include"../Header/math/Operator.h"
+
 #include"../Header/Log.h"
 #include "MapChipField.h"
 #include "WorldTransformUpdate.h"
