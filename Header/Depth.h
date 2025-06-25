@@ -13,3 +13,15 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencileTextureResource(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     int32_t width,
     int32_t height);
+
+
+class DepthStencile {
+public:
+    void Create();
+    D3D12_DEPTH_STENCIL_DESC& GetDesc() {
+        return depthStencilDesc_;
+    };
+private:
+    D3D12_DEPTH_STENCIL_DESC depthStencilDesc_{};
+};
+

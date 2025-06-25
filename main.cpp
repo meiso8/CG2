@@ -216,11 +216,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//InputLayout
 
-    //InputLayout
-
     InputLayout inputLayout;
     inputLayout.Create();
-
     Log(logStream, "InputLayout");
 
 #pragma endregion
@@ -243,20 +240,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region //DepthStencilStateの設定
-    D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-    //Depthの機能を有効化する
-    depthStencilDesc.DepthEnable = true;
-    //書き込みします
-    depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    //比較関数はLessEqual。つまり、近ければ描画される
-    depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+    DepthStencile depthStencil;
+    depthStencil.Create();
+    Log(logStream, "Create depthStencilDesc");
 #pragma endregion
 
     //PSOを生成する
     PSO pso;
     pso.Create(
         rootSignature, inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
-        blendState.GetDesc(), rasterizerState.GetDesc(), depthStencilDesc, device);
+        blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 
 #pragma region //Texrureを読んで転送する
