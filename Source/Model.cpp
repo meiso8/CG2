@@ -8,12 +8,12 @@
 #include<numbers>
 
 Model::Model(
-    Camera& camera, 
-    CommandList& commandList, 
+    Camera& camera,
+    CommandList& commandList,
     D3D12_VIEWPORT& viewport,
     D3D12_RECT& scissorRect,
     const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
-    PSO& pso){
+    PSO& pso) {
 
     camera_ = &camera;
     commandList_ = &commandList;
@@ -30,8 +30,6 @@ void Model::Create(
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
     const uint32_t& descriptorSizeSRV
 ) {
-
-
 
     //マテリアルの作成
     materialResource_.CreateMaterial(device, true);

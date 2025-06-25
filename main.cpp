@@ -217,8 +217,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
-
 #pragma region//time
 
     int waveCount = 2;
