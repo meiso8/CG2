@@ -224,7 +224,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //BlendStateの設定を行う
     BlendState blendState;
-    blendState.Create();
+    blendState.Create(false);
     Log(logStream, "SetBlendState");
 
     //RasterizerStateの設定を行う
@@ -265,8 +265,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
     //ShaderResourceViewを作る
-    ShaderResourceView srvClass = {};
-    srvClass.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    ShaderResourceView srv = {};
+    srv.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
 
 #pragma region//Camera
 
