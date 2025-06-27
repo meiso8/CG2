@@ -34,7 +34,8 @@ public:
         rotation_ = transform.rotate;
         translate_ = transform.translate;
     };
-    Vector3 GetTranslate() { return translate_; };
+    Vector3& GetTranslate() { return translate_; };
+    Vector3& GetRotate() {return rotation_;};
 
     void SetFarZ(const float& farZ) { farZ_ = farZ; };
     void SetTarnslate(const Vector3& translate) { translate_ = translate; };

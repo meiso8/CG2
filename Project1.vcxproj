@@ -261,6 +261,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\ImGuiClass.h" />
     <ClInclude Include="Header\InputLayout.h" />
     <ClInclude Include="Header\RootSignature.h" />
+    <ClInclude Include="Header\math\SphericalCoordinate.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

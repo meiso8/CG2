@@ -1,5 +1,6 @@
 #include<numbers>
 #include"MyEngine.h"
+#include"Header/math/SphericalCoordinate.h"
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -19,7 +20,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //WindowClassの生成
     Window wc;
     wc.Create(1280, 720);
-
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成
@@ -117,7 +117,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "CreateRTV");
 
 #pragma region //FenceとEventを生成する
-
     Fence fence;
     fence.Create(device);
 
@@ -125,15 +124,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     FenceEvent fenceEventClass;
     fenceEventClass.Create();
     Log(logStream, "CreateFence&Event");
-
 #pragma endregion
 
 #pragma region// DXCの初期化　dxcCompilerを初期化
-
     DxcCompiler dxcCompiler;
     dxcCompiler.Initialize();
     Log(logStream, "InitDxcCompiler");
-
 #pragma endregion
 
 #pragma region//RootSignatureを生成する
@@ -164,14 +160,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "SetRasterizerState");
 
 #pragma region//ShaderをCompileする
-
     dxcCompiler.ShaderSeting();
     Log(logStream, "CompileShader");
-
 #pragma endregion
 
 #pragma region //DepthStencilStateの設定
-
     DepthStencile depthStencil;
     depthStencil.Create();
     Log(logStream, "Create depthStencilDesc");
@@ -307,6 +300,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     bool isPressMouse[4] = { false,false,false,false };
 
+    ShericalCoordinate sc = { -20.0f,0.0f,0.0f };
+
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
     // =============================================
@@ -384,15 +379,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat4("vertexData2", &(model.GetVertexData()[2].position.x));
 
             if (ImGui::Button("Init")) {
-
                 model.InitTraslate();
-
             }
 
             ImGui::End();
 
             ImGui::Begin("Input");
             ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
+            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
+            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
+            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
+            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
             ImGui::End();
 
 
@@ -405,6 +402,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     isPressMouse[i] = true;
                 }
             }
+
+            if (input.IsPushMouse(0) && input.IsPushKey(DIK_LSHIFT)) {
+                //視点の移動
+
+            }
+
+            //マウススクロールする
+
+            //視点の回転
+            if (input.IsPushMouse(2)) {
+                //中ボタン押し込み&&ドラッグ
+                sc.polar++;
+                sc.azimuthal++;
+            }
+
+            camera.SetTarnslate(TransformCoordinate(sc));
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生

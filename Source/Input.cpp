@@ -111,15 +111,12 @@ void Input::InputInfoGet() {
     //全キー入力状態を取得する
     keyboard_->GetDeviceState(sizeof(key_), key_);
 
-    // 読取前の値を保持します
-
     //マウスの状態をコピーする
     memcpy(&zdiMouseState_bak_, &zdiMouseState_, sizeof(zdiMouseState_bak_));
     // 入力制御開始
-    HRESULT result = mouse_->Acquire();
-    assert(SUCCEEDED(result));
-
-    result = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &zdiMouseState_);
+    mouse_->Acquire();
+    //マウスの状態を取得する
+    mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &zdiMouseState_);
 }
 
 bool Input::IsPushMouse(uint32_t index) {
