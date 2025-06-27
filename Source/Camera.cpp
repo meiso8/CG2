@@ -13,6 +13,7 @@ void Camera::Initialize(const float& width, const float& height, const bool& isO
     height_ = height;
     farZ_ = 100.0f;
     isOrthographic_ = isOrthographic;
+    offset_ = { 0.0f };
 
     if (isOrthographic_) {
         //平行投影
@@ -35,6 +36,8 @@ void Camera::Update() {
     } else {
         //投資投影
         projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, farZ_);
+        projectionMatrix_.m[3][0] += offset_.x;
+        projectionMatrix_.m[3][1] += offset_.y;
     }
 
 }

@@ -7,7 +7,7 @@ class Fence
 {
 public:
     void Create(const Microsoft::WRL::ComPtr <ID3D12Device>& device);
-    Microsoft::WRL::ComPtr<ID3D12Fence> GetFence() {
+    Microsoft::WRL::ComPtr<ID3D12Fence>& GetFence() {
         return fence_
             ;
     };

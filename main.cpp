@@ -1,5 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
+#include"Header/math/SphericalCoordinate.h"
+#include<numbers>
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -19,7 +21,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //WindowClassの生成
     Window wc;
     wc.Create(1280, 720);
-
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成
@@ -37,7 +38,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
-
 
     //DirectInputオブジェクト
     Input input;
@@ -118,7 +118,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "CreateRTV");
 
 #pragma region //FenceとEventを生成する
-
     Fence fence;
     fence.Create(device);
 
@@ -126,15 +125,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     FenceEvent fenceEventClass;
     fenceEventClass.Create();
     Log(logStream, "CreateFence&Event");
-
 #pragma endregion
 
 #pragma region// DXCの初期化　dxcCompilerを初期化
-
     DxcCompiler dxcCompiler;
     dxcCompiler.Initialize();
     Log(logStream, "InitDxcCompiler");
-
 #pragma endregion
 
 #pragma region//RootSignatureを生成する
@@ -165,14 +161,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "SetRasterizerState");
 
 #pragma region//ShaderをCompileする
-
     dxcCompiler.ShaderSeting();
     Log(logStream, "CompileShader");
-
 #pragma endregion
 
 #pragma region //DepthStencilStateの設定
-
     DepthStencile depthStencil;
     depthStencil.Create();
     Log(logStream, "Create depthStencilDesc");
@@ -217,8 +210,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
-
 #pragma region//time
 
     int waveCount = 2;
@@ -257,7 +248,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     expansionData->isSphere = false;
 
 #pragma endregion
-
 
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
@@ -300,14 +290,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-
     Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
-
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
+
+    bool isPressMouse[4] = { false,false,false,false };
+    Vector2 offset = { 0.0f,0.0f };
+
+    Vector2 currentPos = { 0.0f };
+    Vector2 delta = { 0.0f };
+    Vector3 pos = { 0.0f };
+    ShericalCoordinate sc = { -20.0f,0.0f,0.0f };
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -386,21 +382,62 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat4("vertexData2", &(model.GetVertexData()[2].position.x));
 
             if (ImGui::Button("Init")) {
-
                 model.InitTraslate();
-
             }
 
             ImGui::End();
+
+            ImGui::Begin("Input");
+            ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
+            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
+            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
+            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
+            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
+            ImGui::Text("input.isDragging_ %d", input.isDragging_);
+            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
+            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
+            ImGui::End();
+
 
 #pragma endregion
 
 #endif
 
+            if (input.IsPressMouse(0) && input.IsPushKey(DIK_LSHIFT)) {
+                //視点の移動 offset をずらす
+                //後でoffsetをくわえる
+                offset += input.GetMousePos();
+                camera.SetOffset({ offset.x / 120,offset.y / 120 });
+            }
+
+            //マウススクロールする
+            sc.radius = input.GetMouseWheel();
+
+            //視点の回転
+            if (input.IsPressMouse(2)) {
+                //中ボタン押し込み&&ドラッグ
+                input.isDragging_ = true;
+            }
+
+            if (!input.IsPressMouse(2)) {
+                input.isDragging_ = false;
+            }
+
+            if (input.isDragging_) {
+                currentPos = input.GetMousePos();
+                sc.polar += currentPos.x / 120;
+                sc.azimuthal += currentPos.y / 120;
+                camera.SetRotateY(sc.polar);
+                camera.SetRotateZ(sc.azimuthal);
+            }
+
+            pos = TransformCoordinate(sc);
+
+            camera.SetTarnslate(pos);
+
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -463,7 +500,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //指定した深度で画面全体をクリアする
             commandList.GetComandList()->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
@@ -492,9 +528,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif // _DEBUG
 
-
             //画面に書く処理は終わり、画面に移すので、状態を遷移
-
             barrierClass.Transition();
 
             //TransitionBarrierを張る

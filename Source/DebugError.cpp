@@ -33,7 +33,7 @@ void DebugError::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device)
         infoQueue_->PushStorageFilter(&filter);
 
         //解放
-        infoQueue_->Release();
+        //infoQueue_->Release();
     }
 
 }

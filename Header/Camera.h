@@ -1,6 +1,7 @@
 #pragma once
 #include"math/Matrix4x4.h"
 #include"math/Transform.h"
+#include"math/Vector2.h"
 
 class Camera {
 private:
@@ -17,6 +18,7 @@ private:
     float width_{};
     float height_{};
     bool isOrthographic_ = false;
+    Vector2 offset_;
 public:
     /// @brief 初期化
     void Initialize(const float& width, const float& height, const bool& isOrthographic);
@@ -34,10 +36,19 @@ public:
         rotation_ = transform.rotate;
         translate_ = transform.translate;
     };
-    Vector3 GetTranslate() { return translate_; };
+    Vector3& GetTranslate() { return translate_; };
+    Vector3& GetRotate() { return rotation_; };
+    Vector2& GetOffset() { return offset_; };
+
+    void SetRotate(const Vector3& rotate) { rotation_ = rotate; };
+    void SetRotateY(const float& rotateY) { rotation_.y = rotateY; };
+    void SetRotateZ(const float& rotateZ) { rotation_.z = rotateZ; };
+    void SetOffset(const Vector2& offset) { offset_ = offset; };
 
     void SetFarZ(const float& farZ) { farZ_ = farZ; };
     void SetTarnslate(const Vector3& translate) { translate_ = translate; };
+    void SetTarnslateXY(const Vector2& translate) { translate_.x = translate.x; translate_.y = translate.y; };
+
     void SetTarnslateX(const float& translateX) { translate_.x = translateX; };
     void SetTarnslateY(const float& translateY) { translate_.y = translateY; };
     void SetTarnslateZ(const float& translateZ) { translate_.z = translateZ; };
