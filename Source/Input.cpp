@@ -4,6 +4,7 @@
 #pragma comment(lib,"dxguid.lib")
 
 #include"../Header/Log.h"
+#define FPS 120
 
 HRESULT Input::Initalize(const WNDCLASS& wc, const HWND& hwnd) {
 
@@ -123,11 +124,17 @@ bool Input::IsPushMouse(uint32_t index) {
     return (zdiMouseState_.rgbButtons[index] & 0x80) ? true : false;
 }
 
-long Input::GetMousePos() {
-    return zdiMouseState_.lX;
-    //return zdiMouseState_.lY;
-    //return zdiMouseState_.lZ;
+Vector2& Input::GetMousePos() {
+    static Vector2 mousePos; // 静的変数を使用して左辺値を確保  
+    mousePos.x = static_cast<float>(zdiMouseState_.lX);
+    mousePos.y = static_cast<float>(zdiMouseState_.lY);
+    return mousePos;
 }
+
+float Input::GetMouseWheel() {
+    mouseWheelVol_ += static_cast<float>(zdiMouseState_.lZ) / FPS;
+    return mouseWheelVol_;
+};
 
 Input::~Input() {
 

@@ -289,9 +289,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-
     Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
-
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
 
     MSG msg{};
@@ -409,6 +407,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             //マウススクロールする
+            sc.radius = input.GetMouseWheel();
 
             //視点の回転
             if (input.IsPushMouse(2)) {

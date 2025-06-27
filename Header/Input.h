@@ -3,6 +3,7 @@
 //　DIRECTINPUT_VERSION　dinput.hのインクルードより上に書くこと。
 #include <dinput.h>
 #include<cstdint>
+#include"../Header/math/Vector2.h"
 
 class Input {
 public:
@@ -24,7 +25,8 @@ public:
 
     ~Input();
 
-    long GetMousePos();
+    Vector2& GetMousePos();
+    float GetMouseWheel();
 
 public:
     IDirectInputDevice8* keyboard_ = nullptr;
@@ -35,4 +37,5 @@ public:
     IDirectInputDevice8* mouse_ = nullptr;
     DIMOUSESTATE zdiMouseState_;
     DIMOUSESTATE zdiMouseState_bak_;	// マウス情報(変化検知用)
+    float mouseWheelVol_;
 };
