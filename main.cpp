@@ -1,6 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
 #include"Header/math/SphericalCoordinate.h"
+#include<numbers>
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -297,7 +298,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "LoopStart");
 
     bool isPressMouse[4] = { false,false,false,false };
+    Vector2 offset = { 0.0f,0.0f };
 
+    Vector2 currentPos = { 0.0f };
+    Vector2 delta = { 0.0f };
+    Vector3 pos = { 0.0f };
     ShericalCoordinate sc = { -20.0f,0.0f,0.0f };
 
     // =============================================
@@ -388,6 +393,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
             ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
             ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
+            ImGui::Text("input.isDragging_ %d", input.isDragging_);
+            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
+            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
             ImGui::End();
 
 
@@ -395,28 +403,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            for (int i = 0; i < 4; ++i) {
-                if (input.IsPushMouse(i)) {
-                    isPressMouse[i] = true;
-                }
-            }
-
-            if (input.IsPushMouse(0) && input.IsPushKey(DIK_LSHIFT)) {
-                //視点の移動
-
+            if (input.IsPressMouse(0) && input.IsPushKey(DIK_LSHIFT)) {
+                //視点の移動 offset をずらす
+                //後でoffsetをくわえる
+                offset += input.GetMousePos();
+                camera.SetOffset({ offset.x / 120,offset.y / 120 });
             }
 
             //マウススクロールする
             sc.radius = input.GetMouseWheel();
 
             //視点の回転
-            if (input.IsPushMouse(2)) {
+            if (input.IsPressMouse(2)) {
                 //中ボタン押し込み&&ドラッグ
-                sc.polar++;
-                sc.azimuthal++;
+                input.isDragging_ = true;
             }
 
-            camera.SetTarnslate(TransformCoordinate(sc));
+            if (!input.IsPressMouse(2)) {
+                input.isDragging_ = false;
+            }
+
+            if (input.isDragging_) {
+                currentPos = input.GetMousePos();
+                sc.polar += currentPos.x / 120;
+                sc.azimuthal += currentPos.y / 120;
+                camera.SetRotateY(sc.polar);
+                camera.SetRotateZ(sc.azimuthal);
+            }
+
+            pos = TransformCoordinate(sc);
+
+            camera.SetTarnslate(pos);
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生

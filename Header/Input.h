@@ -21,7 +21,7 @@ public:
     /// @brief キーの情報を取得する
     void InputInfoGet();
 
-    bool IsPushMouse(uint32_t index);
+    bool IsPressMouse(uint32_t index);
 
     ~Input();
 
@@ -35,7 +35,8 @@ public:
     BYTE preKey_[256] = {};
     //マウス
     IDirectInputDevice8* mouse_ = nullptr;
-    DIMOUSESTATE zdiMouseState_;
-    DIMOUSESTATE zdiMouseState_bak_;	// マウス情報(変化検知用)
-    float mouseWheelVol_;
+    DIMOUSESTATE mouseState_;
+    DIMOUSESTATE mouseState_bak_;	// マウス情報(変化検知用)
+    float mouseWheelVol_ = 0;
+    bool isDragging_;
 };

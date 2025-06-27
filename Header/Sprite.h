@@ -7,7 +7,6 @@
 #include"../Header/Camera.h"
 #include"../Header/math/Transform.h"
 #include"../Header/TransformationMatrix.h"
-//#include"../Header/Material.h"
 #include"../Header/MaterialResource.h"
 
 class Sprite

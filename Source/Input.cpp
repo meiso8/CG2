@@ -113,26 +113,26 @@ void Input::InputInfoGet() {
     keyboard_->GetDeviceState(sizeof(key_), key_);
 
     //マウスの状態をコピーする
-    memcpy(&zdiMouseState_bak_, &zdiMouseState_, sizeof(zdiMouseState_bak_));
+    memcpy(&mouseState_bak_, &mouseState_, sizeof(mouseState_bak_));
     // 入力制御開始
     mouse_->Acquire();
     //マウスの状態を取得する
-    mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &zdiMouseState_);
+    mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
 }
 
-bool Input::IsPushMouse(uint32_t index) {
-    return (zdiMouseState_.rgbButtons[index] & 0x80) ? true : false;
+bool Input::IsPressMouse(uint32_t index) {
+    return (mouseState_.rgbButtons[index] & 0x80) ? true : false;
 }
 
 Vector2& Input::GetMousePos() {
     static Vector2 mousePos; // 静的変数を使用して左辺値を確保  
-    mousePos.x = static_cast<float>(zdiMouseState_.lX);
-    mousePos.y = static_cast<float>(zdiMouseState_.lY);
+    mousePos.x = static_cast<float>(mouseState_.lX);
+    mousePos.y = static_cast<float>(mouseState_.lY);
     return mousePos;
 }
 
 float Input::GetMouseWheel() {
-    mouseWheelVol_ += static_cast<float>(zdiMouseState_.lZ) / FPS;
+    mouseWheelVol_ += static_cast<float>(mouseState_.lZ) / FPS;
     return mouseWheelVol_;
 };
 
