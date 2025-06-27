@@ -92,16 +92,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Game\CameraController.cpp" />
-    <ClCompile Include="Game\DeathParticles.cpp" />
-    <ClCompile Include="Game\Enemy.cpp" />
-    <ClCompile Include="Game\Fade.cpp" />
-    <ClCompile Include="Game\GameScene.cpp" />
-    <ClCompile Include="Game\MapChipField.cpp" />
-    <ClCompile Include="Game\Player.cpp" />
-    <ClCompile Include="Game\Skydome.cpp" />
-    <ClCompile Include="Game\TitleScene.cpp" />
-    <ClCompile Include="Game\WorldTransformUpdate.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\InputLayout.cpp" />
     <ClCompile Include="Source\GPU.cpp" />
@@ -188,16 +178,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\CameraController.h" />
-    <ClInclude Include="Game\DeathParticles.h" />
-    <ClInclude Include="Game\Enemy.h" />
-    <ClInclude Include="Game\Fade.h" />
-    <ClInclude Include="Game\GameScene.h" />
-    <ClInclude Include="Game\MapChipField.h" />
-    <ClInclude Include="Game\Player.h" />
-    <ClInclude Include="Game\Skydome.h" />
-    <ClInclude Include="Game\TitleScene.h" />
-    <ClInclude Include="Game\WorldTransformUpdate.h" />
     <ClInclude Include="Header\CrashHandler.h" />
     <ClInclude Include="Header\CreateBufferResource.h" />
     <ClInclude Include="Header\Balloon.h" />

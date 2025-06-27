@@ -38,7 +38,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
 
-
     //DirectInputオブジェクト
     Input input;
     input.Initalize(wc.GetWindowClass(), wc.GetHwnd());
@@ -256,7 +255,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-
 #pragma region//stencileTextureResourceの作成
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
 
@@ -306,6 +304,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     MSG msg{};
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
+
+    bool isPressMouse[4] = { false,false,false,false };
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -391,14 +391,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::End();
 
+            ImGui::Begin("Input");
+            ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
+            ImGui::End();
+
+
 #pragma endregion
 
 #endif
 
+            for (int i = 0; i < 4; ++i) {
+                if (input.IsPushMouse(i)) {
+                    isPressMouse[i] = true;
+                }
+            }
+
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
-
             }
 
             if (input.IsTriggerKey(DIK_2)) {
@@ -461,7 +471,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //指定した深度で画面全体をクリアする
             commandList.GetComandList()->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
@@ -490,9 +499,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif // _DEBUG
 
-
             //画面に書く処理は終わり、画面に移すので、状態を遷移
-
             barrierClass.Transition();
 
             //TransitionBarrierを張る
