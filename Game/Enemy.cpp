@@ -42,12 +42,12 @@ void Enemy::Update() {
 void Enemy::Draw() {
 
     // 3Dモデル描画前処理
-    Model::PreDraw(dxCommon->GetCommandList());
+    model_->PreDraw();
 
     // 3Dモデルを描画
-    model_->Draw(worldTransform_, *camera_);
+    model_->Draw();
 
-    Model::PostDraw();
+    model_->DrawCall();
 }
 
 AABB Enemy::GetAABB() {

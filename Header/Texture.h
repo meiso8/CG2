@@ -10,6 +10,9 @@
 //Textureの転送のために
 #include"../externals/DirectXTex/d3dx12.h"
 
+#include"../Header/CommandList.h"
+#include"../Header/ShaderResourceView.h"
+
 //テクスチャの読み込み関数
 DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
@@ -24,3 +27,19 @@ Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
     const DirectX::ScratchImage& mipImages,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& commandList);
+
+class Texture {
+public:
+    Texture(const Microsoft::WRL::ComPtr<ID3D12Device>& device, CommandList& commandList)
+        :device_(device), commandList_(commandList) {
+    };
+    void Load(const std::string& filePath);
+    DirectX::TexMetadata& GetMetadata() { return metadata_; };
+    Microsoft::WRL::ComPtr<ID3D12Resource>& GetTextureResource() { return textureResource_; };
+private:
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device_;
+    CommandList& commandList_;
+    DirectX::TexMetadata metadata_;
+    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
+    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
+};

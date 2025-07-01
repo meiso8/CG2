@@ -3,7 +3,6 @@
 #include "CameraController.h"
 #include "../Header/math/Lerp.h"
 #include"../Header/math/WorldTransform.h"
-#include"../Header/math/Operator.h"
 #include "Player.h"
 #include <algorithm> // std::max, std::min を使用するために必要
 

@@ -26,7 +26,7 @@ public:
     Vector3& GetRotateRef() { return transform_.rotate; };
     Vector3& GetTranslateRef() { return transform_.translate; };
 
-    Material* Getmaterial() { return materialResource_.GetMaterial(); };
+    Material* GetMaterial() { return materialResource_.GetMaterial(); };
 
     Vector3& GetUVScaleRef() { return uvTransform_.scale; };
     Vector3& GetUVRotateRef() { return uvTransform_.rotate; };

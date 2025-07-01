@@ -2,10 +2,11 @@
 #include"../Header/CommandList.h"  
 #include"../Header/ModelData.h"  
 #include"../Header/PSO.h"  
-#include"../Header/ShaderResourceView.h"  
+//#include"../Header/ShaderResourceView.h"  
 #include"../Header/MaterialResource.h"
 #include"../Header/Camera.h"
 #include"../Header/TransformationMatrix.h"
+#include"../Header/Texture.h"
 
 class Model
 {
@@ -17,12 +18,9 @@ public:
 
     void Create(
         const std::string& directoryPath,
-        const std::string& filename,
-     
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-      
-        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
-        const uint32_t& descriptorSizeSRV);
+        const std::string& filename,    
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device,    
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
@@ -44,6 +42,8 @@ public:
     VertexData* GetVertexData() {
         return vertexData_;
     }
+
+    ~Model();
 
 private:
     ShaderResourceView srv_;
@@ -73,8 +73,10 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource_;
     VertexData* vertexData_ = nullptr;
 
-    DirectX::ScratchImage mipImages_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
+    Texture* texture_ = nullptr;
+
+    //DirectX::ScratchImage mipImages_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
 
 };

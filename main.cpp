@@ -107,14 +107,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//DescriptorSIze
     //DescriptorSizeを取得しておく
-    const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+  /*  const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);*/
     const uint32_t descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 #pragma endregion
 
     //RTVを作る
     RenderTargetView rtvClass;
-    rtvClass.Create(device, swapChainResources, rtvDescriptorHeap, descriptorSizeRTV);
+    rtvClass.Create(device, swapChainResources, rtvDescriptorHeap);
     Log(logStream, "CreateRTV");
 
 #pragma region //FenceとEventを生成する
@@ -178,20 +178,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 
-#pragma region //Texrureを読んで転送する
 
-    DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
-    const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device, commandList.GetComandList());
-
-#pragma endregion
-
-#pragma endregion
+    Texture texture = Texture(device, commandList);
+    texture.Load("resources/uvChecker.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
-    srv.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    srv.Create(texture.GetMetadata(), texture.GetTextureResource(), 1, device, srvDescriptorHeap);
 
 #pragma region//Camera
 
@@ -291,7 +284,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
     Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
-    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
+    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 
     MSG msg{};
     //ファイルへのログ出力
@@ -503,6 +496,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //描画用のDescriptorHeapの設定
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
+
+
 
 #pragma region //Modelを描画する
 

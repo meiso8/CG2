@@ -37,7 +37,7 @@ void Camera::Update() {
         //投資投影
         projectionMatrix_ = MakePerspectiveFovMatrix(0.45f, width_ / height_, 0.1f, farZ_);
         projectionMatrix_.m[3][0] += offset_.x;
-        projectionMatrix_.m[3][1] += offset_.y;
+        projectionMatrix_.m[3][1] -= offset_.y;
     }
 
 }
