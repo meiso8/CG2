@@ -6,8 +6,9 @@
 void RenderTargetView::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr <ID3D12Resource>(&swapChainResources)[2],
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& rtvDescriptorHeap,
-    const uint32_t& descriptorSizeRTV) {
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& rtvDescriptorHeap) {
+
+    const uint32_t descriptorSize= device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     //Descriptorは必ずDescriptorHandleというポインタのようなものを介して扱う必要がある
     //Viewを作るときは、どこのDescriptorに情報を格納するかを明示的に指定する必要がる
@@ -23,7 +24,7 @@ void RenderTargetView::Create(
     device->CreateRenderTargetView(swapChainResources[0].Get(), &rtvDesc_, rtvHandles_[0]);
     //2つ目のディスクリプタハンドルを得る（自力で）
 
-    rtvHandles_[1] = GetCPUDescriptorHandle(rtvDescriptorHeap.Get(), descriptorSizeRTV, 1);
+    rtvHandles_[1] = GetCPUDescriptorHandle(rtvDescriptorHeap.Get(), descriptorSize, 1);
 
     //GetDescriptorHandleIncrementSize() Descriptorのサイズは、最適化のため、GPUまたはドライバによって異なることが許可されている
     //なのでDirectX12に問い合わせて実際のサイズを取得する　このサイズはゲーム中に変化することはないので初期化時に取得しておけばよい
