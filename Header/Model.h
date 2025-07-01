@@ -2,10 +2,11 @@
 #include"../Header/CommandList.h"  
 #include"../Header/ModelData.h"  
 #include"../Header/PSO.h"  
-#include"../Header/ShaderResourceView.h"  
+//#include"../Header/ShaderResourceView.h"  
 #include"../Header/MaterialResource.h"
 #include"../Header/Camera.h"
 #include"../Header/TransformationMatrix.h"
+#include"../Header/Texture.h"
 
 class Model
 {
@@ -42,6 +43,8 @@ public:
         return vertexData_;
     }
 
+    ~Model();
+
 private:
     ShaderResourceView srv_;
     CommandList* commandList_ = nullptr;
@@ -70,8 +73,10 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource>vertexResource_;
     VertexData* vertexData_ = nullptr;
 
-    DirectX::ScratchImage mipImages_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
+    Texture* texture_ = nullptr;
+
+    //DirectX::ScratchImage mipImages_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
 
 };

@@ -80,9 +80,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
 
 }
 
-
-//"resources/uvChecker.png"
-
 void Texture::Load(const std::string& filePath) {
     DirectX::ScratchImage mipImages = LoadTexture(filePath);
     metadata_ = mipImages.GetMetadata();

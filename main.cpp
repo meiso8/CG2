@@ -178,14 +178,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 
-#pragma region //Texrureを読んで転送する
 
     Texture texture = Texture(device, commandList);
     texture.Load("resources/uvChecker.png");
-
-#pragma endregion
-
-#pragma endregion
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
@@ -288,9 +283,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-    Sprite sprite;
-    sprite.Create(device, cameraSprite);
-
     Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 
@@ -368,18 +360,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 #pragma endregion
-
-      /*      Vector3& GetScaleRef() { return transform_.scale; };
-            Vector3& GetRotateRef() { return transform_.rotate; };
-            Vector3& GetTranslateRef() { return transform_.translate; };
-
-            Material* GetMaterial() { return materialResource_.GetMaterial(); };*/
-
-            ImGui::Begin("Sprite");
-            ImGui::SliderFloat3("scale ", &sprite.GetScaleRef().x, 0.0f, 2.0f);
-            ImGui::SliderFloat3("rotate ", &sprite.GetRotateRef().x, 0.0f, 3.14f);
-            ImGui::SliderFloat3("translate ", &sprite.GetTranslateRef().x, -10.0f, 10.0f);
-            ImGui::End();
 
 #pragma region//Modelのデバッグ 
 
@@ -482,9 +462,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //Modelの更新
             model.Update();
 
-            sprite.Update();
-            sprite.UpdateUV();
-
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
             imGuiClass.Render();
@@ -537,8 +514,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //DrawCall
             model.DrawCall();
-
-            sprite.Draw(commandList, srv);
 
 #pragma endregion
 

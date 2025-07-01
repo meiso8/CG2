@@ -21,6 +21,7 @@ Model::Model(
     scissorRect_ = &scissorRect;
     rootSignature_ = rootSignature;
     pso_ = &pso;
+
 };
 
 void Model::Create(
@@ -44,17 +45,14 @@ void Model::Create(
     vertexBufferView_.StrideInBytes = sizeof(VertexData);//1頂点あたりのサイズ
 
     //頂点リソースにデータを書き込む
-
     vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));//書き込むためのアドレスを取得
     std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());//頂点データをリソースにコピー
 
     //モデルのテクスチャを読む
-    mipImages_ = LoadTexture(modelData_.material.textureFilePath);
-    const DirectX::TexMetadata& metadata = mipImages_.GetMetadata();
-    textureResource_ = CreateTextureResource(device, metadata);
-    intermediateResource_ = UploadTextureData(textureResource_.Get(), mipImages_, device, commandList_->GetComandList());
-
-    srv_.Create(metadata, textureResource_, 2, device, srvDescriptorHeap);
+    texture_ = new Texture(device, *commandList_);
+    texture_->Load(modelData_.material.textureFilePath);
+  
+    srv_.Create(texture_->GetMetadata(), texture_->GetTextureResource(), 2, device, srvDescriptorHeap);
 }
 
 void Model::CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -120,3 +118,8 @@ void Model::DrawCall() {
     commandList_->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 
 }
+
+Model::~Model() {
+
+    delete texture_;
+};
