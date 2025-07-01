@@ -3,13 +3,13 @@
 #include"../Header/GetGPUDescriptorHandle.h"
 
 void ShaderResourceView::Create(
-
     const DirectX::TexMetadata& metadata,
     const Microsoft::WRL::ComPtr<ID3D12Resource>& textureResource,
     uint32_t index,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
-    uint32_t descriptorSize) {
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
+
+    const uint32_t descriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     //metaDataを基にSRVの設定
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};

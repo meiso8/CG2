@@ -15,8 +15,7 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12Resource>& textureResource,
         uint32_t index,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
-        uint32_t descriptorSize
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap
     );
 
     D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU()const {

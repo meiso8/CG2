@@ -17,12 +17,9 @@ public:
 
     void Create(
         const std::string& directoryPath,
-        const std::string& filename,
-     
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-      
-        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
-        const uint32_t& descriptorSizeSRV);
+        const std::string& filename,    
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device,    
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 

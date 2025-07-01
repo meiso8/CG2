@@ -180,10 +180,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Texrureを読んで転送する
 
-    DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
-    const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = CreateTextureResource(device, metadata);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(textureResource.Get(), mipImages, device, commandList.GetComandList());
+    Texture texture = Texture(device, commandList);
+    texture.Load("resources/uvChecker.png");
 
 #pragma endregion
 
@@ -191,7 +189,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
-    srv.Create(metadata, textureResource, 1, device, srvDescriptorHeap, descriptorSizeSRV);
+    srv.Create(texture.GetMetadata(), texture.GetTextureResource(), 1, device, srvDescriptorHeap);
 
 #pragma region//Camera
 
@@ -290,8 +288,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
+    Sprite sprite;
+    sprite.Create(device, cameraSprite);
+
     Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
-    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap, descriptorSizeSRV);
+    model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 
     MSG msg{};
     //ファイルへのログ出力
@@ -367,6 +368,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::DragFloat("intensity", &directionalLightData->intensity);
             ImGui::End();
 #pragma endregion
+
+      /*      Vector3& GetScaleRef() { return transform_.scale; };
+            Vector3& GetRotateRef() { return transform_.rotate; };
+            Vector3& GetTranslateRef() { return transform_.translate; };
+
+            Material* GetMaterial() { return materialResource_.GetMaterial(); };*/
+
+            ImGui::Begin("Sprite");
+            ImGui::SliderFloat3("scale ", &sprite.GetScaleRef().x, 0.0f, 2.0f);
+            ImGui::SliderFloat3("rotate ", &sprite.GetRotateRef().x, 0.0f, 3.14f);
+            ImGui::SliderFloat3("translate ", &sprite.GetTranslateRef().x, -10.0f, 10.0f);
+            ImGui::End();
 
 #pragma region//Modelのデバッグ 
 
@@ -469,6 +482,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //Modelの更新
             model.Update();
 
+            sprite.Update();
+            sprite.UpdateUV();
+
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
             imGuiClass.Render();
@@ -504,6 +520,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
 
+
+
 #pragma region //Modelを描画する
 
             Log(logStream, "DrawModel");
@@ -519,6 +537,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //DrawCall
             model.DrawCall();
+
+            sprite.Draw(commandList, srv);
 
 #pragma endregion
 

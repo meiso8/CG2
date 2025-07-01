@@ -27,9 +27,7 @@ void Model::Create(
     const std::string& directoryPath,
     const std::string& filename,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,
-    const uint32_t& descriptorSizeSRV
-) {
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
 
     //マテリアルの作成
     materialResource_.CreateMaterial(device, true);
@@ -56,7 +54,7 @@ void Model::Create(
     textureResource_ = CreateTextureResource(device, metadata);
     intermediateResource_ = UploadTextureData(textureResource_.Get(), mipImages_, device, commandList_->GetComandList());
 
-    srv_.Create(metadata, textureResource_, 2, device, srvDescriptorHeap, descriptorSizeSRV);
+    srv_.Create(metadata, textureResource_, 2, device, srvDescriptorHeap);
 }
 
 void Model::CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {

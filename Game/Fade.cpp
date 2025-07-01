@@ -8,7 +8,7 @@ const int winHeight = 720;
 void Fade::Initialize() {
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("black.jpg");
-	sprite_ = Sprite::Create(textureHandle_, {0, 0});
+	sprite_->Create(textureHandle_, {0, 0});
 	sprite_->SetSize(Vector2(winWidth, winHeight));
 	sprite_->SetColor(Vector4(0, 0, 0, 0.5f));
 };
@@ -54,8 +54,8 @@ void Fade::Draw(ID3D12GraphicsCommandList& commandList) {
 	}
 
 	Sprite::PreDraw(&commandList);
-	sprite_->Draw();
-	Sprite::PostDraw();
+	sprite_->Draw(commandList,srv);
+
 };
 
 void Fade::Start(Status status, float duration) {

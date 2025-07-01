@@ -1,6 +1,7 @@
 #include"../Header/Texture.h"
 #include"../Header/Log.h"
 #include"../Header/CreateBufferResource.h"
+
 #include<cassert>
 
 //テクスチャの読み込み関数
@@ -79,3 +80,12 @@ Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
 
 }
 
+
+//"resources/uvChecker.png"
+
+void Texture::Load(const std::string& filePath) {
+    DirectX::ScratchImage mipImages = LoadTexture(filePath);
+    metadata_ = mipImages.GetMetadata();
+    textureResource_ = CreateTextureResource(device_, metadata_);
+    intermediateResource_ = UploadTextureData(textureResource_.Get(), mipImages, device_, commandList_.GetComandList());
+}

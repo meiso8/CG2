@@ -77,12 +77,13 @@ void DeathParticles::Draw() {
 	}
 
 	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
+	model_->PreDraw();
 
 	for (auto& worldTransform : worldTransforms_) {
 		// 3Dモデルを描画
-		model_->Draw(worldTransform, *camera_, &objectColor_);
+		/*model_->Draw(worldTransform, *camera_, &objectColor_);*/
+		model_->Draw();
 	}
 
-	Model::PostDraw();
+	model_->DrawCall();
 };
