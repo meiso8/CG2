@@ -20,9 +20,6 @@ void ImGuiClass::Initialize(HWND hWnd,
         srvDescriptorHeap.Get(),
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
-
-
 }
 
 void ImGuiClass::FrameStart() {

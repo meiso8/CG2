@@ -6,20 +6,31 @@
 const int winWidth = 1280;
 const int winHeight = 720;
 
-void GameScene::Initialize() {
+void GameScene::Initialize(CommandList& commandList, D3D12_VIEWPORT& viewport,
+    D3D12_RECT& scissorRect,
+    const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
+    PSO& pso,
+    const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
+    const Microsoft::WRL::ComPtr <ID3D12Resource> waveResource,
+    const Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource,
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device,
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap
+) {
     // メンバ変数への代入処理
+
+    commandList_ = commandList;
 
     // ゲームプレイフェーズから開始
     phase_ = Phase::kFadeIn;
-
-    fade_ = new Fade();
-    fade_->Initialize();
-    fade_->Start(Fade::Status::FadeIn, 1.0f);
 
     // カメラの初期化
     camera_.Initialize(winWidth, winHeight, false);
     camera_.SetFarZ(1000.0f);
     camera_.SetTarnslate({ 12.0f, 7.0f, -20.0f });
+
+    fade_ = new Fade();
+    fade_->Initialize(device, camera_, commandList, viewport, scissorRect, rootSignature, pso, srvDescriptorHeap);
+    fade_->Start(Fade::Status::FadeIn, 1.0f);
 
 #ifdef _DEBUG
     // デバッグカメラの生成
@@ -35,19 +46,21 @@ void GameScene::Initialize() {
     GenerateBlocks();
 
     // ここにインゲームの初期化処理を書く
-    modelTextureHandle_ = TextureManager::Load("texture0.jpg");
 
-    // 天球モデルの生成 OBJからの生成
-    playerModel_ = Model::CreateFromOBJ("player", true);
+    // 自キャラの生成 OBJからの生成
+    playerModel_ = new Model(camera_, commandList_, viewport, scissorRect, rootSignature, pso, directionalLightResource);
+    playerModel_->Create("resources/player", "player.obj", device, srvDescriptorHeap);
     // 自キャラの生成
     player_ = new Player();
     Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(4, 17);
     // 自キャラの初期化
-    player_->Initialize(playerModel_, &camera_, &input_,playerPosition);
+    player_->Initialize(playerModel_, &camera_, &input_, playerPosition);
     player_->SetMapChipField(mapChipField_);
 
     // 敵のモデル生成
-    enemyModel_ = Model::CreateFromOBJ("enemy", true);
+    enemyModel_ = new Model(camera_, commandList_, viewport, scissorRect, rootSignature, pso, directionalLightResource);
+    enemyModel_->Create("resources/enemy", "enemy.obj", device, srvDescriptorHeap);
+
     // 敵キャラ生成
     for (int32_t i = 0; i < kEnemyMax; ++i) {
         Enemy* newEnemy = new Enemy();
@@ -57,13 +70,16 @@ void GameScene::Initialize() {
     }
 
     // 天球モデルの生成 OBJからの生成
-    skyDomeModel_ = Model::CreateFromOBJ("world", true);
+    skyDomeModel_ = new Model(camera_, commandList_, viewport, scissorRect, rootSignature, pso, directionalLightResource);
+    skyDomeModel_->Create("resources/world", "world.obj", device, srvDescriptorHeap);
+
     skyDome_ = new Skydome();
     // 天球の生成
     skyDome_->Initialize(skyDomeModel_, &camera_);
 
     // パーティクルモデルの作成　
-    deathParticleModel_ = Model::CreateFromOBJ("particle", false);
+    deathParticleModel_ = Model(camera_, commandList_, viewport, scissorRect, rootSignature, pso, directionalLightResource);
+    deathParticleModel_->Create("resources/particle", "particle.obj", device, srvDescriptorHeap);
 
     // カメラ操作の初期化
     cameraController_ = new CameraController();
@@ -147,16 +163,16 @@ void GameScene::DebugCameraUpdate() {
         isDebugCameraActive_ = isDebugCameraActive_ ? false : true;
     }
 
-    ImGui::SliderFloat3("camera translate", &camera_.translate_.x, -128.0f, 128.0f);
+    ImGui::SliderFloat3("camera translate", &camera_.GetTranslate().x, -128.0f, 128.0f);
 
     // カメラの処理
     if (isDebugCameraActive_) {
         // デバッグカメラの更新
         debugCamera_->Update();
-        camera_.SetViewMatrix( debugCamera_->GetViewMatrix());
+        camera_.SetViewMatrix(debugCamera_->GetViewMatrix());
         camera_.SetProjectionMatrix(debugCamera_->GetProjectionMatrix());
-        // ビュープロジェクション行列の転送
-        camera_.TransferMatrix();
+        //// ビュープロジェクション行列の転送
+        //camera_.TransferMatrix();
 
     } else {
         // ビュープロジェクション行列の更新と転送
@@ -231,6 +247,7 @@ void GameScene::Update() {
         skyDome_->Update();
 
         // 自キャラの更新処理
+        playerModel_->Update();
         player_->Update();
 
         // 敵の更新
@@ -298,6 +315,8 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
+    Model::PreDraw();
+
     // 天球の描画
     skyDome_->Draw();
 
@@ -314,10 +333,6 @@ void GameScene::Draw() {
         newEnemy->Draw();
     }
 
-
-    // 3Dモデルの描画前処理
-    Model::PreDraw(dxCommon->GetCommandList());
-
     // ブロックの描画
     for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
         for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -330,9 +345,6 @@ void GameScene::Draw() {
         }
     }
 
-
-    Model::PostDraw();
-
     // デスパーティクルの描画処理
     if (deathParticles_) {
         deathParticles_->Draw();
@@ -340,7 +352,7 @@ void GameScene::Draw() {
 
     switch (phase_) {
     case Phase::kFadeIn:
-        fade_->Draw(*dxCommon->GetCommandList());
+        fade_->Draw(directionalLightResource,waveResource, expansionResource);
         break;
     case Phase::kPlay:
         break;
@@ -348,7 +360,7 @@ void GameScene::Draw() {
         break;
     case Phase::kFadeOut:
 
-        fade_->Draw(*dxCommon->GetCommandList());
+        fade_->Draw(directionalLightResource, waveResource, expansionResource);
         break;
     }
 }

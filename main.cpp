@@ -107,8 +107,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region//DescriptorSIze
     //DescriptorSizeを取得しておく
-  /*  const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);*/
     const uint32_t descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 #pragma endregion
 
@@ -177,7 +175,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         rootSignature.GetrootSignature(), inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
         blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
-
 
     Texture texture = Texture(device, commandList);
     texture.Load("resources/uvChecker.png");
@@ -283,7 +280,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "InitImGui");
 #endif
 
-    Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
+    Sprite sprite;
+    sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
+
+    Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso,
+        directionalLightResource, WaveResource, expansionResource);
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 
     MSG msg{};
@@ -313,6 +314,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             input.InputInfoGet();
 
 #ifdef _DEBUG
+
             //ImGuiにここからフレームが始まる旨を伝える
             imGuiClass.FrameStart();
 #endif
@@ -320,6 +322,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //ゲームの処理
 
 #ifdef _DEBUG
+
+#pragma region//Lightを設定
+            Vector3 direction = directionalLightData->direction;
+
+            ImGui::Begin("DirectionalLight");
+            ImGui::DragFloat4("color", &directionalLightData->color.x);
+            ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
+            directionalLightData->direction = Normalize(direction);
+
+            ImGui::DragFloat("intensity", &directionalLightData->intensity);
+            ImGui::End();
+#pragma endregion
+
+            ImGui::Begin("Input");
+            ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
+            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
+            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
+            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
+            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
+            ImGui::Text("input.isDragging_ %d", input.isDragging_);
+            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
+            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
+            ImGui::End();
+
+#endif
 
             ImGui::Begin("Wave1");
             ImGui::DragFloat("time1", &waveData[0].time, 0.03f);
@@ -348,53 +375,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::End();
 
 
-#pragma region//Lightを設定
-
-            Vector3 direction = directionalLightData->direction;
-
-            ImGui::Begin("DirectionalLight");
-            ImGui::DragFloat4("color", &directionalLightData->color.x);
-            ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
-            directionalLightData->direction = Normalize(direction);
-
-            ImGui::DragFloat("intensity", &directionalLightData->intensity);
-            ImGui::End();
-#pragma endregion
-
-#pragma region//Modelのデバッグ 
-
-            //開発用のUIの処理。実際に開発用のUIを出す場合はここkをゲーム固有の処理に置き換える
-         /*   ImGui::ShowDemoWindow();*/
-            ImGui::Begin("Model");
-            ImGui::SliderFloat3("scale", &model.GetTransformRef().scale.x, 0.0f, 8.0f);
-            ImGui::SliderFloat3("rotate", &model.GetTransformRef().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("translate", &model.GetTransformRef().translate.x, -2.0f, 2.0f);
-            ImGui::ColorPicker4("materialColor", &(model.Getmaterial()->color.x));
-            ImGui::DragFloat4("vertexData0", &(model.GetVertexData()[0].position.x));
-            ImGui::DragFloat4("vertexData1", &(model.GetVertexData()[1].position.x));
-            ImGui::DragFloat4("vertexData2", &(model.GetVertexData()[2].position.x));
-
-            if (ImGui::Button("Init")) {
-                model.InitTraslate();
-            }
-
-            ImGui::End();
-
-            ImGui::Begin("Input");
-            ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
-            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
-            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
-            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
-            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
-            ImGui::Text("input.isDragging_ %d", input.isDragging_);
-            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
-            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
-            ImGui::End();
-
-
-#pragma endregion
-
-#endif
 
             if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {
                 //視点の移動 offset をずらす
@@ -460,6 +440,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //Modelの更新
             model.Update();
 
+            sprite.Update();
+
 #ifdef _DEBUG
             //ImGuiの内部コマンドを生成する
             imGuiClass.Render();
@@ -495,23 +477,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
             commandList.GetComandList()->SetDescriptorHeaps(1, descriptorHeaps);
 
-
-
 #pragma region //Modelを描画する
 
             Log(logStream, "DrawModel");
             model.PreDraw();
             model.Draw();
-
-            //LightのCBufferの場所を設定
-            commandList.GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-            //timeのSRVの場所を設定
-            commandList.GetComandList()->SetGraphicsRootShaderResourceView(4, WaveResource->GetGPUVirtualAddress());
-            //expansionのCBufferの場所を設定
-            commandList.GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
-
-            //DrawCall
-            model.DrawCall();
 
 #pragma endregion
 

@@ -16,7 +16,11 @@ public:
         kFadeOut, // フェードアウト
     };
 
-    void Initialize();
+    void Initialize(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera,
+        CommandList& commandList,
+        D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
+        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature, PSO& pso,
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
     void Update();
     void Draw();
     // デストラクタのゲッター

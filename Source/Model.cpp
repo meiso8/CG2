@@ -7,23 +7,6 @@
 #include"../Header/math/Transform.h"
 #include<numbers>
 
-Model::Model(
-    Camera& camera,
-    CommandList& commandList,
-    D3D12_VIEWPORT& viewport,
-    D3D12_RECT& scissorRect,
-    const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
-    PSO& pso) {
-
-    camera_ = &camera;
-    commandList_ = &commandList;
-    viewport_ = &viewport;
-    scissorRect_ = &scissorRect;
-    rootSignature_ = rootSignature;
-    pso_ = &pso;
-
-};
-
 void Model::Create(
     const std::string& directoryPath,
     const std::string& filename,
@@ -51,7 +34,7 @@ void Model::Create(
     //モデルのテクスチャを読む
     texture_ = new Texture(device, *commandList_);
     texture_->Load(modelData_.material.textureFilePath);
-  
+
     srv_.Create(texture_->GetMetadata(), texture_->GetTextureResource(), 2, device, srvDescriptorHeap);
 }
 

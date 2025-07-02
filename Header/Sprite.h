@@ -8,19 +8,28 @@
 #include"../Header/math/Transform.h"
 #include"../Header/TransformationMatrix.h"
 #include"../Header/MaterialResource.h"
+#include"../Header/math/Vector2.h"
 
 class Sprite
 {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, CommandList& commandList,
+        D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
+        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature, PSO& pso);
+
     void Update();
     void UpdateUV();
 
+    void PreDraw();
     void Draw(
-        CommandList& commandList,
-        ShaderResourceView& srv
+        ShaderResourceView& srv, const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource>& waveResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource>& expansionResource
     );
+
+    void SetSize(const Vector2& size);
+    void SetColor(const Vector4& color);
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
@@ -59,5 +68,11 @@ private:
     Matrix4x4 uvTransformMatrix_{};
 
     MaterialResource materialResource_{};
+
+    CommandList* commandList_ = nullptr;
+    D3D12_VIEWPORT* viewport_ = nullptr;
+    D3D12_RECT* scissorRect_ = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+    PSO* pso_ = nullptr;
 };
 

@@ -18,6 +18,8 @@ public:
             ;
     };
 
+    void SetColor(const Vector4& color);
+
     void SetMaterialData(Material* material) {
         materialData_ = material;
     }

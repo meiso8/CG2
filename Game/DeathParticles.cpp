@@ -20,10 +20,6 @@ void DeathParticles::Initialize(Model* model, Camera* camera, const Vector3& pos
 		worldTransform.Initialize();
 		worldTransform.translation_ = position;
 	}
-
-	// 内部的にはDirectXのConstantBufferを生成することで、描画に反映させる準備を行っている
-	objectColor_.Initialize();
-	color_ = {1, 1, 1, 1};
 };
 
 void DeathParticles::Update() {
@@ -65,8 +61,8 @@ void DeathParticles::Update() {
 
 	// 色を変更
 	color_.w = std::clamp(kDuration - counter_, 0.0f, 1.0f);
-	// 色変更オブジェクトに色の数値を設定する
-	objectColor_.SetColor(color_);
+	model_->SetColor(color_);
+
 };
 
 void DeathParticles::Draw() {
@@ -81,9 +77,7 @@ void DeathParticles::Draw() {
 
 	for (auto& worldTransform : worldTransforms_) {
 		// 3Dモデルを描画
-		/*model_->Draw(worldTransform, *camera_, &objectColor_);*/
 		model_->Draw();
 	}
 
-	model_->DrawCall();
 };

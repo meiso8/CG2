@@ -31,8 +31,6 @@ private:
 	bool isFinished_ = false;
 	// 経過時間カウント
 	float counter_ = 0.0f;
-	// 色変更オブジェクト
-	ObjectColor objectColor_;
 	// 色の取得
 	Vector4 color_;
 };

@@ -47,7 +47,6 @@ void Enemy::Draw() {
     // 3Dモデルを描画
     model_->Draw();
 
-    model_->DrawCall();
 }
 
 AABB Enemy::GetAABB() {
