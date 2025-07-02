@@ -10,14 +10,14 @@ class Model
 {
 public:
 
-    Model(Camera& camera, CommandList& commandList, D3D12_VIEWPORT& viewport,
+    Model(CommandList& commandList, D3D12_VIEWPORT& viewport,
         D3D12_RECT& scissorRect,
         const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
         PSO& pso,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& waveResource,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& expansionResource)
-        : camera_(&camera), commandList_(&commandList), viewport_(&viewport),
+        : commandList_(&commandList), viewport_(&viewport),
         scissorRect_(&scissorRect), rootSignature_(rootSignature), pso_(&pso),
         directionalLightResource_(directionalLightResource),
         waveResource_(waveResource), expansionResource_(expansionResource)
@@ -30,20 +30,12 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
-    void CreateWorldVP(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
-
-    void Update();
-
-    void InitTraslate();
+    void CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
     void PreDraw();
-    void Draw();
+    void Draw(const Matrix4x4& worldMatrix, Camera& camera);
 
     Material* Getmaterial() { return materialResource_.GetMaterial(); };
-
-    Transform& GetTransformRef() {
-        return transform_;
-    };
 
     VertexData* GetVertexData() {
         return vertexData_;
@@ -69,8 +61,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
     Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
 
-    Transform transform_ = { 0.0f };
-    Matrix4x4 worldMatrix_ = { 0.0f };
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
 
     MaterialResource materialResource_;

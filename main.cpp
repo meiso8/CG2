@@ -283,7 +283,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sprite sprite;
     sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
 
-    Model model(camera, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso,
+    Model model(commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso,
         directionalLightResource, WaveResource, expansionResource);
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 
@@ -437,9 +437,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
-            //Modelの更新
-            model.Update();
-
             sprite.Update();
 
 #ifdef _DEBUG
@@ -481,7 +478,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             Log(logStream, "DrawModel");
             model.PreDraw();
-            model.Draw();
+            model.Draw(MakeIdentity4x4(),camera);
 
 #pragma endregion
 
