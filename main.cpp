@@ -396,21 +396,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            if (input.IsPressMouse(0) && input.IsPushKey(DIK_LSHIFT)) {
+            if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {
                 //視点の移動 offset をずらす
                 //後でoffsetをくわえる
                 offset += input.GetMousePos();
                 camera.SetOffset({ offset.x / 120,offset.y / 120 });
+            } else if (input.IsPressMouse(2)) {
+                //視点の回転
+                //中ボタン押し込み&&ドラッグ
+                input.isDragging_ = true;
             }
 
             //マウススクロールする
             sc.radius = input.GetMouseWheel();
-
-            //視点の回転
-            if (input.IsPressMouse(2)) {
-                //中ボタン押し込み&&ドラッグ
-                input.isDragging_ = true;
-            }
 
             if (!input.IsPressMouse(2)) {
                 input.isDragging_ = false;
