@@ -46,13 +46,9 @@ void Model::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& de
     wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate_));
 };
 
-
 void Model::SetColor(const Vector4& color) {
-
     materialResource_.SetColor(color);
-
 };
-
 
 void Model::PreDraw() {
     commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
