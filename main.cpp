@@ -314,7 +314,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
             //ImGuiにここからフレームが始まる旨を伝える
-            imGuiClass.FrameStaert();
+            imGuiClass.FrameStart();
 #endif
 
 #pragma region //ゲームの処理

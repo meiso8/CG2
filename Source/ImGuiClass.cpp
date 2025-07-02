@@ -1,6 +1,9 @@
 #include "../Header/ImGuiClass.h"
 #include"../Header/CommandList.h"
 
+
+#ifdef _DEBUG
+
 void ImGuiClass::Initialize(HWND hWnd,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc,
@@ -18,9 +21,12 @@ void ImGuiClass::Initialize(HWND hWnd,
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
+
+
 }
 
-void ImGuiClass::FrameStaert() {
+void ImGuiClass::FrameStart() {
+
 
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -32,6 +38,7 @@ void ImGuiClass::Render() {
 
     //ImGuiの内部コマンドを生成する
     ImGui::Render();
+
 }
 
 void ImGuiClass::DrawImGui(CommandList& commandList) {
@@ -48,3 +55,4 @@ void ImGuiClass::ShutDown() {
     ImGui::DestroyContext();
 }
 
+#endif // _DEBUG

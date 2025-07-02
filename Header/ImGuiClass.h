@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef _DEBUG
+
 #include <Windows.h>  
 
 //ComPtr(コムポインタ)
@@ -8,14 +10,14 @@
 #include<d3d12.h>
 
 #pragma region //ImGuiのincludeと関数の外部宣言
-#ifdef _DEBUG
+
 
 #include"../externals/imgui/imgui.h"
 #include"../externals/imgui/imgui_impl_dx12.h"
 #include"../externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#endif
+
 
 class CommandList;
 
@@ -28,7 +30,7 @@ public:
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
-    void FrameStaert();
+    void FrameStart();
 
     void Render();
 
@@ -38,3 +40,4 @@ public:
 
 };
 
+#endif
