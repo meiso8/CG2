@@ -90,6 +90,13 @@ void Model::Update() {
     *wvpDate_ = { worldViewProjectionMatrix_,worldMatrix_ };
 }
 
+void Model::SetColor(const Vector4& color) {
+
+    materialResource_.SetColor(color);
+
+};
+
+
 void Model::PreDraw() {
     commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
     commandList_->GetComandList()->RSSetScissorRects(1, scissorRect_);//Scirssorを設定
@@ -110,10 +117,12 @@ void Model::Draw(
     commandList_->GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
     commandList_->GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
-}
-
-void Model::DrawCall() {
-
+    //LightのCBufferの場所を設定
+    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+    //timeのSRVの場所を設定
+    commandList_->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
+    //expansionのCBufferの場所を設定
+    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
     //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
     commandList_->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 
