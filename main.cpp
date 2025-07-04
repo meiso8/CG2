@@ -419,8 +419,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             if (input.IsTriggerKey(DIK_2)) {
-                //音声再生
-                sound.SoundPlay(soundData2);
+                //音声データの解放
+                sound.SoundUnload(&soundData1);
             }
 
             if (input.IsTriggerKey(DIK_SPACE)) {
@@ -539,10 +539,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
 #pragma region //解放処理
-
-    //音声データの解放
-    sound.SoundUnload(&soundData1);
-    sound.SoundUnload(&soundData2);
 
     CloseHandle(fenceEvent.GetEvent());
     CloseWindow(wc.GetHwnd());

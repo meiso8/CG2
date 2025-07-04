@@ -36,8 +36,9 @@ public:
     /// @brief 音声データの解放関数  
     /// @param soundData 音声データ  
     void SoundUnload(SoundData* soundData);
+    ~Sound();
 private:
 
-    Microsoft::WRL::ComPtr<IXAudio2> xAudio2_; // ComオブジェクトなのでComPtrで管理する。  
+    Microsoft::WRL::ComPtr<IXAudio2> xAudio2_ = nullptr; // ComオブジェクトなのでComPtrで管理する。  
     IXAudio2MasteringVoice* masterVoice_ = { nullptr }; // ReleaseなしのためComPtrで管理することが出来ない。  
 };
