@@ -247,7 +247,6 @@ void GameScene::Update() {
         skyDome_->Update();
 
         // 自キャラの更新処理
-        playerModel_->Update();
         player_->Update();
 
         // 敵の更新
@@ -315,8 +314,6 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-    Model::PreDraw();
-
     // 天球の描画
     skyDome_->Draw();
 
@@ -341,7 +338,7 @@ void GameScene::Draw() {
                 // ガード節と呼ぶ。
                 continue;
 
-            blockModel_->Draw(*worldTransformBlock, camera_);
+            blockModel_->Draw(worldTransformBlock->matWorld_, camera_);
         }
     }
 
@@ -352,7 +349,7 @@ void GameScene::Draw() {
 
     switch (phase_) {
     case Phase::kFadeIn:
-        fade_->Draw(directionalLightResource,waveResource, expansionResource);
+        fade_->Draw(directionalLightResource, waveResource, expansionResource);
         break;
     case Phase::kPlay:
         break;

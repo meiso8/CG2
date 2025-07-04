@@ -45,7 +45,7 @@ void Enemy::Draw() {
     model_->PreDraw();
 
     // 3Dモデルを描画
-    model_->Draw();
+    model_->Draw(worldTransform_.matWorld_, *camera_);
 
 }
 
