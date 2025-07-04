@@ -466,8 +466,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             UINT backBufferIndex = swapChainClass.GetSwapChain()->GetCurrentBackBufferIndex();
 
             //TransitionBarrierの設定
-            TransitionBarrier barrierClass;
-            barrierClass.SettingBarrier(swapChainResources[backBufferIndex], commandList.GetComandList());
+            TransitionBarrier barrier;
+            barrier.SettingBarrier(swapChainResources[backBufferIndex], commandList.GetComandList());
 
             //2.描画用のRTVとDSVを設定する
             D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -501,10 +501,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif // _DEBUG
 
             //画面に書く処理は終わり、画面に移すので、状態を遷移
-            barrierClass.Transition();
+            barrier.Transition();
 
             //TransitionBarrierを張る
-            commandList.GetComandList()->ResourceBarrier(1, &barrierClass.GetBarrier());
+            commandList.GetComandList()->ResourceBarrier(1, &barrier.GetBarrier());
 
             //4.コマンドリストの内容を確定させる。全てのコマンドを詰んでから　Closesすること。
             hr = commandList.GetComandList()->Close();
