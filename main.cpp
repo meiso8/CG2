@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //使用するアダプタ(GPU)を決定する
     GPU gpu;
-    gpu.SettingGPU(dxgiFactory.GetDigiFactory());
+    gpu.SettingGPU(dxgiFactory);
     Log(logStream, "Set GPU");
 
     //D3D12Deviceの生成
@@ -482,6 +482,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+            //Sprite
             sprite.Draw(srv, directionalLightResource, WaveResource, expansionResource);
 
 #ifdef _DEBUG
