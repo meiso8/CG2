@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature.GetrootSignature(), inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
+        rootSignature.GetRootSignature(), inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
         blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 
@@ -281,9 +281,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
     Sprite sprite;
-    sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso);
+    sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature.GetRootSignature(), pso);
 
-    Model model(commandList, viewport, scissorRect, rootSignature.GetrootSignature(), pso,
+    Model model(commandList, viewport, scissorRect, rootSignature, pso,
         directionalLightResource, WaveResource, expansionResource);
     model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
 

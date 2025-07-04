@@ -5,6 +5,7 @@
 #include"../Header/PSO.h"
 #include"../Header/MaterialResource.h"
 #include"../Header/TransformationMatrix.h"
+#include"../Header/RootSignature.h"
 
 class Model
 {
@@ -12,13 +13,13 @@ public:
 
     Model(CommandList& commandList, D3D12_VIEWPORT& viewport,
         D3D12_RECT& scissorRect,
-        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
+        RootSignature& rootSignature,
         PSO& pso,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& waveResource,
         const Microsoft::WRL::ComPtr<ID3D12Resource>& expansionResource)
         : commandList_(&commandList), viewport_(&viewport),
-        scissorRect_(&scissorRect), rootSignature_(rootSignature), pso_(&pso),
+        scissorRect_(&scissorRect), rootSignature_(&rootSignature), pso_(&pso),
         directionalLightResource_(directionalLightResource),
         waveResource_(waveResource), expansionResource_(expansionResource)
     {
@@ -50,7 +51,7 @@ private:
     CommandList* commandList_ = nullptr;
     D3D12_VIEWPORT* viewport_ = nullptr;
     D3D12_RECT* scissorRect_ = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+    RootSignature* rootSignature_ = nullptr;
     PSO* pso_ = nullptr;
 
     Camera* camera_ = nullptr;
