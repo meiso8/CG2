@@ -423,6 +423,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 sound.SoundUnload(&soundData1);
             }
 
+            if (input.IsTriggerKey(DIK_3)) {
+                //音声再生
+                sound.SoundPlay(soundData2);
+            }
+
             if (input.IsTriggerKey(DIK_SPACE)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;

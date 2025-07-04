@@ -89,7 +89,7 @@ void Sound::SoundUnload(SoundData* soundData) {
     soundData->mediaData.shrink_to_fit();
     // waveFormatの解放
     if (soundData->pWaveFormat) {
-        CoTaskMemFree(soundData->pWaveFormat);
+        //CoTaskMemFree(soundData->pWaveFormat);
         soundData->pWaveFormat = nullptr;
     }
 
