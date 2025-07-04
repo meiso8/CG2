@@ -35,8 +35,8 @@ public:
     BYTE preKey_[256] = {};
     //マウス
     IDirectInputDevice8* mouse_ = nullptr;
-    DIMOUSESTATE mouseState_;
-    DIMOUSESTATE mouseState_bak_;	// マウス情報(変化検知用)
+    DIMOUSESTATE mouseState_ = {};
+    DIMOUSESTATE mouseState_bak_ = {};	// マウス情報(変化検知用)
     float mouseWheelVol_ = 0;
-    bool isDragging_;
+    bool isDragging_ = false;
 };

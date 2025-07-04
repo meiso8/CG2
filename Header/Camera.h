@@ -18,7 +18,7 @@ private:
     float width_{};
     float height_{};
     bool isOrthographic_ = false;
-    Vector2 offset_;
+    Vector2 offset_ = { 0.0f };
 public:
     /// @brief 初期化
     void Initialize(const float& width, const float& height, const bool& isOrthographic);

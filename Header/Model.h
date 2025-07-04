@@ -30,12 +30,10 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
-    void CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
-
     void PreDraw();
     void Draw(const Matrix4x4& worldMatrix, Camera& camera);
 
-    Material* Getmaterial() { return materialResource_.GetMaterial(); };
+    Material* GetMaterial() { return materialResource_.GetMaterial(); };
 
     VertexData* GetVertexData() {
         return vertexData_;
@@ -45,6 +43,8 @@ public:
 
     ~Model();
 
+private:
+    void CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     ShaderResourceView srv_;
     CommandList* commandList_ = nullptr;
