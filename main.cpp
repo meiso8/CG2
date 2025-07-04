@@ -3,6 +3,9 @@
 #include"Header/math/SphericalCoordinate.h"
 #include<numbers>
 
+#define WIN_WIDTH 1280
+#define WIN_HEIGHT 720
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -20,7 +23,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //WindowClassの生成
     Window wc;
-    wc.Create(1280, 720);
+    wc.Create(WIN_WIDTH, WIN_HEIGHT);
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成
@@ -187,15 +190,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     bool isDebug = false;
 
     DebugCamera debugCamera;
-    debugCamera.Initialize(&input, static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
+    debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 
     Camera camera;
     Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
     camera.SetTransform(cameraTransform);
-    camera.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), false);
+    camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
 
     Camera cameraSprite;
-    cameraSprite.Initialize(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()), true);
+    cameraSprite.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), true);
 
 #pragma endregion
 
@@ -239,7 +242,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region//stencileTextureResourceの作成
-    Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, wc.GetClientWidth(), wc.GetClientHeight());
+    Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = CreateDepthStencileTextureResource(device, WIN_WIDTH, WIN_HEIGHT);
 
     //DSV用ヒープでディスクリプタの数は1。DSVはShader内で触るものではないので、ShaderVisibleはfalse
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
