@@ -17,17 +17,19 @@
 #include"../externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-
+#include"../Header/Window.h"
+#include"../Header/SwapChain.h"
+#include"../Header/RenderTargetView.h"
 
 class CommandList;
 
 class ImGuiClass
 {
 public:
-    void Initialize(HWND hWnd,
+    void Initialize(Window& window,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc,
-        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc,
+        SwapChain& swapChain,
+        RenderTargetView& rtv,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void FrameStart();

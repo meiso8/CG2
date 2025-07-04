@@ -4,19 +4,19 @@
 
 #ifdef _DEBUG
 
-void ImGuiClass::Initialize(HWND hWnd,
+void ImGuiClass::Initialize(Window& window,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc,
-    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc,
+    SwapChain& swapChain,
+    RenderTargetView& rtv,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(hWnd);
+    ImGui_ImplWin32_Init(window.GetHwnd());
     ImGui_ImplDX12_Init(device.Get(),
-        swapChainDesc.BufferCount,
-        rtvDesc.Format,
+        swapChain.GetDesc().BufferCount,
+        rtv.GetDesc().Format,
         srvDescriptorHeap.Get(),
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());

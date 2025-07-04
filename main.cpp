@@ -174,8 +174,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature, inputLayout, dxcCompiler,
-        blendState, rasterizerState, depthStencil, device);
+        rootSignature,
+        inputLayout,
+        dxcCompiler,
+        blendState,
+        rasterizerState,
+        depthStencil,
+        device);
     Log(logStream, "CreatePSO");
 
     Texture texture = Texture(device, commandList);
@@ -278,7 +283,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
     //ImGuiの初期化。
     ImGuiClass imGuiClass;
-    imGuiClass.Initialize(wc.GetHwnd(), device.Get(), swapChainClass.GetSwapChainDesc(), rtvClass.GetDesc(), srvDescriptorHeap);
+    imGuiClass.Initialize(wc, device.Get(), swapChainClass, rtvClass, srvDescriptorHeap);
     Log(logStream, "InitImGui");
 #endif
 

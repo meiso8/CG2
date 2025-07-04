@@ -14,7 +14,7 @@ public:
     Microsoft::WRL::ComPtr <IDXGISwapChain4>& GetSwapChain() {
         return swapChain_;
     };
-    DXGI_SWAP_CHAIN_DESC1& GetSwapChainDesc() {
+    DXGI_SWAP_CHAIN_DESC1& GetDesc() {
         return swapChainDesc_
             ;
     };
