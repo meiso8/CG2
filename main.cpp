@@ -79,11 +79,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     SwapChain swapChainClass;
     //画面の幅。ウィンドウのクライアント領域を同じものにしておく
     swapChainClass.Create(
-        wc.GetClientWidth(),
-        wc.GetClientHeight(),
+        wc,
         dxgiFactory.GetDigiFactory(),
-        commandQueue.GetCommandQueue(),
-        wc.GetHwnd());
+        commandQueue.GetCommandQueue());
     Log(logStream, "CreateSwapChain");
 
 #pragma region//DescriptorHeapを生成する
