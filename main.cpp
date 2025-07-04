@@ -181,7 +181,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
-    srv.Create(texture.GetMetadata(), texture.GetTextureResource(), 1, device, srvDescriptorHeap);
+    srv.Create(texture, 1, device, srvDescriptorHeap);
 
 #pragma region//Camera
 
@@ -481,6 +481,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             model.Draw(MakeIdentity4x4(), camera);
 
 #pragma endregion
+
+            sprite.Draw(srv, directionalLightResource, WaveResource, expansionResource);
 
 #ifdef _DEBUG
             //諸々の描画処理が終了下タイミングでImGuiの描画コマンドを積む
