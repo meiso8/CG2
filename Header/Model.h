@@ -7,21 +7,23 @@
 #include"../Header/TransformationMatrix.h"
 #include"../Header/RootSignature.h"
 
+struct ModelConfig {
+    CommandList* commandList;
+    D3D12_VIEWPORT* viewport;
+    D3D12_RECT* scissorRect;
+    RootSignature* rootSignature;
+    PSO* pso;
+    Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource;
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource;
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource;
+};
+
 class Model
 {
 public:
 
-    Model(CommandList& commandList, D3D12_VIEWPORT& viewport,
-        D3D12_RECT& scissorRect,
-        RootSignature& rootSignature,
-        PSO& pso,
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& directionalLightResource,
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& waveResource,
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& expansionResource)
-        : commandList_(&commandList), viewport_(&viewport),
-        scissorRect_(&scissorRect), rootSignature_(&rootSignature), pso_(&pso),
-        directionalLightResource_(directionalLightResource),
-        waveResource_(waveResource), expansionResource_(expansionResource)
+    Model(ModelConfig mc)
+        : modelConfig_(mc)
     {
     }
 
@@ -48,19 +50,17 @@ private:
     void CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     ShaderResourceView srv_;
-    CommandList* commandList_ = nullptr;
-    D3D12_VIEWPORT* viewport_ = nullptr;
-    D3D12_RECT* scissorRect_ = nullptr;
-    RootSignature* rootSignature_ = nullptr;
-    PSO* pso_ = nullptr;
 
     Camera* camera_ = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
     TransformationMatrix* wvpDate_ = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+
+    ModelConfig modelConfig_;
+
+    //Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
 
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
 

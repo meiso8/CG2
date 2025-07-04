@@ -32,7 +32,7 @@ void Model::Create(
     std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());//頂点データをリソースにコピー
 
     //モデルのテクスチャを読む
-    texture_ = new Texture(device, *commandList_);
+    texture_ = new Texture(device, *modelConfig_.commandList);
     texture_->Load(modelData_.material.textureFilePath);
 
     //これだとダメだわ
@@ -52,13 +52,13 @@ void Model::SetColor(const Vector4& color) {
 };
 
 void Model::PreDraw() {
-    commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
-    commandList_->GetComandList()->RSSetScissorRects(1, scissorRect_);//Scirssorを設定
+    modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
+    modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-    commandList_->GetComandList()->SetGraphicsRootSignature(rootSignature_->GetRootSignature().Get());
-    commandList_->GetComandList()->SetPipelineState(pso_->GetGraphicsPipelineState().Get());//PSOを設定
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature().Get());
+    modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState().Get());//PSOを設定
     //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-    commandList_->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Model::Draw(
@@ -69,21 +69,21 @@ void Model::Draw(
     //データを書き込む
     *wvpDate_ = { worldViewProjectionMatrix_,worldMatrix };
 
-    commandList_->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
+    modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
     //wvp用のCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    commandList_->GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
     //LightのCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
     //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-    commandList_->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+    modelConfig_.commandList->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 
 }
 

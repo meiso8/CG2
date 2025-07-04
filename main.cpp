@@ -58,9 +58,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
        //Sprite sprite;
        //sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature, pso);
 
-    //Model model(commandList, viewport, scissorRect, rootSignature, pso,
-    //    directionalLightResource, WaveResource, expansionResource);
-    //model.Create("resources/cube", "cube.obj", device, srvDescriptorHeap);
+    Model model(myEngine.GetModelConfig());
+    model.Create("resources/cube", "cube.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Vector2 offset = { 0.0f,0.0f };
     Vector2 currentPos = { 0.0f };
@@ -139,7 +138,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             if (input.IsTriggerKey(DIK_2)) {
                 //音声データの解放
-                sound.SoundUnload(&soundData1);
+              /*  sound.SoundUnload(&soundData1);*/
             }
 
             if (input.IsTriggerKey(DIK_3)) {
@@ -173,8 +172,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //Modelを描画する
 
-      /*      model.PreDraw();
-            model.Draw(MakeIdentity4x4(), camera);*/
+            model.PreDraw();
+            model.Draw(MakeIdentity4x4(), camera);
 
 #pragma endregion
 

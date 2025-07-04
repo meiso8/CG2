@@ -66,6 +66,9 @@ public:
     void PostCommandSet();
     void End();
     Window& GetWC() { return wc; };
+    ModelConfig& GetModelConfig() { return modelConfig_; };
+    Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
 private:
 
     int32_t clientWidth_ = 1280;
@@ -100,7 +103,7 @@ private:
     DepthStencil depthStencil = {};
     PSO pso = {};
 
-    Microsoft::WRL::ComPtr <ID3D12Resource> WaveResource = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12Resource> waveResource = nullptr;
     Wave* waveData = nullptr;
     Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource = nullptr;
     Balloon* expansionData = nullptr;
@@ -113,5 +116,6 @@ private:
     D3D12_RECT scissorRect = {};
     ImGuiClass imGuiClass = {};
     TransitionBarrier barrier = {};
+    ModelConfig modelConfig_ = {};
 };
 

@@ -141,12 +141,12 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
 
     int waveCount = 2;
 
-    WaveResource = CreateBufferResource(device, sizeof(Wave) * waveCount);
+    waveResource = CreateBufferResource(device, sizeof(Wave) * waveCount);
 
     //データを書き込む
 
     //書き込むためのアドレスを取得
-    WaveResource->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
+    waveResource->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
 
     waveData[0].direction = { 1.0f,0.0f,0.0f };
     waveData[0].time = 0.0f;
@@ -204,6 +204,17 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
     viewport = CreateViewport(static_cast<float>(wc.GetClientWidth()), static_cast<float>(wc.GetClientHeight()));
     scissorRect = CreateScissorRect(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
+
+    modelConfig_ = {
+        &commandList,
+        &viewport,
+        &scissorRect,
+        &rootSignature,
+        &pso,
+        directionalLightResource,
+        waveResource,
+        expansionResource
+    };
 
 #ifdef _DEBUG
     //ImGuiの初期化。
