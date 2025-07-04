@@ -298,13 +298,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ファイルへのログ出力
     Log(logStream, "LoopStart");
 
-    bool isPressMouse[4] = { false,false,false,false };
     Vector2 offset = { 0.0f,0.0f };
 
     Vector2 currentPos = { 0.0f };
     Vector2 delta = { 0.0f };
     Vector3 pos = { 0.0f };
-    ShericalCoordinate sc = { -20.0f,0.0f,0.0f };
+    ShericalCoordinate sc = { 10.0f,0.0f,0.0f };
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -343,7 +342,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
             ImGui::Begin("Input");
-            ImGui::Text("mousePress %d,%d,%d,%d", isPressMouse[0], isPressMouse[1], isPressMouse[2], isPressMouse[3]);
             ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
             ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
             ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
@@ -387,15 +385,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 //視点の移動 offset をずらす
                 //後でoffsetをくわえる
                 offset += input.GetMousePos();
-                camera.SetOffset({ offset.x / 120,offset.y / 120 });
+                camera.SetOffset({ offset.x / 120,offset.y / 60 });
             } else if (input.IsPressMouse(2)) {
                 //視点の回転
                 //中ボタン押し込み&&ドラッグ
                 input.isDragging_ = true;
             }
 
-            //マウススクロールする
-            sc.radius = input.GetMouseWheel();
+            //マウススクロールする //初期位置-10
+            sc.radius = -10 + input.GetMouseWheel();
 
             if (!input.IsPressMouse(2)) {
                 input.isDragging_ = false;
