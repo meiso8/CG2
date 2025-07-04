@@ -122,8 +122,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     fence.Create(device);
 
     // FenceのSignalを持つためのイベントを作成する
-    FenceEvent fenceEventClass;
-    fenceEventClass.Create();
+    FenceEvent fenceEvent;
+    fenceEvent.Create();
     Log(logStream, "CreateFence&Event");
 #pragma endregion
 
@@ -382,7 +382,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::End();
 
 
-
+#pragma region//視点操作
             if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {
                 //視点の移動 offset をずらす
                 //後でoffsetをくわえる
@@ -412,6 +412,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             pos = TransformCoordinate(sc);
 
             camera.SetTarnslate(pos);
+
+#pragma endregion
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -520,10 +522,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             fence.AddValue();
 
             //GPUがここまでたどり着いた時、Fenceの値を指定した値に代入するようにSignalを送る
-            fence.SendSignal(commandQueue.GetCommandQueue());
+            fence.SendSignal(commandQueue);
 
             //Fenceの値が指定したSignal値にたどり着いているか確認する GPUの処理を待つ
-            fence.CheckValue(fenceEventClass.GetEvent());
+            fence.CheckValue(fenceEvent);
 
             //7.次のフレーム用のコマンドリストを準備
             commandList.PrepareCommand();
@@ -544,7 +546,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sound.SoundUnload(&soundData1);
     sound.SoundUnload(&soundData2);
 
-    CloseHandle(fenceEventClass.GetEvent());
+    CloseHandle(fenceEvent.GetEvent());
     CloseWindow(wc.GetHwnd());
 
 #pragma endregion

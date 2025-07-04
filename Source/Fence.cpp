@@ -13,17 +13,17 @@ void Fence::AddValue() {
     fenceValue_++;
 };
 
-void Fence::CheckValue(HANDLE fenceEvent) {
+void Fence::CheckValue(FenceEvent& fenceEvent) {
 
     //GetCompletedValueの初期値はFence作成時に渡した初期値
     if (fence_->GetCompletedValue() < fenceValue_) {
         //指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
-        fence_->SetEventOnCompletion(fenceValue_, fenceEvent);
+        fence_->SetEventOnCompletion(fenceValue_, fenceEvent.GetEvent());
         //イベントを待つ
-        WaitForSingleObject(fenceEvent, INFINITE);
+        WaitForSingleObject(fenceEvent.GetEvent(), INFINITE);
     }
 }
 
-void Fence::SendSignal(const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue) {
-    commandQueue->Signal(fence_.Get(), fenceValue_);
+void Fence::SendSignal(CommandQueue& commandQueue) {
+    commandQueue.GetCommandQueue()->Signal(fence_.Get(), fenceValue_);
 };
