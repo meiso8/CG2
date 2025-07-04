@@ -18,4 +18,4 @@ private:
 };
 
 
-Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(const Microsoft::WRL::ComPtr <IDXGIAdapter4>& useAdapter);
+Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(GPU& gpu);

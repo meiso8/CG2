@@ -34,7 +34,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Log(logStream, "Set GPU");
 
     //D3D12Deviceの生成
-    Microsoft::WRL::ComPtr<ID3D12Device> device = CreateD3D12Device(gpu.GetUseAdapter());
+    Microsoft::WRL::ComPtr<ID3D12Device> device = CreateD3D12Device(gpu);
     Log("Complete create D3D12Device!!!\n");//初期化完了のログを出す
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
