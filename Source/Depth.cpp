@@ -41,7 +41,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencileTextureResource(
 
 
 
-void DepthStencile::Create() {
+void DepthStencil::Create() {
     //Depthの機能を有効化する
     depthStencilDesc_.DepthEnable = true;
     //書き込みします

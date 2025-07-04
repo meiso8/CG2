@@ -166,7 +166,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region //DepthStencilStateの設定
-    DepthStencile depthStencil;
+    DepthStencil depthStencil;
     depthStencil.Create();
     Log(logStream, "Create depthStencilDesc");
 #pragma endregion
@@ -174,8 +174,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature.GetRootSignature(), inputLayout.GetDesc(), dxcCompiler,
-        blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
+        rootSignature, inputLayout, dxcCompiler,
+        blendState, rasterizerState, depthStencil, device);
     Log(logStream, "CreatePSO");
 
     Texture texture = Texture(device, commandList);
