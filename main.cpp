@@ -174,7 +174,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //PSOを生成する
     PSO pso;
     pso.Create(
-        rootSignature.GetRootSignature(), inputLayout.GetDesc(), dxcCompiler.GetVertexShaderBlob(), dxcCompiler.GetPixelShaderBlob(),
+        rootSignature.GetRootSignature(), inputLayout.GetDesc(), dxcCompiler,
         blendState.GetDesc(), rasterizerState.GetDesc(), depthStencil.GetDesc(), device);
     Log(logStream, "CreatePSO");
 

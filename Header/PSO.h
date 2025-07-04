@@ -5,14 +5,16 @@
 #include<dxcapi.h>
 //ComPtr(コムポインタ)
 #include<wrl.h>
+#include"../Header/CompileShader.h"
 
 class PSO {
 public:
     void Create(
         const Microsoft::WRL::ComPtr <ID3D12RootSignature>& rootSignature,
         D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
-        const Microsoft::WRL::ComPtr <IDxcBlob>& vertexShaderBlob,
-        const Microsoft::WRL::ComPtr <IDxcBlob>& pixelShaderBlob,
+        DxcCompiler& dxcCompiler,
+        /*   const Microsoft::WRL::ComPtr <IDxcBlob>& vertexShaderBlob,
+           const Microsoft::WRL::ComPtr <IDxcBlob>& pixelShaderBlob,*/
         D3D12_BLEND_DESC blendDesc,
         D3D12_RASTERIZER_DESC rasterizerDesc,
         D3D12_DEPTH_STENCIL_DESC depthStencilDesc,

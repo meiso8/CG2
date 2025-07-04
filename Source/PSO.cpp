@@ -6,8 +6,9 @@
 void PSO::Create(
     const Microsoft::WRL::ComPtr <ID3D12RootSignature>& rootSignature,
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
-    const Microsoft::WRL::ComPtr <IDxcBlob>& vertexShaderBlob,
-    const Microsoft::WRL::ComPtr <IDxcBlob>& pixelShaderBlob,
+    DxcCompiler& dxcCompiler,
+    /*   const Microsoft::WRL::ComPtr <IDxcBlob>& vertexShaderBlob,
+       const Microsoft::WRL::ComPtr <IDxcBlob>& pixelShaderBlob,*/
     D3D12_BLEND_DESC blendDesc,
     D3D12_RASTERIZER_DESC rasterizerDesc,
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc,
@@ -16,10 +17,10 @@ void PSO::Create(
     D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
     graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();//RootSignature
     graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;//InputLayout
-    graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
-    vertexShaderBlob->GetBufferSize() };//VertexShader
-    graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
-    pixelShaderBlob->GetBufferSize() };//PixelShader
+    graphicsPipelineStateDesc.VS = { dxcCompiler.GetVertexShaderBlob()->GetBufferPointer(),
+   dxcCompiler.GetVertexShaderBlob()->GetBufferSize() };//VertexShader
+    graphicsPipelineStateDesc.PS = { dxcCompiler.GetPixelShaderBlob()->GetBufferPointer(),
+   dxcCompiler.GetPixelShaderBlob()->GetBufferSize() };//PixelShader
     graphicsPipelineStateDesc.BlendState = blendDesc;//BlendState
     graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;//RasterizerState
     //書き込むRTVの情報
