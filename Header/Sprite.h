@@ -9,6 +9,7 @@
 #include"../Header/TransformationMatrix.h"
 #include"../Header/MaterialResource.h"
 #include"../Header/math/Vector2.h"
+#include"../Header/RootSignature.h"
 
 class Sprite
 {
@@ -16,7 +17,7 @@ public:
     void Create(
         const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, CommandList& commandList,
         D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
-        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature, PSO& pso);
+        RootSignature& rootSignature, PSO& pso);
 
     void Update();
     void UpdateUV();
@@ -72,7 +73,7 @@ private:
     CommandList* commandList_ = nullptr;
     D3D12_VIEWPORT* viewport_ = nullptr;
     D3D12_RECT* scissorRect_ = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+    RootSignature* rootSignature_ = nullptr;
     PSO* pso_ = nullptr;
 };
 

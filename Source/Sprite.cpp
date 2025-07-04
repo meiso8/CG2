@@ -8,7 +8,7 @@
 void Sprite::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, CommandList& commandList,
     D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
-    const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature, PSO& pso
+    RootSignature& rootSignature, PSO& pso
 ) {
 
     camera_ = &camera;
@@ -29,7 +29,7 @@ void Sprite::Create(
     commandList_ = &commandList;
     viewport_ = &viewport;
     scissorRect_ = &scissorRect;
-    rootSignature_ = rootSignature;
+    rootSignature_ = &rootSignature;
     pso_ = &pso;
 }
 
@@ -148,7 +148,7 @@ void Sprite::PreDraw() {
     commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
     commandList_->GetComandList()->RSSetScissorRects(1, scissorRect_);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-    commandList_->GetComandList()->SetGraphicsRootSignature(rootSignature_.Get());
+    commandList_->GetComandList()->SetGraphicsRootSignature(rootSignature_->GetRootSignature().Get());
     commandList_->GetComandList()->SetPipelineState(pso_->GetGraphicsPipelineState().Get());//PSOを設定
     //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
     commandList_->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

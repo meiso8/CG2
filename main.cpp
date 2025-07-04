@@ -281,7 +281,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
     Sprite sprite;
-    sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature.GetRootSignature(), pso);
+    sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature, pso);
 
     Model model(commandList, viewport, scissorRect, rootSignature, pso,
         directionalLightResource, WaveResource, expansionResource);
@@ -478,7 +478,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             Log(logStream, "DrawModel");
             model.PreDraw();
-            model.Draw(MakeIdentity4x4(),camera);
+            model.Draw(MakeIdentity4x4(), camera);
 
 #pragma endregion
 
