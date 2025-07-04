@@ -35,6 +35,7 @@ void Model::Create(
     texture_ = new Texture(device, *commandList_);
     texture_->Load(modelData_.material.textureFilePath);
 
+    //これだとダメだわ
     srv_.Create(*texture_, 2, device, srvDescriptorHeap);
 }
 
@@ -61,7 +62,7 @@ void Model::PreDraw() {
 }
 
 void Model::Draw(
-    const Matrix4x4& worldMatrix,Camera& camera
+    const Matrix4x4& worldMatrix, Camera& camera
 ) {
 
     worldViewProjectionMatrix_ = Multiply(worldMatrix, camera.GetViewProjectionMatrix());

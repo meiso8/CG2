@@ -57,3 +57,61 @@
 #include"Header/Balloon.h"
 
 #pragma endregion
+
+class MyEngine {
+public:
+    void Create(int32_t clientWidth, int32_t clientHeight);
+    void Update();
+    void PreCommandSet();
+    void PostCommandSet();
+    void End();
+    Window& GetWC() { return wc; };
+private:
+
+    int32_t clientWidth_ = 1280;
+    int32_t clientHeight_ = 720;
+
+    D3DResourceLeakChecker leakCheck = {};
+    LogFile logFile = {};
+    std::ofstream logStream;
+    Window wc = {};
+    DXGIFactory dxgiFactory = {};
+    GPU gpu = {};
+    Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
+
+#ifdef _DEBUG
+    DebugError debugError = {};
+#endif
+    CommandQueue commandQueue = {};
+    CommandList commandList;
+    SwapChain swapChainClass;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap = nullptr;
+    //ゲームに一つだけ
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12Resource> swapChainResources[2] = { nullptr };
+    RenderTargetView rtvClass = {};
+    Fence fence = {};
+    FenceEvent fenceEvent = {};
+    DxcCompiler dxcCompiler = {};
+    RootSignature rootSignature = {};
+    InputLayout inputLayout = {};
+    BlendState blendState = {};
+    RasterizerState rasterizerState = {};
+    DepthStencil depthStencil = {};
+    PSO pso = {};
+
+    Microsoft::WRL::ComPtr <ID3D12Resource> WaveResource = nullptr;
+    Wave* waveData = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource = nullptr;
+    Balloon* expansionData = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+    Microsoft::WRL::ComPtr <ID3D12Resource> directionalLightResource = nullptr;
+    DirectionalLight* directionalLightData = nullptr;
+    D3D12_VIEWPORT viewport = {};
+    D3D12_RECT scissorRect = {};
+    ImGuiClass imGuiClass = {};
+    TransitionBarrier barrier = {};
+};
+

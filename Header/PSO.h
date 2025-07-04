@@ -17,14 +17,10 @@ public:
     void Create(
         RootSignature& rootSignature,
         InputLayout& inputLayout,
-        //D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
         DxcCompiler& dxcCompiler,
         BlendState& blendState,
-  /*      D3D12_BLEND_DESC blendDesc,*/
-   /*     D3D12_RASTERIZER_DESC rasterizerDesc,*/
         RasterizerState& rasterizerState,
         DepthStencil& depthStencil,
-     /*   D3D12_DEPTH_STENCIL_DESC depthStencilDesc,*/
         const Microsoft::WRL::ComPtr<ID3D12Device>& device);
     Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState() {
         return graphicsPipelineState_
