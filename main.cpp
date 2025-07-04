@@ -42,6 +42,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //DirectInputオブジェクト
     Input input;
     input.Initialize(wc);
+    Log(logStream, "InitInput");
 
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
