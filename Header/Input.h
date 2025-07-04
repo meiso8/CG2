@@ -4,10 +4,11 @@
 #include <dinput.h>
 #include<cstdint>
 #include"../Header/math/Vector2.h"
+#include"../Header/Window.h"
 
 class Input {
 public:
-    HRESULT Initalize(const WNDCLASS& wc, const HWND& hwnd);
+    HRESULT Initialize(Window& window);
 
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
