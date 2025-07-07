@@ -1,32 +1,29 @@
-#pragma once
+#pragma once  
 
 #include"../Header/CommandList.h"  
 #include"../Header/ModelData.h"  
 #include"../Header/PSO.h"  
 #include"../Header/ShaderResourceView.h"  
-#include"../Header/Camera.h"
-#include"../Header/math/Transform.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/MaterialResource.h"
-#include"../Header/math/Vector2.h"
-#include"../Header/RootSignature.h"
+#include"../Header/Camera.h"  
+#include"../Header/math/Transform.h"  
+#include"../Header/TransformationMatrix.h"  
+#include"../Header/MaterialResource.h"  
+#include"../Header/math/Vector2.h"  
+#include"../Header/RootSignature.h"  
+#include"../Header/Config.h"
 
 class Sprite
 {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, CommandList& commandList,
-        D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
-        RootSignature& rootSignature, PSO& pso);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc);
 
     void Update();
     void UpdateUV();
 
     void PreDraw();
     void Draw(
-        ShaderResourceView& srv, const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
-        const Microsoft::WRL::ComPtr <ID3D12Resource>& waveResource,
-        const Microsoft::WRL::ComPtr <ID3D12Resource>& expansionResource
+        ShaderResourceView& srv
     );
 
     void SetSize(const Vector2& size);
@@ -49,14 +46,11 @@ private:
     void CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     Microsoft::WRL::ComPtr <ID3D12Resource> vertexResource_{};
-    //鬆らせ繝舌ャ繝輔ぃ繝薙Η繝ｼ
     D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
     VertexData* vertexData_ = nullptr;
     D3D12_INDEX_BUFFER_VIEW  indexBufferView_{};
     Microsoft::WRL::ComPtr <ID3D12Resource> indexResource_{};
     uint32_t* indexData_ = nullptr;
-
-    Camera* camera_ = nullptr;
 
     Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResource_ = nullptr;
 
@@ -70,10 +64,8 @@ private:
 
     MaterialResource materialResource_{};
 
-    CommandList* commandList_ = nullptr;
-    D3D12_VIEWPORT* viewport_ = nullptr;
-    D3D12_RECT* scissorRect_ = nullptr;
-    RootSignature* rootSignature_ = nullptr;
-    PSO* pso_ = nullptr;
-};
+    ModelConfig modelConfig_{};
 
+    Camera* camera_ = nullptr;
+
+};

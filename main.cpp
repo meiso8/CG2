@@ -48,15 +48,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 
-    //Texture texture = Texture(device, commandList);
-    //texture.Load("resources/uvChecker.png");
+    Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
+    texture.Load("resources/uvChecker.png");
 
-    ////ShaderResourceViewを作る
-    //ShaderResourceView srv = {};
-    //srv.Create(texture, 1, device, srvDescriptorHeap);
+    //ShaderResourceViewを作る
+    ShaderResourceView srv = {};
+    srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-       //Sprite sprite;
-       //sprite.Create(device, cameraSprite, commandList, viewport, scissorRect, rootSignature, pso);
+    Sprite sprite;
+    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
 
     Model model(myEngine.GetModelConfig());
     model.Create("resources/cube", "cube.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
@@ -175,15 +175,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             model.PreDraw();
             model.Draw(MakeIdentity4x4(), camera);
 
+            sprite.PreDraw();
+            sprite.Draw(srv);
+
 #pragma endregion
 
             myEngine.PostCommandSet();
-
-            /*sprite.Update();*/
-
-
-            //Sprite
-            //sprite.Draw(srv, directionalLightResource, WaveResource, expansionResource);
+   
         }
     }
 

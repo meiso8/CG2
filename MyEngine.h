@@ -66,6 +66,7 @@ public:
     void PostCommandSet();
     void End();
     Window& GetWC() { return wc; };
+    CommandList& GetCommandList() { return commandList; };
     ModelConfig& GetModelConfig() { return modelConfig_; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }

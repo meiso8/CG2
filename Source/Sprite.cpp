@@ -6,9 +6,7 @@
 #include"../Header/math/Multiply.h"
 
 void Sprite::Create(
-    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, CommandList& commandList,
-    D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
-    RootSignature& rootSignature, PSO& pso
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
 ) {
 
     camera_ = &camera;
@@ -26,11 +24,8 @@ void Sprite::Create(
 
     uvTransformMatrix_ = MakeIdentity4x4();
 
-    commandList_ = &commandList;
-    viewport_ = &viewport;
-    scissorRect_ = &scissorRect;
-    rootSignature_ = &rootSignature;
-    pso_ = &pso;
+    modelConfig_ = mc;
+
 }
 
 void Sprite::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -145,38 +140,36 @@ void Sprite::UpdateUV() {
 }
 
 void Sprite::PreDraw() {
-    commandList_->GetComandList()->RSSetViewports(1, viewport_);//Viewportを設定
-    commandList_->GetComandList()->RSSetScissorRects(1, scissorRect_);//Scirssorを設定
+    modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
+    modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-    commandList_->GetComandList()->SetGraphicsRootSignature(rootSignature_->GetRootSignature().Get());
-    commandList_->GetComandList()->SetPipelineState(pso_->GetGraphicsPipelineState().Get());//PSOを設定
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature().Get());
+    modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState().Get());//PSOを設定
     //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-    commandList_->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Sprite::Draw(
-    ShaderResourceView& srv, const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
-    const Microsoft::WRL::ComPtr <ID3D12Resource>& waveResource,
-    const Microsoft::WRL::ComPtr <ID3D12Resource>& expansionResource
+    ShaderResourceView& srv
 ) {
     //頂点バッファビューを設定
-    commandList_->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
+    modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //IBVを設定new
-    commandList_->GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
+    modelConfig_.commandList->GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
     //TransformationMatrixCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    commandList_->GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
     //LightのCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    commandList_->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-    commandList_->GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+    modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 };
 

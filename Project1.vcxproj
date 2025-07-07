@@ -179,6 +179,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Config.h" />
     <ClInclude Include="Header\CrashHandler.h" />
     <ClInclude Include="Header\CreateBufferResource.h" />
     <ClInclude Include="Header\Balloon.h" />
