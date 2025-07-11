@@ -1,9 +1,9 @@
-#include "Line.h"
-#include"Header/CreateBufferResource.h"
+#include "../Header/Line.h"
+#include"../Header/CreateBufferResource.h"
 
 
-#include"Header/math/MakeAffineMatrix.h"
-#include"Header/math/Multiply.h"
+#include"../Header/math/MakeAffineMatrix.h"
+#include"../Header/math/Multiply.h"
 
 void Line::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc

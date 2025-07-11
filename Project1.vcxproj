@@ -92,7 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Line.cpp" />
+    <ClCompile Include="Source\Line.cpp" />
     <ClCompile Include="MyEngine.cpp" />
     <ClCompile Include="Source\DrawGrid.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
@@ -155,6 +155,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\ModelData.cpp" />
     <ClCompile Include="Source\math\Multiply.cpp" />
     <ClCompile Include="Source\math\Normalize.cpp" />
+    <ClCompile Include="Source\ShericalCoordinate.cpp" />
     <ClCompile Include="Source\Sound.cpp" />
     <ClCompile Include="Source\math\Subtract.cpp" />
     <ClCompile Include="Source\CoordinateTransform.cpp" />
@@ -267,7 +268,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\InputLayout.h" />
     <ClInclude Include="Header\RootSignature.h" />
     <ClInclude Include="Header\math\SphericalCoordinate.h" />
-    <ClInclude Include="Line.h" />
+    <ClInclude Include="Header\Line.h" />
     <ClInclude Include="MyEngine.h" />
   </ItemGroup>
   <ItemGroup>
