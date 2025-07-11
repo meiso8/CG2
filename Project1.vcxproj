@@ -92,7 +92,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="MyEngine.cpp" />
+    <ClCompile Include="Source\DrawGrid.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\InputLayout.cpp" />
     <ClCompile Include="Source\GPU.cpp" />
@@ -185,6 +187,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Balloon.h" />
     <ClInclude Include="Header\BlendState.h" />
     <ClInclude Include="Header\CompileShader.h" />
+    <ClInclude Include="Header\DrawGrid.h" />
     <ClInclude Include="Header\FenceEvent.h" />
     <ClInclude Include="Header\Fence.h" />
     <ClInclude Include="Header\DebugError.h" />
@@ -264,6 +267,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\InputLayout.h" />
     <ClInclude Include="Header\RootSignature.h" />
     <ClInclude Include="Header\math\SphericalCoordinate.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="MyEngine.h" />
   </ItemGroup>
   <ItemGroup>

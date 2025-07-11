@@ -28,6 +28,7 @@
 #include"Header/ShaderResourceView.h"
 #include"Header/Model.h"
 #include"Header/Sprite.h"
+#include"Line.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
 #include"Header/DebugCamera.h"
@@ -55,6 +56,8 @@
 
 #include"Header/Wave.h"//波打ちアニメーション用
 #include"Header/Balloon.h"
+
+#include"Header/DrawGrid.h"
 
 #pragma endregion
 

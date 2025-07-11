@@ -36,7 +36,7 @@ void Model::Create(
     texture_->Load(modelData_.material.textureFilePath);
 
     //これだとダメだわ
-    srv_.Create(*texture_, 2, device, srvDescriptorHeap);
+    srv_.Create(*texture_, 3, device, srvDescriptorHeap);
 }
 
 void Model::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {

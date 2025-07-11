@@ -1,7 +1,6 @@
 #include<numbers>
 #include"MyEngine.h"
 #include"Header/math/SphericalCoordinate.h"
-#include<numbers>
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -15,7 +14,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Input input;
     //入力
     input.Initialize(myEngine.GetWC());
-    //Log(logStream, "InitInput");
 
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
@@ -55,6 +53,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv = {};
     srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
+    Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
+    texture2.Load("resources/white2x2.png");
+
+    //ShaderResourceViewを作る
+    ShaderResourceView srv2 = {};
+    srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+
+    Line line[102];
+
+    for (int i = 0; i < 102; ++i) {
+        line[i].Create(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
+    }
+
+    for (int i = 0; i < 51; ++i) {
+        line[i].SetTranslate({ 0.0f,0.0f, static_cast<float>(i - 25) });
+    }
+
+    for (int i = 0; i < 51; ++i) {
+        line[i + 51].SetRotate(Vector3{ 0.0f,std::numbers::pi_v<float> / 2.0f,0.0f });
+        line[i + 51].SetTranslate({ static_cast<float>(i - 25),0.0f, 0.0f });
+    }
+
+    line[25].SetColor(Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+    line[25].SetScale(Vector3(1.0f, 10.0f, 10.0f));
+
+    line[76].SetColor(Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+    line[76].SetScale(Vector3(1.0f, 10.0f, 10.0f));
+
+
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
 
@@ -66,7 +93,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector2 delta = { 0.0f };
     Vector3 pos = { 0.0f };
     ShericalCoordinate sc = { 10.0f,0.0f,0.0f };
-
 
     MSG msg{};
 
@@ -96,6 +122,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
             ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
             ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
+            ImGui::End();
+
+            ImGui::Begin("Line");
+            ImGui::SliderFloat3("0scale", &line[0].GetScaleRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0rotate", &line[0].GetRotateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0translate", &line[0].GetTranslateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0vertexData0", &line[0].GetVertexData(0).position.x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0vertexData1", &line[0].GetVertexData(1).position.x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0vertexData2", &line[0].GetVertexData(2).position.x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("0vertexData3", &line[0].GetVertexData(3).position.x, -100.0f, 100.0f);
+
+            ImGui::SliderFloat3("1scale", &line[1].GetScaleRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("1rotate", &line[1].GetRotateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("1translate", &line[1].GetTranslateRef().x, -100.0f, 100.0f);
+
+            ImGui::SliderFloat3("2scale", &line[2].GetScaleRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("2rotate", &line[2].GetRotateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("2translate", &line[2].GetTranslateRef().x, -100.0f, 100.0f);
+
+            ImGui::SliderFloat3("3scale", &line[3].GetScaleRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("3rotate", &line[3].GetRotateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("3translate", &line[3].GetTranslateRef().x, -100.0f, 100.0f);
+
+            ImGui::SliderFloat3("4scale", &line[4].GetScaleRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("4rotate", &line[4].GetRotateRef().x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("4translate", &line[4].GetTranslateRef().x, -100.0f, 100.0f);
+
             ImGui::End();
 
 #pragma region//視点操作
@@ -170,18 +223,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             myEngine.PreCommandSet();
 
+
 #pragma region //Modelを描画する
+
+            line[0].PreDraw();
+
+            for (int i = 0; i < 102; ++i) {
+                line[i].Update();
+                line[i].Draw(srv2);
+            }
 
             model.PreDraw();
             model.Draw(MakeIdentity4x4(), camera);
 
-            sprite.PreDraw();
-            sprite.Draw(srv);
 
 #pragma endregion
 
             myEngine.PostCommandSet();
-   
+
         }
     }
 
