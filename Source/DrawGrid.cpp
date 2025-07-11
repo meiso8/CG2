@@ -6,6 +6,7 @@ DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& c
 
     for (int i = 0; i < 102; ++i) {
         line_[i].Create(device, camera, mc);
+        line_[i].SetVertexPos(Vector3(-25.0f, -0.005f, 0.0f), Vector3(25.0f, 0.005f, 0.0f));
     }
 
     for (int i = 0; i < 51; ++i) {

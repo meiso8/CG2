@@ -37,22 +37,33 @@ void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 
-    vertexData_[0].position = { -25.0f,-0.005f,0.0f,1.0f };//左下
+    vertexData_[0].position = { -0.5f,-0.5f,0.0f,1.0f };//左下
     vertexData_[0].texcoord = { 0.0f,1.0f };
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
-    vertexData_[1].position = { -25.0f, 0.005f,0.0f,1.0f };//左上
+    vertexData_[1].position = { -0.5f, 0.5f,0.0f,1.0f };//左上
     vertexData_[1].texcoord = { 0.0f,0.0f };
     vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
-    vertexData_[2].position = { 25.0f,-0.005f,0.0f,1.0f };//右下
+    vertexData_[2].position = { 0.5f,-0.5f,0.0f,1.0f };//右下
     vertexData_[2].texcoord = { 1.0f,1.0f };
     vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
-    vertexData_[3].position = { 25.0f,0.005f,0.0f,1.0f };//右上
+    vertexData_[3].position = { 0.5f,0.5f,0.0f,1.0f };//右上
     vertexData_[3].texcoord = { 1.0f,0.0f };
     vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
 
 #pragma endregion
 
 }
+
+void Line::SetVertexPos(const Vector3& start, const Vector3& end) {
+    vertexData_[0].position = { start.x,start.y,0.0f,1.0f };//左下
+    vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
+    vertexData_[1].position = { start.x, end.y,0.0f,1.0f };//左上
+    vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
+    vertexData_[2].position = { end.x,start.y,0.0f,1.0f };//右下
+    vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
+    vertexData_[3].position = { end.x,end.y,0.0f,1.0f };//右上
+    vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
+};
 
 void Line::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 

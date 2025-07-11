@@ -33,6 +33,8 @@ public:
     void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
     void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
     void SetScale(const Vector3& scale) { transform_.scale = scale; }
+    void SetVertexPos(const Vector3& start, const Vector3& end);
+
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
