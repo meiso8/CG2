@@ -2,7 +2,6 @@
 #include"../Header/CommandList.h"
 
 
-#ifdef _DEBUG
 
 void ImGuiClass::Initialize(Window& window,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
@@ -52,4 +51,3 @@ void ImGuiClass::ShutDown() {
     ImGui::DestroyContext();
 }
 
-#endif // _DEBUG

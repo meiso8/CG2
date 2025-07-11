@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv2 = {};
     srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(),camera, myEngine.GetModelConfig());
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
 
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
@@ -94,6 +94,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ゲームの処理
 
+#ifdef _DEBUG
+
             ImGui::Begin("Input");
             ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
             ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
@@ -102,6 +104,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
             ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
             ImGui::End();
+#endif
 
 #pragma region//視点操作
             if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {

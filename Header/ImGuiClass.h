@@ -1,16 +1,11 @@
 #pragma once
 
-#ifdef _DEBUG
-
 #include <Windows.h>  
 
 //ComPtr(コムポインタ)
 #include<wrl.h>
 #include<dxgi1_6.h>
 #include<d3d12.h>
-
-#pragma region //ImGuiのincludeと関数の外部宣言
-
 
 #include"../externals/imgui/imgui.h"
 #include"../externals/imgui/imgui_impl_dx12.h"
@@ -42,4 +37,3 @@ public:
 
 };
 
-#endif

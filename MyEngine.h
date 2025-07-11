@@ -119,7 +119,10 @@ private:
     DirectionalLight* directionalLightData = nullptr;
     D3D12_VIEWPORT viewport = {};
     D3D12_RECT scissorRect = {};
+#ifdef _DEBUG
     ImGuiClass imGuiClass = {};
+#endif // _DEBUG
+
     TransitionBarrier barrier = {};
     ModelConfig modelConfig_ = {};
 };
