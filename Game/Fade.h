@@ -11,9 +11,15 @@ public:
         FadeOut, // フェードアウト中
     };
 
-    void Initialize();
+    void Initialize(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera,
+        CommandList& commandList,
+        D3D12_VIEWPORT& viewport, D3D12_RECT& scissorRect,
+        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature, PSO& pso,
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
     void Update();
-    void Draw(ID3D12GraphicsCommandList& commandList);
+    void Draw(const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource> waveResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource);
     ~Fade();
     void Start(Status status, float duration);
     void Stop();
@@ -31,4 +37,5 @@ private:
     // テクスチャハンドル
     uint32_t textureHandle_ = 0;
     Sprite* sprite_ = nullptr;
+    ShaderResourceView srv_ = {};
 };

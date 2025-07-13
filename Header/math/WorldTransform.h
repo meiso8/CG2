@@ -25,7 +25,7 @@ public:
             ;
     }
 
-    Vector3 GetRotate() {
+    Vector3& GetRotate() {
         return rotate_;
     };
 

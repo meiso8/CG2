@@ -1,26 +1,33 @@
-#pragma once
+#pragma once  
 
 #include"../Header/CommandList.h"  
 #include"../Header/ModelData.h"  
 #include"../Header/PSO.h"  
 #include"../Header/ShaderResourceView.h"  
-#include"../Header/Camera.h"
-#include"../Header/math/Transform.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/MaterialResource.h"
+#include"../Header/Camera.h"  
+#include"../Header/math/Transform.h"  
+#include"../Header/TransformationMatrix.h"  
+#include"../Header/MaterialResource.h"  
+#include"../Header/math/Vector2.h"  
+#include"../Header/RootSignature.h"  
+#include"../Header/Config.h"
 
 class Sprite
 {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc);
+
     void Update();
     void UpdateUV();
 
+    void PreDraw();
     void Draw(
-        CommandList& commandList,
         ShaderResourceView& srv
     );
+
+    void SetSize(const Vector2& size);
+    void SetColor(const Vector4& color);
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
@@ -39,14 +46,11 @@ private:
     void CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     Microsoft::WRL::ComPtr <ID3D12Resource> vertexResource_{};
-    //鬆らせ繝舌ャ繝輔ぃ繝薙Η繝ｼ
     D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
     VertexData* vertexData_ = nullptr;
     D3D12_INDEX_BUFFER_VIEW  indexBufferView_{};
     Microsoft::WRL::ComPtr <ID3D12Resource> indexResource_{};
     uint32_t* indexData_ = nullptr;
-
-    Camera* camera_ = nullptr;
 
     Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResource_ = nullptr;
 
@@ -59,5 +63,9 @@ private:
     Matrix4x4 uvTransformMatrix_{};
 
     MaterialResource materialResource_{};
-};
 
+    ModelConfig modelConfig_{};
+
+    Camera* camera_ = nullptr;
+
+};

@@ -31,7 +31,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
 class Texture {
 public:
     Texture(const Microsoft::WRL::ComPtr<ID3D12Device>& device, CommandList& commandList)
-        :device_(device), commandList_(commandList) {
+        :device_(device), commandList_(commandList), metadata_() {
     };
     void Load(const std::string& filePath);
     DirectX::TexMetadata& GetMetadata() { return metadata_; };
@@ -39,7 +39,7 @@ public:
 private:
     const Microsoft::WRL::ComPtr<ID3D12Device>& device_;
     CommandList& commandList_;
-    DirectX::TexMetadata metadata_;
+    DirectX::TexMetadata metadata_ = {};
     Microsoft::WRL::ComPtr<ID3D12Resource> textureResource_;
     Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_;
 };

@@ -3,18 +3,18 @@
 #include<d3d12.h>
 //ComPtr(コムポインタ)
 #include<wrl.h>
+#include"../Header/Window.h"
 
 class SwapChain
 {
 public:
-    void Create(UINT width, UINT height,
+    void Create(Window& window,
         const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory,
-        const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue,
-        const HWND& hwnd);
+        const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue);
     Microsoft::WRL::ComPtr <IDXGISwapChain4>& GetSwapChain() {
         return swapChain_;
     };
-    DXGI_SWAP_CHAIN_DESC1& GetSwapChainDesc() {
+    DXGI_SWAP_CHAIN_DESC1& GetDesc() {
         return swapChainDesc_
             ;
     };

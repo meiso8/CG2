@@ -5,17 +5,22 @@
 #include<dxcapi.h>
 //ComPtr(コムポインタ)
 #include<wrl.h>
+#include"../Header/RootSignature.h"
+#include"../Header/InputLayout.h"
+#include"../Header/CompileShader.h"
+#include"../Header/BlendState.h"
+#include"../Header/RasterizerState.h"
+#include"../Header/Depth.h"
 
 class PSO {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr <ID3D12RootSignature>& rootSignature,
-        D3D12_INPUT_LAYOUT_DESC inputLayoutDesc,
-        const Microsoft::WRL::ComPtr <IDxcBlob>& vertexShaderBlob,
-        const Microsoft::WRL::ComPtr <IDxcBlob>& pixelShaderBlob,
-        D3D12_BLEND_DESC blendDesc,
-        D3D12_RASTERIZER_DESC rasterizerDesc,
-        D3D12_DEPTH_STENCIL_DESC depthStencilDesc,
+        RootSignature& rootSignature,
+        InputLayout& inputLayout,
+        DxcCompiler& dxcCompiler,
+        BlendState& blendState,
+        RasterizerState& rasterizerState,
+        DepthStencil& depthStencil,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device);
     Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState() {
         return graphicsPipelineState_

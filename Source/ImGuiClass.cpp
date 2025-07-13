@@ -1,26 +1,28 @@
 #include "../Header/ImGuiClass.h"
 #include"../Header/CommandList.h"
 
-void ImGuiClass::Initialize(HWND hWnd,
+
+
+void ImGuiClass::Initialize(Window& window,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc,
-    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc,
+    SwapChain& swapChain,
+    RenderTargetView& rtv,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(hWnd);
+    ImGui_ImplWin32_Init(window.GetHwnd());
     ImGui_ImplDX12_Init(device.Get(),
-        swapChainDesc.BufferCount,
-        rtvDesc.Format,
+        swapChain.GetDesc().BufferCount,
+        rtv.GetDesc().Format,
         srvDescriptorHeap.Get(),
         srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
         srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
 }
 
-void ImGuiClass::FrameStaert() {
+void ImGuiClass::FrameStart() {
+
 
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -32,6 +34,7 @@ void ImGuiClass::Render() {
 
     //ImGuiの内部コマンドを生成する
     ImGui::Render();
+
 }
 
 void ImGuiClass::DrawImGui(CommandList& commandList) {

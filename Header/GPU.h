@@ -4,10 +4,12 @@
 #include<d3d12.h>
 #include<dxgi1_6.h>
 
+#include"../Header/DXGIFactory.h"
+
 class GPU
 {
 public:
-    void SettingGPU(const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory);
+    void SettingGPU(DXGIFactory& dxgiFactory);
     Microsoft::WRL::ComPtr <IDXGIAdapter4>& GetUseAdapter() {
         return useAdapter_;
     };
@@ -16,4 +18,4 @@ private:
 };
 
 
-Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(const Microsoft::WRL::ComPtr <IDXGIAdapter4>& useAdapter);
+Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(GPU& gpu);

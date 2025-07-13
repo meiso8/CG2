@@ -4,10 +4,11 @@
 #include <dinput.h>
 #include<cstdint>
 #include"../Header/math/Vector2.h"
+#include"../Header/Window.h"
 
 class Input {
 public:
-    HRESULT Initalize(const WNDCLASS& wc, const HWND& hwnd);
+    HRESULT Initialize(Window& window);
 
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
@@ -35,8 +36,8 @@ public:
     BYTE preKey_[256] = {};
     //マウス
     IDirectInputDevice8* mouse_ = nullptr;
-    DIMOUSESTATE mouseState_;
-    DIMOUSESTATE mouseState_bak_;	// マウス情報(変化検知用)
+    DIMOUSESTATE mouseState_ = {};
+    DIMOUSESTATE mouseState_bak_ = {};	// マウス情報(変化検知用)
     float mouseWheelVol_ = 0;
-    bool isDragging_;
+    bool isDragging_ = false;
 };

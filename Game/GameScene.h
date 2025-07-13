@@ -15,7 +15,15 @@ class GameScene {
 
 public:
     // 初期化
-    void Initialize();
+    void Initialize(CommandList& commandList, D3D12_VIEWPORT& viewport,
+        D3D12_RECT& scissorRect,
+        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& rootSignature,
+        PSO& pso,
+        const Microsoft::WRL::ComPtr <ID3D12Resource>& directionalLightResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource> waveResource,
+        const Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource,
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device,
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     // 更新
     void Update();
@@ -105,4 +113,6 @@ private:
     DebugCamera* debugCamera_ = nullptr;
 
 #endif
+
+    CommandList& commandList_;
 };

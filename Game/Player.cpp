@@ -532,12 +532,11 @@ void Player::Update() {
 void Player::Draw() {
 
     // 3Dモデル描画前処理
-    Model::PreDraw(dxCommon->GetCommandList());
+    model_->PreDraw();
 
     // 3Dモデルを描画
-    model_->Draw(worldTransform_, *camera_);
+    model_->Draw(worldTransform_.matWorld_, *camera_);
 
-    Model::PostDraw();
 }
 
 AABB Player::GetAABB() {

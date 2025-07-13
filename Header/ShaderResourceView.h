@@ -7,12 +7,13 @@
 //Textureデータを読み込むためにDirectXTex.hをインクルード
 #include"../externals/DirectXTex/DirectXTex.h"
 
+class Texture;
+
 class ShaderResourceView
 {
 public:
     void Create(
-        const DirectX::TexMetadata& metadata,
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& textureResource,
+        Texture& texture,
         uint32_t index,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap

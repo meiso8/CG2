@@ -19,7 +19,7 @@ void Skydome::Initialize(Model* model, Camera* camera) {
 void Skydome::Update() {
 
     // 行列を定数バッファに転送
-    worldTransform_.TransferMatrix();
+   /* worldTransform_.TransferMatrix();*/
     // 中身は定数バッファへの書き込み。
 }
 

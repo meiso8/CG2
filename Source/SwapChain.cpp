@@ -3,12 +3,12 @@
 #pragma comment(lib,"dxgi.lib")
 #include<cassert>
 
-void SwapChain::Create(UINT width, UINT height,
+void SwapChain::Create(Window& window,
     const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory,
-    const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue, const HWND& hwnd) {
+    const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& commandQueue) {
 
-    swapChainDesc_.Width = width;   //画面の幅。ウィンドウのクライアント領域を同じものにしておく
-    swapChainDesc_.Height = height;//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
+    swapChainDesc_.Width = window.GetClientWidth();   //画面の幅。ウィンドウのクライアント領域を同じものにしておく
+    swapChainDesc_.Height = window.GetClientHeight();//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
     swapChainDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//色の形式
     swapChainDesc_.SampleDesc.Count = 1;//マルチサンプルしない
     swapChainDesc_.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//描画のターゲットとして利用する
@@ -17,7 +17,7 @@ void SwapChain::Create(UINT width, UINT height,
     //コマンドキュー、ウィンドウハンドル、設定を渡して生成する
     HRESULT result = dxgiFactory->CreateSwapChainForHwnd(
         commandQueue.Get(),
-        hwnd, &swapChainDesc_,
+        window.GetHwnd(), &swapChainDesc_,
         nullptr, nullptr,
         reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
     assert(SUCCEEDED(result));

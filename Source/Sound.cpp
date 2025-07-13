@@ -88,7 +88,10 @@ void Sound::SoundUnload(SoundData* soundData) {
     soundData->mediaData.clear();
     soundData->mediaData.shrink_to_fit();
     // waveFormatの解放
-    soundData->pWaveFormat = nullptr;
+    if (soundData->pWaveFormat) {
+        //CoTaskMemFree(soundData->pWaveFormat);
+        soundData->pWaveFormat = nullptr;
+    }
 
 };
 
@@ -101,11 +104,15 @@ void Sound::SoundPlay(const SoundData& soundData) {
 
     XAUDIO2_BUFFER buf{};
     buf.pAudioData = soundData.mediaData.data();
-    buf.AudioBytes = sizeof(BYTE) * static_cast<UINT32>(soundData.mediaData.size());
+    buf.AudioBytes = /*sizeof(BYTE) * */static_cast<UINT32>(soundData.mediaData.size());
     buf.Flags = XAUDIO2_END_OF_STREAM;
 
     result = pSourceVoice->SubmitSourceBuffer(&buf);
     assert(SUCCEEDED(result));
     result = pSourceVoice->Start();//再生開始
     assert(SUCCEEDED(result));
+};
+
+Sound::~Sound() {
+
 };

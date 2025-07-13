@@ -6,10 +6,10 @@ class FenceEvent
 public:
     void Create();
     HANDLE& GetEvent() {
-        return fenceEvent
+        return fenceEvent_
             ;
     };
 private:
-    HANDLE fenceEvent;
+    HANDLE fenceEvent_;
 };
 

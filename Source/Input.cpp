@@ -6,13 +6,13 @@
 #include"../Header/Log.h"
 #define FPS 120
 
-HRESULT Input::Initalize(const WNDCLASS& wc, const HWND& hwnd) {
+HRESULT Input::Initialize(Window& window) {
 
     HRESULT result;
     //DirectInputの初期化 ゲームパッドを追加するにしてもこのオブジェクトは一つでよい。
     IDirectInput8* directInput = nullptr;
     result = DirectInput8Create(
-        wc.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+        window.GetWindowClass().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
         (void**)&directInput, nullptr
     );
     assert(SUCCEEDED(result));
@@ -27,7 +27,7 @@ HRESULT Input::Initalize(const WNDCLASS& wc, const HWND& hwnd) {
 
     //排他制御レベルのセット
     result = keyboard_->SetCooperativeLevel(
-        hwnd,
+        window.GetHwnd(),
         DISCL_FOREGROUND//画面が手前にある場合のみ入力を受け付ける
         | DISCL_NONEXCLUSIVE //デバイスをこのアプリだけで占有しない
         | DISCL_NOWINKEY//Windowsキーを無効にする
@@ -44,7 +44,7 @@ HRESULT Input::Initalize(const WNDCLASS& wc, const HWND& hwnd) {
 
     // モードを設定（フォアグラウンド＆非排他モード）
     result = mouse_->SetCooperativeLevel(
-        hwnd,
+        window.GetHwnd(),
         DISCL_FOREGROUND//画面が手前にある場合のみ入力を受け付ける
         | DISCL_NONEXCLUSIVE //デバイスをこのアプリだけで占有しない
         | DISCL_NOWINKEY//Windowsキーを無効にする

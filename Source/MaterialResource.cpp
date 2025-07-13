@@ -13,5 +13,8 @@ void MaterialResource::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>
     materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
     materialData_->enableLighting = lighting;
     materialData_->uvTransform = MakeIdentity4x4();
-
 };
+
+void MaterialResource::SetColor(const Vector4& color) {
+    materialData_->color = color;
+}

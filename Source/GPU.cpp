@@ -4,10 +4,10 @@
 #include<cassert>
 #include<format>
 
-void GPU::SettingGPU(const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory) {
+void GPU::SettingGPU(DXGIFactory& dxgiFactory) {
 
     //良い順にアダプタを頼む
-    for (UINT i = 0;   dxgiFactory->EnumAdapterByGpuPreference(i,
+    for (UINT i = 0;   dxgiFactory.GetDigiFactory()->EnumAdapterByGpuPreference(i,
         DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter_)) !=
         DXGI_ERROR_NOT_FOUND; ++i) {
         //アダプタの情報を取得する
@@ -31,7 +31,7 @@ void GPU::SettingGPU(const Microsoft::WRL::ComPtr<IDXGIFactory7>& dxgiFactory) {
 
 }
 
-Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(const Microsoft::WRL::ComPtr <IDXGIAdapter4>& useAdapter) {
+Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(GPU& gpu) {
 
     Microsoft::WRL::ComPtr<ID3D12Device> device = nullptr;
 
@@ -44,7 +44,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> CreateD3D12Device(const Microsoft::WRL::Com
     //高い順に生成出来るか試していく
     for (size_t i = 0; i < _countof(featureLevels); ++i) {
         //採用したアダプターでデバイスを生成
-        HRESULT hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(device.ReleaseAndGetAddressOf()));
+        HRESULT hr = D3D12CreateDevice(gpu.GetUseAdapter().Get(), featureLevels[i], IID_PPV_ARGS(device.ReleaseAndGetAddressOf()));
         //指定した機能レベルでデバイスが生成できたかを確認する
         if (SUCCEEDED(hr)) {
 

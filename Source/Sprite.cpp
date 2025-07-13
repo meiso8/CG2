@@ -5,7 +5,9 @@
 #include"../Header/math/MakeIdentity4x4.h"
 #include"../Header/math/Multiply.h"
 
-void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera) {
+void Sprite::Create(
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
+) {
 
     camera_ = &camera;
 
@@ -21,6 +23,8 @@ void Sprite::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& 
     };
 
     uvTransformMatrix_ = MakeIdentity4x4();
+
+    modelConfig_ = mc;
 
 }
 
@@ -109,6 +113,17 @@ void Sprite::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) 
 
 }
 
+void Sprite::SetSize(const Vector2& size) {
+    vertexData_[0].position = { 0.0f,size.y,0.0f,1.0f };//左下
+    vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
+    vertexData_[2].position = { size.x,size.y,0.0f,1.0f };//右下
+    vertexData_[3].position = { size.x,0.0f,0.0f,1.0f };//右上
+}
+
+void Sprite::SetColor(const Vector4& color) {
+    materialResource_.SetColor(color);
+}
+
 void Sprite::Update() {
 
     UpdateUV();
@@ -124,24 +139,37 @@ void Sprite::UpdateUV() {
     materialResource_.SetUV(uvTransformMatrix_);
 }
 
-void Sprite::Draw(
-    CommandList& commandList,
+void Sprite::PreDraw() {
+    modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
+    modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
+    //RootSignatureを設定。PSOに設定しているけど別途設定が必要
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature().Get());
+    modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState().Get());//PSOを設定
+    //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
+    modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
+void Sprite::Draw(
     ShaderResourceView& srv
 ) {
-
     //頂点バッファビューを設定
-    commandList.GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
+    modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //IBVを設定new
-    commandList.GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
+    modelConfig_.commandList->GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
     //TransformationMatrixCBufferの場所を設定
-    commandList.GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    commandList.GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
+    //LightのCBufferの場所を設定
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
+    //timeのSRVの場所を設定
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
+    //expansionのCBufferの場所を設定
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-    commandList.GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+    modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 };
 
