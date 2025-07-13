@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector2 currentPos = { 0.0f };
     Vector2 delta = { 0.0f };
     Vector3 pos = { 0.0f };
-    ShericalCoordinate sc = { 10.0f,0.0f,0.0f };
+    ShericalCoordinate sc = { 0.0f,0.0f,0.0f };
 
     MSG msg{};
 
@@ -185,8 +185,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             grid.Draw(srv2);
 
-        //model.PreDraw();
-        //   model.Draw(MakeIdentity4x4(), camera);
+            model.PreDraw();
+            model.Draw(MakeIdentity4x4(), camera);
 
 #pragma endregion
 
