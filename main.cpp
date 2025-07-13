@@ -67,6 +67,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Model model(myEngine.GetModelConfig());
     model.Create("resources/cube", "cube.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
+
+
     Vector2 offset = { 0.0f,0.0f };
     Vector2 currentPos = { 0.0f };
     Vector2 delta = { 0.0f };
@@ -183,10 +185,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             grid.Draw(srv2);
 
-            model.PreDraw();
-            model.Draw(MakeIdentity4x4(), camera);
-
-            cube.Draw(srv2);
+        //model.PreDraw();
+        //   model.Draw(MakeIdentity4x4(), camera);
 
 #pragma endregion
 

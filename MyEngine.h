@@ -59,6 +59,7 @@
 #include"Header/Balloon.h"
 
 #include"Header/DrawGrid.h"
+#include"Header/Cube.h"
 
 #pragma endregion
 

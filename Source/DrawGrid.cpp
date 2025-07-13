@@ -18,6 +18,18 @@ DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& c
         line_[i + 51].SetTranslate({ static_cast<float>(i - 25),0.0f, 0.0f });
     }
 
+    for (int i = 0; i < 51; ++i) {
+        if (i % 10 == 0) {
+            line_[i].SetColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+            line_[i + 51].SetColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        } else {
+            line_[i].SetColor(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+            line_[i + 51].SetColor(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+        }
+    }
+
+
     line_[25].SetColor(Vector4(1.0f, 0.0f, 0.0f, 1.0f));
     line_[25].SetScale(Vector3(1.0f, 10.0f, 10.0f));
 
