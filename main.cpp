@@ -186,6 +186,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             model.PreDraw();
             model.Draw(MakeIdentity4x4(), camera);
 
+            cube.Draw(srv2);
 
 #pragma endregion
 
