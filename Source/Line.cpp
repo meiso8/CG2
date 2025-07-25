@@ -166,7 +166,7 @@ void Line::Draw(
     //expansionのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
 
-    //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
+    //描画!（DrawCall/ドローコール）12個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
     modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(12, 1, 0, 0, 0);
 };
 

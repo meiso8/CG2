@@ -75,6 +75,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector3 pos = { 0.0f };
     ShericalCoordinate sc = { 0.0f,0.0f,0.0f };
 
+    Vector3 scale = { 1.0f,1.0f,1.0f };
+    Vector3 rotation = { 0.0f,0.0f,0.0f };
+
+    Vector3 translation = { 0.0f,0.0f,0.0f };
+    Matrix4x4 modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
+
     MSG msg{};
 
     // =============================================
@@ -105,7 +111,47 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
             ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
             ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
+
             ImGui::End();
+
+            ImGui::Begin("Sprite");
+            ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, -10.0f, 10.0f);
+            ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
+            static char str0[128] = "Hello, world!";
+            ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+
+            const char* items[] = { "1", "2", "3" };
+            static int item_current = 0;
+
+            ImGui::Combo("Sprite", &item_current, items, IM_ARRAYSIZE(items));
+
+            if (ImGui::BeginMenu("file")) {
+                if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
+                if (ImGui::BeginMenu("open")) {
+                    if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
+                    if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+
+
+            ImGui::End();
+
+            sprite.Update();
+
+            ImGui::Begin("Model");
+            ImGui::SliderFloat3("translation", &translation.x, -10.0f, 10.0f);
+            ImGui::SliderFloat3("rotation", &rotation.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("scale", &scale.x, 0.0f, 10.0f);
+
+            ImGui::End();
+
+            modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
+
+
 #endif
 
 #pragma region//視点操作
@@ -178,19 +224,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
 
+
+
+#pragma region //描画
             myEngine.PreCommandSet();
 
-
-#pragma region //Modelを描画する
 
             grid.Draw(srv2);
 
             model.PreDraw();
-            model.Draw(MakeIdentity4x4(), camera);
+            model.Draw(modelWorldMat, camera);
 
-#pragma endregion
+            sprite.Draw(srv);
 
             myEngine.PostCommandSet();
+#pragma endregion
+
+
 
         }
     }

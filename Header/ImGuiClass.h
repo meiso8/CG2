@@ -16,6 +16,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include"../Header/SwapChain.h"
 #include"../Header/RenderTargetView.h"
 
+
 class CommandList;
 
 class ImGuiClass
@@ -36,4 +37,5 @@ public:
     void ShutDown();
 
 };
+
 
