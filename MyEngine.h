@@ -28,6 +28,7 @@
 #include"Header/ShaderResourceView.h"
 #include"Header/Model.h"
 #include"Header/Sprite.h"
+#include"Header/Sphere.h"
 #include"Header/Line.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
