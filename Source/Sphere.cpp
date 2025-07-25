@@ -13,13 +13,13 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     const uint32_t kSubdivision = 16;//分割数
 
     //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点4つ)
-    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4 * kSubdivision);
+    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision * kSubdivision);
 
     //頂点バッファビューを作成する
     //リソースの先頭アドレスから使う
     vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
     //使用するリソースのサイズ頂点4つ分のサイズ
-    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4 * kSubdivision;
+    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6 * kSubdivision * kSubdivision;
     //1頂点あたりのサイズ
     vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
@@ -31,7 +31,7 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
         reinterpret_cast<void**>(&vertexData));
 
 
-    const float pi = 3.1415926535f;
+    const float pi = std::numbers::pi_v<float>*2.0f;
     const float kLonEvery = 2.0f * pi / float(kSubdivision);
     const float kLatEvery = pi / float(kSubdivision);
 
@@ -192,7 +192,7 @@ void Sphere::PreDraw() {
 
 void Sphere::Draw(
 
-    const Matrix4x4& worldMatrix, Camera& camera
+    const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv
 ) {
 
     worldViewProjectionMatrix_ = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
@@ -205,7 +205,7 @@ void Sphere::Draw(
     //wvp用のCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
     //SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である。
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootDescriptorTable(2, srv_.GetTextureSrvHandleGPU());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootDescriptorTable(2, srv.GetTextureSrvHandleGPU());
     //LightのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定

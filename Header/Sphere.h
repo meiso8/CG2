@@ -22,7 +22,8 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void PreDraw();
-    void Draw(const Matrix4x4& worldMatrix, Camera& camera);
+    void Draw(
+        const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv);
 
     Material* GetMaterial() { return materialResource_.GetMaterial(); }
     VertexData* GetVertexData() { return vertexData_; }

@@ -234,9 +234,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             grid.Draw(srv2);
 
             model.PreDraw();
-     /*       model.Draw(modelWorldMat, camera);*/
+            /*       model.Draw(modelWorldMat, camera);*/
 
-            sphere.Draw(modelWorldMat,camera);
+            sphere.Draw(modelWorldMat, camera, srv2);
 
             sprite.Draw(srv);
 
