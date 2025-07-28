@@ -24,7 +24,46 @@ void Sprite::Create(
 
     uvTransformMatrix_ = MakeIdentity4x4();
 
+#pragma region//time
+
+    int waveCount = 2;
+
+    waveResource_ = CreateBufferResource(device, sizeof(Wave) * waveCount);
+
+    //データを書き込む
+
+    //書き込むためのアドレスを取得
+    waveResource_->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
+
+    waveData[0].direction = { 1.0f,0.0f,0.0f };
+    waveData[0].time = 0.0f;
+    waveData[0].amplitude = 0.0f;
+    waveData[0].frequency = 4;
+
+    waveData[1].direction = { 1.0f,0.0f,0.0f };
+    waveData[1].time = 0.0f;
+    waveData[1].amplitude = 0.0f;
+    waveData[1].frequency = 4;
+
+#pragma endregion
+
+#pragma region//Balloon
+
+    expansionResource_ = CreateBufferResource(device, sizeof(Balloon));
+
+    //書き込むためのアドレスを取得
+    expansionResource_->Map(0, nullptr, reinterpret_cast<void**>(&expansionData_));
+    //データを書き込む
+    expansionData_->expansion = 0.0f;
+    expansionData_->sphere = 0.0f;
+    expansionData_->cube = 0.0f;
+    expansionData_->isSphere = false;
+
+#pragma endregion
+
     modelConfig_ = mc;
+
+    size_ = { 640.0f,360.0f };
 
 }
 
@@ -45,16 +84,20 @@ void Sprite::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
     //1枚目の三角形 四頂点でスプライト描画が完成
-    vertexData_[0].position = { 0.0f,360.0f,0.0f,1.0f };//左下
+
+    vertexData_[0].position = { 0.0f,size_.y,0.0f,1.0f };//左下
     vertexData_[0].texcoord = { 0.0f,1.0f };
     vertexData_[0].normal = { 0.0f,0.0f,-1.0f };//法線
+
     vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
     vertexData_[1].texcoord = { 0.0f,0.0f };
     vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
-    vertexData_[2].position = { 640.0f,360.0f,0.0f,1.0f };//右下
+
+    vertexData_[2].position = { size_.x,size_.y,0.0f,1.0f };//右下
     vertexData_[2].texcoord = { 1.0f,1.0f };
     vertexData_[2].normal = { 0.0f,0.0f,-1.0f };
-    vertexData_[3].position = { 640.0f,0.0f,0.0f,1.0f };//右上
+
+    vertexData_[3].position = { size_.x,0.0f,0.0f,1.0f };//右上
     vertexData_[3].texcoord = { 1.0f,0.0f };
     vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
 
@@ -114,10 +157,11 @@ void Sprite::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) 
 }
 
 void Sprite::SetSize(const Vector2& size) {
-    vertexData_[0].position = { 0.0f,size.y,0.0f,1.0f };//左下
+    size_ = size;
+    vertexData_[0].position = { 0.0f,size_.y,0.0f,1.0f };//左下
     vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };//左上
-    vertexData_[2].position = { size.x,size.y,0.0f,1.0f };//右下
-    vertexData_[3].position = { size.x,0.0f,0.0f,1.0f };//右上
+    vertexData_[2].position = { size_.x,size_.y,0.0f,1.0f };//右下
+    vertexData_[3].position = { size_.x,0.0f,0.0f,1.0f };//右上
 }
 
 void Sprite::SetColor(const Vector4& color) {
@@ -165,9 +209,9 @@ void Sprite::Draw(
     //LightのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
     modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);

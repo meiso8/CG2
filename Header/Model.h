@@ -4,6 +4,8 @@
 #include"../Header/MaterialResource.h"
 #include"../Header/TransformationMatrix.h"
 #include"../Header/Config.h"
+#include"../Header/Balloon.h"
+#include"../Header/Wave.h"
 
 class Model
 {
@@ -28,6 +30,12 @@ public:
     VertexData* GetVertexData() {
         return vertexData_;
     }
+
+    Balloon& GetExpansionData() {
+        return *expansionData_;
+    }
+
+    Wave& GetWaveData(size_t index) { return waveData_[index]; };
 
     void SetColor(const Vector4& color);
 
@@ -54,4 +62,12 @@ private:
     VertexData* vertexData_ = nullptr;
 
     Texture* texture_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+    Balloon* expansionData_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    Wave* waveData_ = nullptr;
+
+
 };

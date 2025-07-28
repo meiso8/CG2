@@ -10,16 +10,14 @@
 
 void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
-    const uint32_t kSubdivision = 16;//分割数
-
     //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点4つ)
-    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision * kSubdivision);
+    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision_ * kSubdivision_);
 
     //頂点バッファビューを作成する
     //リソースの先頭アドレスから使う
     vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
     //使用するリソースのサイズ頂点4つ分のサイズ
-    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6 * kSubdivision * kSubdivision;
+    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6 * kSubdivision_ * kSubdivision_;
     //1頂点あたりのサイズ
     vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
@@ -31,22 +29,22 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
         reinterpret_cast<void**>(&vertexData));
 
 
-    const float pi = std::numbers::pi_v<float>*2.0f;
-    const float kLonEvery = 2.0f * pi / float(kSubdivision);
-    const float kLatEvery = pi / float(kSubdivision);
+    const float pi = std::numbers::pi_v<float>;
+    const float kLonEvery = 2.0f * pi / float(kSubdivision_);
+    const float kLatEvery = pi / float(kSubdivision_);
 
     //緯度の方向に分割　-pi/2 ~ pi/2
 
-    for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+    for (uint32_t latIndex = 0; latIndex < kSubdivision_; ++latIndex) {
         float lat = -pi / 2.0f + kLatEvery * latIndex;//現在の緯度
         //経度の方向に分割 0 ~ 2*pi
-        for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+        for (uint32_t lonIndex = 0; lonIndex < kSubdivision_; ++lonIndex) {
             //書き込む最初の場所
-            uint32_t startIndex = (latIndex * kSubdivision + lonIndex) * 6;
+            uint32_t startIndex = (latIndex * kSubdivision_ + lonIndex) * 6;
             float lon = lonIndex * kLonEvery;//現在の経度
 
-            Vector2 uv = { float(lonIndex) / float(kSubdivision),
-                1.0f - float(latIndex) / float(kSubdivision) };
+            Vector2 uv = { float(lonIndex) / float(kSubdivision_),
+                1.0f - float(latIndex) / float(kSubdivision_) };
 
             //a   
             vertexData[startIndex].position.x = std::cos(lat) * std::cos(lon);
@@ -62,7 +60,7 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
             vertexData[startIndex + 1].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
             vertexData[startIndex + 1].position.w = 1.0f;
             vertexData[startIndex + 1].texcoord = { uv.x,
-               uv.y - 1.0f / float(kSubdivision) };
+               uv.y - 1.0f / float(kSubdivision_) };
             vertexData[startIndex + 1].normal = { vertexData[startIndex + 1].position.x , vertexData[startIndex + 1].position.y, vertexData[startIndex + 1].position.z };
 
             //c
@@ -70,7 +68,7 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
             vertexData[startIndex + 2].position.y = std::sin(lat);
             vertexData[startIndex + 2].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
             vertexData[startIndex + 2].position.w = 1.0f;
-            vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision),
+            vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision_),
                  uv.y };
             vertexData[startIndex + 2].normal = { vertexData[startIndex + 2].position.x , vertexData[startIndex + 2].position.y, vertexData[startIndex + 2].position.z };
 
@@ -86,8 +84,8 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
             vertexData[startIndex + 5].position.y = std::sin(lat + kLatEvery);
             vertexData[startIndex + 5].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
             vertexData[startIndex + 5].position.w = 1.0f;
-            vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision),
-                uv.y - 1.0f / float(kSubdivision) };
+            vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision_),
+                uv.y - 1.0f / float(kSubdivision_) };
             vertexData[startIndex + 5].normal = { vertexData[startIndex + 5].position.x , vertexData[startIndex + 5].position.y, vertexData[startIndex + 5].position.z };
 
         }
@@ -97,11 +95,49 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 #pragma endregion
 
+#pragma region//time
+
+    int waveCount = 2;
+
+    waveResource_ = CreateBufferResource(device, sizeof(Wave) * waveCount);
+
+    //データを書き込む
+
+    //書き込むためのアドレスを取得
+    waveResource_->Map(0, nullptr, reinterpret_cast<void**>(&waveData_));
+
+    waveData_[0].direction = { 1.0f,0.0f,0.0f };
+    waveData_[0].time = 0.0f;
+    waveData_[0].amplitude = 0.0f;
+    waveData_[0].frequency = 4;
+
+    waveData_[1].direction = { 1.0f,0.0f,0.0f };
+    waveData_[1].time = 0.0f;
+    waveData_[1].amplitude = 0.0f;
+    waveData_[1].frequency = 4;
+
+#pragma endregion
+
+#pragma region//Balloon
+
+    expansionResource_ = CreateBufferResource(device, sizeof(Balloon));
+
+    //書き込むためのアドレスを取得
+    expansionResource_->Map(0, nullptr, reinterpret_cast<void**>(&expansionData_));
+    //データを書き込む
+    expansionData_->expansion = 0.0f;
+    expansionData_->sphere = 0.0f;
+    expansionData_->cube = 0.0f;
+    expansionData_->isSphere = false;
+
+#pragma endregion
+
+
 };
 void Sphere::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
-    materialResource_.CreateMaterial(device, false);
+    materialResource_.CreateMaterial(device, true);
 
 }
 
@@ -110,7 +146,7 @@ void Sphere::Create(
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
 
     //マテリアルの作成
-    materialResource_.CreateMaterial(device, true);
+    CreateMaterial(device);
 
     CreateWorldVPResource(device);
 
@@ -118,8 +154,6 @@ void Sphere::Create(
     CreateVertex(device);
 
     //CreateIndexResource(device);
-
-    CreateMaterial(device);
 
     uvTransform_ = {
           {1.0f,1.0f,1.0f},
@@ -209,11 +243,11 @@ void Sphere::Draw(
     //LightのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
-    //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-    modelConfig_.commandList->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
+    //描画!(DrawCall/ドローコール)。
+    modelConfig_.commandList->GetComandList()->DrawInstanced(6 * kSubdivision_ * kSubdivision_, 1, 0, 0);
 
 }
 

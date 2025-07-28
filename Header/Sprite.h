@@ -11,6 +11,8 @@
 #include"../Header/math/Vector2.h"  
 #include"../Header/RootSignature.h"  
 #include"../Header/Config.h"
+#include"../Header/Balloon.h"
+#include"../Header/Wave.h"
 
 class Sprite
 {
@@ -28,6 +30,9 @@ public:
 
     void SetSize(const Vector2& size);
     void SetColor(const Vector4& color);
+    void SetTranslate(const Vector3& translate) { transform_.translate; }
+
+    Vector2& GetSize() { return size_; }
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
@@ -64,8 +69,15 @@ private:
 
     MaterialResource materialResource_{};
 
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+    Balloon* expansionData_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    Wave* waveData = nullptr;
+
     ModelConfig modelConfig_{};
 
     Camera* camera_ = nullptr;
 
+    Vector2 size_;
 };

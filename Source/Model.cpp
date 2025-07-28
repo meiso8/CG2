@@ -37,6 +37,45 @@ void Model::Create(
 
     //これだとダメだわ
     srv_.Create(*texture_, 3, device, srvDescriptorHeap);
+
+
+#pragma region//time
+
+    int waveCount = 2;
+
+    waveResource_ = CreateBufferResource(device, sizeof(Wave) * waveCount);
+
+    //データを書き込む
+
+    //書き込むためのアドレスを取得
+    waveResource_->Map(0, nullptr, reinterpret_cast<void**>(&waveData_));
+
+    waveData_[0].direction = { 1.0f,0.0f,0.0f };
+    waveData_[0].time = 0.0f;
+    waveData_[0].amplitude = 0.0f;
+    waveData_[0].frequency = 4;
+
+    waveData_[1].direction = { 1.0f,0.0f,0.0f };
+    waveData_[1].time = 0.0f;
+    waveData_[1].amplitude = 0.0f;
+    waveData_[1].frequency = 4;
+
+#pragma endregion
+
+#pragma region//Balloon
+
+    expansionResource_ = CreateBufferResource(device, sizeof(Balloon));
+
+    //書き込むためのアドレスを取得
+    expansionResource_->Map(0, nullptr, reinterpret_cast<void**>(&expansionData_));
+    //データを書き込む
+    expansionData_->expansion = 0.0f;
+    expansionData_->sphere = 0.0f;
+    expansionData_->cube = 0.0f;
+    expansionData_->isSphere = false;
+
+#pragma endregion
+
 }
 
 void Model::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -79,9 +118,9 @@ void Model::Draw(
     //LightのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
     //描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
     modelConfig_.commandList->GetComandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
 

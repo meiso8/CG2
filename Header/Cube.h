@@ -16,6 +16,8 @@
 #include"MaterialResource.h"  
 #include"math/Vector2.h"  
 #include"RootSignature.h"  
+#include"../Header/Balloon.h"
+#include"../Header/Wave.h"
 
 class Cube
 {
@@ -36,8 +38,6 @@ public:
     void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
     void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
     void SetScale(const Vector3& scale) { transform_.scale = scale; }
-    //void SetVertexPos(const Vector3& start, const Vector3& end);
-
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
@@ -69,6 +69,12 @@ private:
     MaterialResource materialResource_{};
 
     ModelConfig modelConfig_{};
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+    Balloon* expansionData_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    Wave* waveData_ = nullptr;
 
     Camera* camera_ = nullptr;
 

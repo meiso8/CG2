@@ -56,11 +56,10 @@
 #include"Header/math/Multiply.h"
 #include"Header/math/SphericalCoordinate.h"
 
-#include"Header/Wave.h"//波打ちアニメーション用
-#include"Header/Balloon.h"
-
 #include"Header/DrawGrid.h"
 #include"Header/Cube.h"
+
+#include"Header/DebugUI.h"
 
 #pragma endregion
 
@@ -110,10 +109,6 @@ private:
     DepthStencil depthStencil = {};
     PSO pso = {};
 
-    Microsoft::WRL::ComPtr <ID3D12Resource> waveResource = nullptr;
-    Wave* waveData = nullptr;
-    Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource = nullptr;
-    Balloon* expansionData = nullptr;
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};

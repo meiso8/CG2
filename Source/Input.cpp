@@ -6,6 +6,8 @@
 #include"../Header/Log.h"
 #define FPS 120
 
+#include"../Header/Camera.h"
+
 HRESULT Input::Initialize(Window& window) {
 
     HRESULT result;
@@ -135,6 +137,40 @@ float Input::GetMouseWheel() {
     mouseWheelVol_ += static_cast<float>(mouseState_.lZ) / FPS;
     return mouseWheelVol_;
 };
+
+void Input::EyeOperation(Camera& camera) {
+
+    if (IsPressMouse(2) && IsPushKey(DIK_LSHIFT)) {
+        //視点の移動 offset をずらす
+        //後でoffsetをくわえる
+        offset_ += GetMousePos();
+        camera.SetOffset({ offset_.x / FPS ,offset_.y / FPS * 2.0f });
+    } else if (IsPressMouse(2)) {
+        //視点の回転
+        //中ボタン押し込み&&ドラッグ
+        isDragging_ = true;
+    }
+
+    //マウススクロールする //初期位置-10
+    shericalCoordinate_.radius = -10 + GetMouseWheel();
+
+    if (!IsPressMouse(2)) {
+        isDragging_ = false;
+    }
+
+    if (isDragging_) {
+        currentPos_ = GetMousePos();
+        shericalCoordinate_.polar += currentPos_.x / FPS;
+        shericalCoordinate_.azimuthal += currentPos_.y / FPS;
+        camera.SetRotateY(shericalCoordinate_.polar);
+        camera.SetRotateZ(shericalCoordinate_.azimuthal);
+    }
+
+    pos_ = TransformCoordinate(shericalCoordinate_);
+
+    camera.SetTarnslate(pos_);
+
+}
 
 Input::~Input() {
 

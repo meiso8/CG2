@@ -7,6 +7,8 @@
 #include"../Header/MaterialResource.h"
 #include"../Header/TransformationMatrix.h"
 #include"../Header/Config.h"
+#include"../Header/Balloon.h"
+#include"../Header/Wave.h"
 
 class Sphere
 {
@@ -26,7 +28,9 @@ public:
         const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv);
 
     Material* GetMaterial() { return materialResource_.GetMaterial(); }
+
     VertexData* GetVertexData() { return vertexData_; }
+    Transform& GetUVTransform() { return uvTransform_; }
 
     void SetColor(const Vector4& color);
     void UpdateUV();
@@ -49,7 +53,13 @@ private:
 
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
     MaterialResource materialResource_;
-    ModelData modelData_;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+    Balloon* expansionData_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    Wave* waveData_ = nullptr;
+
 
     D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
     Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
@@ -59,6 +69,9 @@ private:
     Matrix4x4 uvTransformMatrix_{};
 
     Texture* texture_ = nullptr;
+
+    const uint32_t kSubdivision_ = 16;//分割数
+
 };
 
 

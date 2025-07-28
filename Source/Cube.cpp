@@ -19,6 +19,44 @@ void Cube::Create(
 
     modelConfig_ = mc;
 
+#pragma region//time
+
+    int waveCount = 2;
+
+    waveResource_ = CreateBufferResource(device, sizeof(Wave) * waveCount);
+
+    //データを書き込む
+
+    //書き込むためのアドレスを取得
+    waveResource_->Map(0, nullptr, reinterpret_cast<void**>(&waveData_));
+
+    waveData_[0].direction = { 1.0f,0.0f,0.0f };
+    waveData_[0].time = 0.0f;
+    waveData_[0].amplitude = 0.0f;
+    waveData_[0].frequency = 4;
+
+    waveData_[1].direction = { 1.0f,0.0f,0.0f };
+    waveData_[1].time = 0.0f;
+    waveData_[1].amplitude = 0.0f;
+    waveData_[1].frequency = 4;
+
+#pragma endregion
+
+#pragma region//Balloon
+
+    expansionResource_ = CreateBufferResource(device, sizeof(Balloon));
+
+    //書き込むためのアドレスを取得
+    expansionResource_->Map(0, nullptr, reinterpret_cast<void**>(&expansionData_));
+    //データを書き込む
+    expansionData_->expansion = 0.0f;
+    expansionData_->sphere = 0.0f;
+    expansionData_->cube = 0.0f;
+    expansionData_->isSphere = false;
+
+#pragma endregion
+
+
 }
 
 void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -65,17 +103,6 @@ void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 #pragma endregion
 
 }
-
-//void Cube::SetVertexPos(const Vector3& start, const Vector3& end) {
-//    vertexData_[0].position = { start.x,start.y,0.0f,1.0f };//左下
-//    vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
-//    vertexData_[1].position = { start.x, end.y,0.0f,1.0f };//左上
-//    vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
-//    vertexData_[2].position = { end.x,start.y,0.0f,1.0f };//右下
-//    vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
-//    vertexData_[3].position = { end.x,end.y,0.0f,1.0f };//右上
-//    vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
-//};
 
 void Cube::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
@@ -209,9 +236,9 @@ void Cube::Draw(
     //LightのCBufferの場所を設定
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(3, modelConfig_.directionalLightResource->GetGPUVirtualAddress());
     //timeのSRVの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, modelConfig_.waveResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootShaderResourceView(4, waveResource_->GetGPUVirtualAddress());
     //expansionのCBufferの場所を設定
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, modelConfig_.expansionResource->GetGPUVirtualAddress());
+    modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
     modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(39, 1, 0, 0, 0);

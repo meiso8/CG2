@@ -27,6 +27,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
+    DebugUI debugUI;
+
 #pragma region//Camera
 
     bool isDebug = false;
@@ -46,7 +48,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 
     Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture.Load("resources/uvChecker.png");
+    texture.Load("resources/dvd.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
@@ -63,26 +65,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
+    sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig());
-    model.Create("resources/cube", "cube.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+
+    Model model2(myEngine.GetModelConfig());
+    model2.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Sphere sphere(myEngine.GetModelConfig());
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Vector2 offset = { 0.0f,0.0f };
-    Vector2 currentPos = { 0.0f };
-    Vector2 delta = { 0.0f };
-    Vector3 pos = { 0.0f };
-    ShericalCoordinate sc = { 0.0f,0.0f,0.0f };
-
     Vector3 scale = { 1.0f,1.0f,1.0f };
     Vector3 rotation = { 0.0f,0.0f,0.0f };
-
     Vector3 translation = { 0.0f,0.0f,0.0f };
     Matrix4x4 modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
 
     MSG msg{};
+
+    Vector2 speed = { 2.0f,2.0f };
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -105,20 +106,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-            ImGui::Begin("Input");
-            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
-            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
-            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
-            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
-            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
-            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
-
-            ImGui::End();
-
-            ImGui::Begin("Sprite");
-            ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, -10.0f, 10.0f);
-            ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
             static char str0[128] = "Hello, world!";
             ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
@@ -138,53 +125,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 ImGui::EndMenu();
             }
 
-
-            ImGui::End();
-
-            sprite.Update();
-
             ImGui::Begin("Model");
             ImGui::SliderFloat3("translation", &translation.x, -10.0f, 10.0f);
             ImGui::SliderFloat3("rotation", &rotation.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("scale", &scale.x, 0.0f, 10.0f);
-
             ImGui::End();
-
             modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
 
+            ImGui::Begin("Sphere");
+            ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
+            ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 10.0f);
+            ImGui::End();
+
+            sphere.UpdateUV();
+
+            debugUI.SpriteUpdate(sprite);
+            debugUI.ModelUpdate(model2);
+            debugUI.InputUpdate(input);
 
 #endif
 
+            sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
+
+            if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
+                speed.x *= -1.0f;
+            }
+
+            if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
+                speed.y *= -1.0f;
+            }
+
+            sprite.Update();
+
 #pragma region//視点操作
-            if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {
-                //視点の移動 offset をずらす
-                //後でoffsetをくわえる
-                offset += input.GetMousePos();
-                camera.SetOffset({ offset.x / 120,offset.y / 60 });
-            } else if (input.IsPressMouse(2)) {
-                //視点の回転
-                //中ボタン押し込み&&ドラッグ
-                input.isDragging_ = true;
-            }
 
-            //マウススクロールする //初期位置-10
-            sc.radius = -10 + input.GetMouseWheel();
-
-            if (!input.IsPressMouse(2)) {
-                input.isDragging_ = false;
-            }
-
-            if (input.isDragging_) {
-                currentPos = input.GetMousePos();
-                sc.polar += currentPos.x / 120;
-                sc.azimuthal += currentPos.y / 120;
-                camera.SetRotateY(sc.polar);
-                camera.SetRotateZ(sc.azimuthal);
-            }
-
-            pos = TransformCoordinate(sc);
-
-            camera.SetTarnslate(pos);
+            input.EyeOperation(camera);
 
 #pragma endregion
 
@@ -194,11 +170,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             if (input.IsTriggerKey(DIK_2)) {
-                //音声データの解放
-              /*  sound.SoundUnload(&soundData1);*/
-            }
-
-            if (input.IsTriggerKey(DIK_3)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
             }
@@ -224,28 +195,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
-
-
-
 #pragma region //描画
             myEngine.PreCommandSet();
-
 
             grid.Draw(srv2);
 
             model.PreDraw();
-            /*       model.Draw(modelWorldMat, camera);*/
 
-            sphere.Draw(modelWorldMat, camera, srv2);
+            //model.Draw(MakeIdentity4x4(), camera);
+
+            model2.Draw(MakeIdentity4x4(), camera);
+
+            sphere.Draw(modelWorldMat, camera, srv);
 
             sprite.Draw(srv);
 
-
-
             myEngine.PostCommandSet();
 #pragma endregion
-
-
 
         }
     }
