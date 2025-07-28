@@ -249,6 +249,9 @@
     <ClCompile Include="Source\DebugUI.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\math\Vector4.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.VS.hlsl" />

@@ -98,6 +98,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Line.cpp" />
     <ClCompile Include="MyEngine.cpp" />
     <ClCompile Include="Source\DrawGrid.cpp" />
+    <ClCompile Include="Source\math\Vector4.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\InputLayout.cpp" />
     <ClCompile Include="Source\GPU.cpp" />

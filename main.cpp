@@ -8,7 +8,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"EEZEngine", WIN_WIDTH, WIN_HEIGHT);
 
     Input input;
     //入力
@@ -84,6 +84,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     MSG msg{};
 
     Vector2 speed = { 2.0f,2.0f };
+    size_t currentIndex = 0;
+    Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
+    float timer = 0.0f;
+    float t = timer / 2.0f;
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -106,45 +110,52 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-            ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
-            static char str0[128] = "Hello, world!";
-            ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+            {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
+                static char str0[128] = "Hello, world!";
+                ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
 
-            const char* items[] = { "1", "2", "3" };
-            static int item_current = 0;
+                const char* items[] = { "1", "2", "3" };
+                static int item_current = 0;
 
-            ImGui::Combo("Sprite", &item_current, items, IM_ARRAYSIZE(items));
+                ImGui::Combo("Sprite", &item_current, items, IM_ARRAYSIZE(items));
 
-            if (ImGui::BeginMenu("file")) {
-                if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
-                if (ImGui::BeginMenu("open")) {
-                    if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
-                    if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
+                if (ImGui::BeginMenu("file")) {
+                    if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
+                    if (ImGui::BeginMenu("open")) {
+                        if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
+                        if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
+                        ImGui::EndMenu();
+                    }
                     ImGui::EndMenu();
                 }
-                ImGui::EndMenu();
+
             }
 
-            ImGui::Begin("Model");
+            ImGui::Begin("ModelWorldMatrix");
             ImGui::SliderFloat3("translation", &translation.x, -10.0f, 10.0f);
             ImGui::SliderFloat3("rotation", &rotation.x, 0.0f, std::numbers::pi_v<float>*2.0f);
             ImGui::SliderFloat3("scale", &scale.x, 0.0f, 10.0f);
             ImGui::End();
             modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
 
-            ImGui::Begin("Sphere");
-            ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
-            ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 10.0f);
-            ImGui::End();
-
-            sphere.UpdateUV();
-
+            debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
             debugUI.ModelUpdate(model2);
             debugUI.InputUpdate(input);
 
+            sphere.UpdateUV();
 #endif
+
+            timer++;
+            t = timer / 120.0f;
+
+            sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
+
+            if (t >= 1.0f) {
+                currentIndex = (currentIndex + 1) % 4;
+                timer = 0.0f;
+            }
 
             sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
 
@@ -158,11 +169,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             sprite.Update();
 
-#pragma region//視点操作
-
+            //視点操作
             input.EyeOperation(camera);
-
-#pragma endregion
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -198,6 +206,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //描画
             myEngine.PreCommandSet();
 
+
+
             grid.Draw(srv2);
 
             model.PreDraw();
@@ -209,6 +219,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             sphere.Draw(modelWorldMat, camera, srv);
 
             sprite.Draw(srv);
+
 
             myEngine.PostCommandSet();
 #pragma endregion

@@ -55,6 +55,7 @@
 #include"Header/math/MakeOrthographicMatrix.h"
 #include"Header/math/Multiply.h"
 #include"Header/math/SphericalCoordinate.h"
+#include"Header/math/Lerp.h"
 
 #include"Header/DrawGrid.h"
 #include"Header/Cube.h"
@@ -65,7 +66,7 @@
 
 class MyEngine {
 public:
-    void Create(int32_t clientWidth, int32_t clientHeight);
+    void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
     void Update();
     void PreCommandSet();
     void PostCommandSet();

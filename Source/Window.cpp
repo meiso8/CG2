@@ -39,7 +39,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 }
 
 
-void Window::Create(int32_t clientWidth, int32_t clientHeight) {
+void Window::Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight) {
 
     clientWidth_ = clientWidth;
     clientHeight_ = clientHeight;
@@ -76,7 +76,7 @@ void Window::Create(int32_t clientWidth, int32_t clientHeight) {
     //CreateWindowの戻り値であるHWNDはウィンドウハンドルを呼びウィンドウを表す識別子である
     hwnd_ = CreateWindow(
         wc_.lpszClassName,         // 利用するクラス名
-        L"CG2",                   // タイトルバーの文字(何でもいい)
+        title.c_str(),                   // タイトルバーの文字(何でもいい)
         WS_OVERLAPPEDWINDOW,      // よく見るウィンドウスタイル
         CW_USEDEFAULT,            // 表示X座標(Windowsに任せる)
         CW_USEDEFAULT,            // 表示Y座標(WindowsOsに任せる)

@@ -3,6 +3,7 @@
 #include"../Header/Model.h"
 #include"../Header/Input.h"
 #include"../Header/Sprite.h"
+#include"../Header/Sphere.h"
 #include<numbers>
 
 void DebugUI::Update() {
@@ -59,5 +60,13 @@ void DebugUI::SpriteUpdate(Sprite& sprite) {
     ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, 0.0f, 640.0f);
     ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
     ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+    ImGui::End();
+}
+
+void DebugUI::SphereUpdate(Sphere& sphere) {
+    ImGui::Begin("Sphere");
+    ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+    ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 10.0f);
     ImGui::End();
 }

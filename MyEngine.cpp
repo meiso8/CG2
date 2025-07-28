@@ -1,6 +1,6 @@
 #include "MyEngine.h"
 
-void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
+void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t clientHeight) {
 
     clientWidth_ = clientWidth;
     clientHeight_ = clientHeight;
@@ -16,7 +16,7 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
     logStream = logFile.CreateLogFile();
 
     //WindowClassの生成
-    wc.Create(clientWidth, clientHeight);
+    wc.Create(title,clientWidth, clientHeight);
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成

@@ -1,11 +1,12 @@
 #pragma once  
 #include <Windows.h>  
 #include<cstdint>//int32_tを使うため
+#include<string>
 
 class Window
 {
 public:
-    void Create(int32_t clientWidth, int32_t clientHeight);
+    void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
     WNDCLASS GetWindowClass() { return wc_; }
     HWND& GetHwnd() { return hwnd_; }
     int32_t GetClientWidth() const {

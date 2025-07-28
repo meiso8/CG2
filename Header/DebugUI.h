@@ -5,6 +5,7 @@
 class Model;
 class Input;
 class Sprite;
+class Sphere;
 
 class DebugUI
 {
@@ -13,5 +14,6 @@ public:
     void ModelUpdate(Model& model);
     void InputUpdate(Input& input);
     void SpriteUpdate(Sprite& sprite);
+    void SphereUpdate(Sphere& sphere);
 };
 

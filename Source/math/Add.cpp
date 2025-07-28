@@ -6,6 +6,9 @@ Vector3 Add(const Vector3& v1, const Vector3& v2) {
     return { v1.x + v2.x,v1.y + v2.y ,v1.z + v2.z };
 };
 
+Vector4 Add(const Vector4& v1, const Vector4& v2) {
+    return { v1.x + v2.x,v1.y + v2.y ,v1.z + v2.z ,v1.w + v2.w };
+};
 
 //行列の加法
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
