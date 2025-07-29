@@ -75,7 +75,7 @@ void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     Vector3 min = { -0.5f,-0.5f,-0.5f };
     Vector3 max = { 0.5f,0.5f,0.5f };
 
-    vertexData_[0].position = { (min,1.0f) };//左sita
+    vertexData_[0].position = { min.x,min.y,min.z,1.0f};//左sita
     vertexData_[0].texcoord = { 0.0f,1.0f };
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
     vertexData_[1].position = { min.x,max.y,min.z,1.0f };//左上
@@ -97,7 +97,7 @@ void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     vertexData_[6].position = { max.x,min.y,max.z,1.0f };//migisita
     vertexData_[6].texcoord = { 1.0f,1.0f };
     vertexData_[6].normal = { vertexData_[6].position.x,  vertexData_[6].position.y,  vertexData_[6].position.z };
-    vertexData_[7].position = { (max,1.0f) };//migiue
+    vertexData_[7].position = { max.x,max.y,max.z,1.0f };//migiue
     vertexData_[7].texcoord = { 1.0f,0.0f };
     vertexData_[7].normal = { vertexData_[7].position.x,  vertexData_[7].position.y,  vertexData_[7].position.z };
 #pragma endregion
@@ -107,12 +107,12 @@ void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 void Cube::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 #pragma region//IndexResourceを作成
-    indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 39);
+    indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 36);
     //Viewを作成する IndexBufferView(IBV)
 
     //リソースの先頭アドレスから使う
     indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-    indexBufferView_.SizeInBytes = sizeof(uint32_t) * 39;
+    indexBufferView_.SizeInBytes = sizeof(uint32_t) * 36;
     //インデックスはuint32_tとする
     indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 #pragma endregion
@@ -122,57 +122,27 @@ void Cube::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& devic
     indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
 
     //頂点数を削減
-    indexData_[0] = 0;
-    indexData_[1] = 1;
-    indexData_[2] = 2;
 
-    indexData_[3] = 1;
-    indexData_[4] = 3;
-    indexData_[5] = 2;
+        // Front face
+        indexData_[0] = 0, indexData_[1] = 1, indexData_[2] = 2,
+        indexData_[3] = 2, indexData_[4] = 1, indexData_[5] = 3,
+        // Back face
+        indexData_[6] = 4, indexData_[7] = 6, indexData_[8] = 5,
+        indexData_[9] = 5, indexData_[10] = 6, indexData_[11] = 7,
+        // Left face
+        indexData_[12] = 4, indexData_[13] = 5, indexData_[14] = 0,
+        indexData_[15] = 0, indexData_[16] = 5, indexData_[17] = 1,
+        // Right face
+        indexData_[18] = 2, indexData_[19] = 3, indexData_[20] = 6,
+        indexData_[21] = 6, indexData_[22] = 3, indexData_[23] = 7,
+        // Top face
+        indexData_[24] = 1, indexData_[25] = 5, indexData_[26] = 3,
+        indexData_[27] = 3, indexData_[28] = 5, indexData_[29] = 7,
+        // Bottom face
+        indexData_[30] = 4, indexData_[31] = 0, indexData_[32] = 6,
+        indexData_[33] = 6, indexData_[34] = 0, indexData_[35] = 2;
 
-    indexData_[6] = 2;
-    indexData_[7] = 3;
-    indexData_[8] = 5;
 
-    indexData_[9] = 2;
-    indexData_[10] = 3;
-    indexData_[11] = 6;
-
-    indexData_[12] = 3;
-    indexData_[13] = 7;
-    indexData_[14] = 6;
-
-    indexData_[15] = 6;
-    indexData_[16] = 7;
-    indexData_[17] = 4;
-
-    indexData_[18] = 7;
-    indexData_[19] = 5;
-    indexData_[20] = 4;
-
-    indexData_[21] = 4;
-    indexData_[22] = 0;
-    indexData_[23] = 6;
-
-    indexData_[24] = 2;
-    indexData_[25] = 6;
-    indexData_[26] = 0;
-
-    indexData_[27] = 0;
-    indexData_[28] = 1;
-    indexData_[29] = 4;
-
-    indexData_[30] = 4;
-    indexData_[31] = 1;
-    indexData_[32] = 5;
-
-    indexData_[33] = 5;
-    indexData_[34] = 7;
-    indexData_[35] = 1;
-
-    indexData_[36] = 1;
-    indexData_[37] = 7;
-    indexData_[38] = 3;
 
 #pragma endregion
 }
@@ -241,6 +211,6 @@ void Cube::Draw(
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）6個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-    modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(39, 1, 0, 0, 0);
+    modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(36, 1, 0, 0, 0);
 };
 

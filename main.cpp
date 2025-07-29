@@ -60,13 +60,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture2.Load("resources/white2x2.png");
+    texture2.Load("resources/uvChecker.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv2 = {};
     srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
+
+    Cube cube;
+    cube.Create(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
 
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
@@ -154,6 +157,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.InputUpdate(input);
 
             sphere.UpdateUV();
+            cube.Update();
 #endif
 
             timer++;
@@ -219,10 +223,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             grid.Draw(srv2);
 
+
+
             model.PreDraw();
 
             //model.Draw(MakeIdentity4x4(), camera);
-
+            cube.Draw(srv2);
             model2.Draw(MakeIdentity4x4(), camera);
 
             sphere.Draw(modelWorldMat, camera, srv);
