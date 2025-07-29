@@ -1,6 +1,8 @@
 #include<numbers>
 #include"MyEngine.h"
 
+#include"FPSCounter.h"
+
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
@@ -10,9 +12,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     MyEngine myEngine;
     myEngine.Create(L"EEZEngine", WIN_WIDTH, WIN_HEIGHT);
 
+    FPSCounter fpsCounter;
+
     Input input;
     //入力
-    input.Initialize(myEngine.GetWC());
+    input.Initialize(myEngine.GetWC(),fpsCounter.GetFPS());
 
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
@@ -28,6 +32,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
     DebugUI debugUI;
+
 
 #pragma region//Camera
 
@@ -61,19 +66,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv2 = {};
     srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(PSO::LINE));
 
     Sprite sprite;
-    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
+    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(PSO::TRIANGLE));
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
-    Model model(myEngine.GetModelConfig());
+    Model model(myEngine.GetModelConfig(PSO::TRIANGLE));
     model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Model model2(myEngine.GetModelConfig());
+    Model model2(myEngine.GetModelConfig(PSO::TRIANGLE));
     model2.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Sphere sphere(myEngine.GetModelConfig());
+    Sphere sphere(myEngine.GetModelConfig(PSO::TRIANGLE));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Vector3 scale = { 1.0f,1.0f,1.0f };
@@ -106,11 +111,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //エンジンのアップデート
             myEngine.Update();
 
+            fpsCounter.Update();
+
 #pragma region //ゲームの処理
 
 #ifdef _DEBUG
 
             {
+
+                ImGui::Text("FPS : %d", fpsCounter.GetFPS());
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
                 static char str0[128] = "Hello, world!";
                 ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));

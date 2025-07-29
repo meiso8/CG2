@@ -11,7 +11,7 @@ class Camera;
 
 class Input {
 public:
-    HRESULT Initialize(Window& window);
+    HRESULT Initialize(Window& window, int& fps);
 
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
@@ -57,5 +57,6 @@ public:
     Vector3 pos_ = { 0.0f };
     ShericalCoordinate shericalCoordinate_ = { 0.0f,0.0f,0.0f };
 
+    int* fps_ = 0;
 
 };

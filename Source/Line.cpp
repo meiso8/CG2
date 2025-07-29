@@ -11,7 +11,7 @@ void Line::Create(
     camera_ = &camera;
 
     CreateVertex(device);
-    CreateIndexResource(device);
+    /*   CreateIndexResource(device);*/
     CreateTransformationMatrix(device);
     CreateMaterial(device);
 
@@ -58,14 +58,14 @@ void Line::Create(
 
 void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
-    //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点4つ)
-    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
+    //VertexResourceとVertexBufferViewを用意
+    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 2);
 
     //頂点バッファビューを作成する
     //リソースの先頭アドレスから使う
     vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-    //使用するリソースのサイズ頂点4つ分のサイズ
-    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
+    //使用するリソースのサイズ頂点2つ分のサイズ
+    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 2;
     //1頂点あたりのサイズ
     vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
@@ -73,32 +73,32 @@ void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
 
-    vertexData_[0].position = { -0.5f,-0.5f,0.0f,1.0f };//左下
+    vertexData_[0].position = { -0.5f,0.0f,0.0f,1.0f };//左下
     vertexData_[0].texcoord = { 0.0f,1.0f };
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
-    vertexData_[1].position = { -0.5f, 0.5f,0.0f,1.0f };//左上
+    vertexData_[1].position = { 0.5f, 0.0f,0.0f,1.0f };// 右
     vertexData_[1].texcoord = { 0.0f,0.0f };
     vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
-    vertexData_[2].position = { 0.5f,-0.5f,0.0f,1.0f };//右下
-    vertexData_[2].texcoord = { 1.0f,1.0f };
-    vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
-    vertexData_[3].position = { 0.5f,0.5f,0.0f,1.0f };//右上
-    vertexData_[3].texcoord = { 1.0f,0.0f };
-    vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
+    //vertexData_[2].position = { 0.5f,-0.5f,0.0f,1.0f };//右下
+    //vertexData_[2].texcoord = { 1.0f,1.0f };
+    //vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
+    //vertexData_[3].position = { 0.5f,0.5f,0.0f,1.0f };//右上
+    //vertexData_[3].texcoord = { 1.0f,0.0f };
+    //vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
 
 #pragma endregion
 
 }
 
 void Line::SetVertexPos(const Vector3& start, const Vector3& end) {
-    vertexData_[0].position = { start.x,start.y,0.0f,1.0f };//左下
+    vertexData_[0].position = { start.x,start.y,start.y,1.0f };//左下
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
-    vertexData_[1].position = { start.x, end.y,0.0f,1.0f };//左上
+    //vertexData_[1].position = { start.x, end.y,0.0f,1.0f };//左上
+    //vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
+    vertexData_[1].position = { end.x,end.y,end.z,1.0f };//右下
     vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
-    vertexData_[2].position = { end.x,start.y,0.0f,1.0f };//右下
-    vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
-    vertexData_[3].position = { end.x,end.y,0.0f,1.0f };//右上
-    vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
+    //vertexData_[3].position = { end.x,end.y,0.0f,1.0f };//右上
+    //vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
 };
 
 void Line::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -179,7 +179,10 @@ void Line::PreDraw() {
     modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature().Get());
     modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState().Get());//PSOを設定
     //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
-    modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+     modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+   
 }
 
 void Line::Draw(
@@ -187,8 +190,10 @@ void Line::Draw(
 ) {
     //頂点バッファビューを設定
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
+
+
     //IBVを設定new
-    modelConfig_.commandList->GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
+    //modelConfig_.commandList->GetComandList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(0, materialResource_.GetMaterialResource()->GetGPUVirtualAddress());
     //TransformationMatrixCBufferの場所を設定
@@ -203,6 +208,11 @@ void Line::Draw(
     modelConfig_.commandList->GetComandList()->SetGraphicsRootConstantBufferView(5, expansionResource_->GetGPUVirtualAddress());
 
     //描画!（DrawCall/ドローコール）12個のインデックスを使用し1つのインスタンスを描画。その他は当面0で良い。
-    modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(12, 1, 0, 0, 0);
+    //modelConfig_.commandList->GetComandList()->DrawIndexedInstanced(12, 1, 0, 0, 0);
+
+
+    modelConfig_.commandList->GetComandList()->DrawInstanced(2, 1, 0, 0);
+
+
 };
 

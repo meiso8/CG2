@@ -134,8 +134,19 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         blendState,
         rasterizerState,
         depthStencil,
-        device);
+        device,PSO::TRIANGLE);
+
+
+    psoLine.Create(rootSignature,
+        inputLayout,
+        dxcCompiler,
+        blendState,
+        rasterizerState,
+        depthStencil,
+        device, PSO::LINE);
+
     Log(logStream, "CreatePSO");
+
 
 #pragma region//stencileTextureResourceの作成
     depthStencilResource = CreateDepthStencileTextureResource(device, clientWidth_, clientHeight_);
@@ -168,7 +179,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     scissorRect = CreateScissorRect(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
 
-    modelConfig_ = {
+    modelConfig_[0] = {
         &commandList,
         &viewport,
         &scissorRect,
@@ -176,6 +187,17 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         &pso,
         directionalLightResource
     };
+
+
+    modelConfig_[1] = {
+        &commandList,
+        &viewport,
+        &scissorRect,
+        &rootSignature,
+        &psoLine,
+        directionalLightResource
+    };
+
 
 #ifdef _DEBUG
     //ImGuiの初期化。

@@ -14,6 +14,12 @@
 
 class PSO {
 public:
+
+  enum TopologyType {
+        TRIANGLE,
+        LINE,
+        POINT,
+    };
     void Create(
         RootSignature& rootSignature,
         InputLayout& inputLayout,
@@ -21,11 +27,12 @@ public:
         BlendState& blendState,
         RasterizerState& rasterizerState,
         DepthStencil& depthStencil,
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, TopologyType type);
+
     Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState() {
         return graphicsPipelineState_
             ;
     }
 private:
-    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_ = nullptr;
+    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_ = { nullptr };
 };
