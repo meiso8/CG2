@@ -29,7 +29,7 @@ public:
 
     void Update();
 
-    void PreDraw();
+   void  PreDraw();
     void Draw(
         ShaderResourceView& srv
     );
@@ -38,6 +38,8 @@ public:
     void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
     void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
     void SetScale(const Vector3& scale) { transform_.scale = scale; }
+    void SetMinMax(const Vector3& min, const Vector3& max);
+
 
     Vector3& GetScaleRef() { return transform_.scale; };
     Vector3& GetRotateRef() { return transform_.rotate; };
@@ -77,6 +79,5 @@ private:
     Wave* waveData_ = nullptr;
 
     Camera* camera_ = nullptr;
-
 };
 

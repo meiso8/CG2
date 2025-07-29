@@ -142,8 +142,6 @@ void Cube::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& devic
         indexData_[30] = 4, indexData_[31] = 0, indexData_[32] = 6,
         indexData_[33] = 6, indexData_[34] = 0, indexData_[35] = 2;
 
-
-
 #pragma endregion
 }
 
@@ -170,6 +168,31 @@ void Cube::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 void Cube::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
+}
+
+void Cube::SetMinMax(const Vector3& min, const Vector3& max) {
+    vertexData_[0].position = { min.x,min.y,min.z,1.0f };//左sita
+    vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
+    vertexData_[1].position = { min.x,max.y,min.z,1.0f };//左上
+    vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
+    vertexData_[2].position = { max.x,min.y,min.z,1.0f };//右下
+    vertexData_[2].normal = { vertexData_[2].position.x,  vertexData_[2].position.y,  vertexData_[2].position.z };
+    vertexData_[3].position = { max.x,max.y,min.z,1.0f };//右上
+    vertexData_[3].normal = { vertexData_[3].position.x,  vertexData_[3].position.y,  vertexData_[3].position.z };
+
+    vertexData_[4].position = { min.x,min.y,max.z,1.0f };//左sita
+    vertexData_[4].texcoord = { 0.0f,1.0f };
+    vertexData_[4].normal = { vertexData_[4].position.x, vertexData_[4].position.y, vertexData_[4].position.z };//法線
+    vertexData_[5].position = { min.x,max.y,max.z,1.0f };//hidariue
+    vertexData_[5].texcoord = { 0.0f,0.0f };
+    vertexData_[5].normal = { vertexData_[5].position.x, vertexData_[5].position.y, vertexData_[5].position.z };
+    vertexData_[6].position = { max.x,min.y,max.z,1.0f };//migisita
+    vertexData_[6].texcoord = { 1.0f,1.0f };
+    vertexData_[6].normal = { vertexData_[6].position.x,  vertexData_[6].position.y,  vertexData_[6].position.z };
+    vertexData_[7].position = { max.x,max.y,max.z,1.0f };//migiue
+    vertexData_[7].texcoord = { 1.0f,0.0f };
+    vertexData_[7].normal = { vertexData_[7].position.x,  vertexData_[7].position.y,  vertexData_[7].position.z };
+
 }
 
 void Cube::Update() {

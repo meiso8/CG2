@@ -68,9 +68,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
 
-    Cube cube;
-    cube.Create(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
-
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
     sprite.SetSize(Vector2(256.0f, 128.0f));
@@ -157,7 +154,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.InputUpdate(input);
 
             sphere.UpdateUV();
-            cube.Update();
 #endif
 
             timer++;
@@ -219,16 +215,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //描画
             myEngine.PreCommandSet();
 
-
-
             grid.Draw(srv2);
-
-
 
             model.PreDraw();
 
             //model.Draw(MakeIdentity4x4(), camera);
-            cube.Draw(srv2);
+
             model2.Draw(MakeIdentity4x4(), camera);
 
             sphere.Draw(modelWorldMat, camera, srv);

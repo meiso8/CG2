@@ -11,7 +11,6 @@ void Line::Create(
     camera_ = &camera;
 
     CreateVertex(device);
-    /*   CreateIndexResource(device);*/
     CreateTransformationMatrix(device);
     CreateMaterial(device);
 
@@ -85,7 +84,7 @@ void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 }
 
 void Line::SetVertexPos(const Vector3& start, const Vector3& end) {
-    vertexData_[0].position = { start.x,start.y,start.y,1.0f };//左下
+    vertexData_[0].position = { start.x,start.y,start.z,1.0f };//左下
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
     vertexData_[1].position = { end.x,end.y,end.z,1.0f };//右下
     vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
