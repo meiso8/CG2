@@ -19,6 +19,7 @@ public:
         TRIANGLE,
         LINE,
         POINT,
+        TOPOLOGY_MAX
     };
     void Create(
         RootSignature& rootSignature,
@@ -27,12 +28,12 @@ public:
         BlendState& blendState,
         RasterizerState& rasterizerState,
         DepthStencil& depthStencil,
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, TopologyType type);
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
-    Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState() {
-        return graphicsPipelineState_
+    Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState(TopologyType type) {
+        return graphicsPipelineState_[type]
             ;
     }
 private:
-    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_ = { nullptr };
+    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_[TOPOLOGY_MAX] = {nullptr};
 };

@@ -66,19 +66,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv2 = {};
     srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(PSO::LINE));
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
 
     Sprite sprite;
-    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(PSO::TRIANGLE));
+    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
-    Model model(myEngine.GetModelConfig(PSO::TRIANGLE));
+    Model model(myEngine.GetModelConfig());
     model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Model model2(myEngine.GetModelConfig(PSO::TRIANGLE));
+    Model model2(myEngine.GetModelConfig());
     model2.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Sphere sphere(myEngine.GetModelConfig(PSO::TRIANGLE));
+    Sphere sphere(myEngine.GetModelConfig());
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Vector3 scale = { 1.0f,1.0f,1.0f };

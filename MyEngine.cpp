@@ -134,16 +134,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         blendState,
         rasterizerState,
         depthStencil,
-        device,PSO::TRIANGLE);
-
-
-    psoLine.Create(rootSignature,
-        inputLayout,
-        dxcCompiler,
-        blendState,
-        rasterizerState,
-        depthStencil,
-        device, PSO::LINE);
+        device);
 
     Log(logStream, "CreatePSO");
 
@@ -179,22 +170,12 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     scissorRect = CreateScissorRect(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
 
-    modelConfig_[0] = {
+    modelConfig_ = {
         &commandList,
         &viewport,
         &scissorRect,
         &rootSignature,
         &pso,
-        directionalLightResource
-    };
-
-
-    modelConfig_[1] = {
-        &commandList,
-        &viewport,
-        &scissorRect,
-        &rootSignature,
-        &psoLine,
         directionalLightResource
     };
 

@@ -73,7 +73,7 @@ public:
     void End();
     Window& GetWC() { return wc; };
     CommandList& GetCommandList() { return commandList; };
-    ModelConfig& GetModelConfig(size_t index) { return modelConfig_[index]; };
+    ModelConfig& GetModelConfig() { return modelConfig_; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
 private:
@@ -109,7 +109,6 @@ private:
     RasterizerState rasterizerState = {};
     DepthStencil depthStencil = {};
     PSO pso = {};
-    PSO psoLine = {};
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
@@ -122,6 +121,6 @@ private:
 #endif // _DEBUG
 
     TransitionBarrier barrier = {};
-    ModelConfig modelConfig_[2] = {};
+    ModelConfig modelConfig_ = {};
 };
 
