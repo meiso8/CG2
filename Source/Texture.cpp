@@ -14,10 +14,18 @@ DirectX::ScratchImage LoadTexture(const std::string& filePath) {
     HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
     assert(SUCCEEDED(hr));
 
+    const DirectX::TexMetadata metadata = image.GetMetadata();
+
     //ミニマップの作成
     DirectX::ScratchImage mipImages{};
-    hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-    assert(SUCCEEDED(hr));
+
+    if (metadata.width > 1 || metadata.height > 1) {
+        hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+        
+        assert(SUCCEEDED(hr));
+    } else {
+        mipImages = std::move(image); // そのまま使う
+    }
 
     //ミニマップ付きのデータを返す
     return mipImages;
@@ -50,7 +58,9 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(
         D3D12_RESOURCE_STATE_COPY_DEST,// データ転送される設定
         nullptr,//Clear最適地。使わない
         IID_PPV_ARGS(&resource));//ポインタのポインタ
+
     assert(SUCCEEDED(hr));
+
     return resource;
 
 }

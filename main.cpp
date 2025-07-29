@@ -60,7 +60,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture2.Load("resources/uvChecker.png");
+    texture2.Load("resources/white1x1.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv2 = {};

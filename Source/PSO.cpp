@@ -18,8 +18,8 @@ void PSO::Create(
         graphicsPipelineStateDesc[i].InputLayout = inputLayout.GetDesc();//InputLayout
         graphicsPipelineStateDesc[i].VS = { dxcCompiler.GetVertexShaderBlob()->GetBufferPointer(),
        dxcCompiler.GetVertexShaderBlob()->GetBufferSize() };//VertexShader
-        graphicsPipelineStateDesc[i].PS = { dxcCompiler.GetPixelShaderBlob()->GetBufferPointer(),
-       dxcCompiler.GetPixelShaderBlob()->GetBufferSize() };//PixelShader
+        graphicsPipelineStateDesc[i].PS = { dxcCompiler.GetPixelShaderBlob((i == TRIANGLE)? DxcCompiler::NORMAL: DxcCompiler::MONO)->GetBufferPointer(),
+       dxcCompiler.GetPixelShaderBlob((i == TRIANGLE) ? DxcCompiler::NORMAL : DxcCompiler::MONO)->GetBufferSize() };//PixelShader
         graphicsPipelineStateDesc[i].BlendState = blendState.GetDesc();//BlendState
         graphicsPipelineStateDesc[i].RasterizerState = rasterizerState.GetDesc();//RasterizerState
         //書き込むRTVの情報

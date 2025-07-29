@@ -117,7 +117,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     Log(logStream, "SetRasterizerState");
 
 #pragma region//ShaderをCompileする
-    dxcCompiler.ShaderSeting();
+    dxcCompiler.ShaderSetting();
     Log(logStream, "CompileShader");
 #pragma endregion
 
