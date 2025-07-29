@@ -34,9 +34,9 @@ void DxcCompiler::ShaderSetting() {
         L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
     assert(pixelShaderBlob_[NORMAL] != nullptr);
 
-    pixelShaderBlob_[MONO] = CompileShader(L"resources/shader/MONO.PS.hlsl",
+    pixelShaderBlob_[BLUR] = CompileShader(L"resources/shader/Blur.hlsl",
         L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-    assert(pixelShaderBlob_[MONO] != nullptr);
+    assert(pixelShaderBlob_[BLUR] != nullptr);
 
 }
 
