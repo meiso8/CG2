@@ -88,6 +88,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MSG msg{};
 
+    Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
+
     Vector2 speed = { 2.0f,2.0f };
     size_t currentIndex = 0;
     Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
@@ -213,7 +215,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
 #pragma region //描画
-            myEngine.PreCommandSet();
+
+
+            myEngine.PreCommandSet(worldColor);
 
             grid.Draw(srv2);
 

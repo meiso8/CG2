@@ -218,7 +218,7 @@ void MyEngine::Update() {
 
 }
 
-void MyEngine::PreCommandSet() {
+void MyEngine::PreCommandSet(Vector4& color) {
 #ifdef _DEBUG
     //ImGuiの内部コマンドを生成する
     imGuiClass.Render();
@@ -244,7 +244,7 @@ void MyEngine::PreCommandSet() {
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     commandList.GetComandList()->OMSetRenderTargets(1, &rtvClass.GetHandle(backBufferIndex), false, &dsvHandle);
     //3.指定した色で画面全体をクリアする
-    float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色。RGBAの順
+    float clearColor[] = { color.x,color.y,color.z,color.w };//青っぽい色。RGBAの順
     commandList.GetComandList()->ClearRenderTargetView(rtvClass.GetHandle(backBufferIndex), clearColor, 0, nullptr);
 
     //指定した深度で画面全体をクリアする

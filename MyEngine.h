@@ -68,7 +68,7 @@ class MyEngine {
 public:
     void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
     void Update();
-    void PreCommandSet();
+    void PreCommandSet(Vector4& color);
     void PostCommandSet();
     void End();
     Window& GetWC() { return wc; };
