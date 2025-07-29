@@ -15,7 +15,8 @@
 #include"MaterialResource.h"  
 #include"math/Vector2.h"  
 #include"RootSignature.h"  
-
+#include"../Header/Balloon.h"
+#include"../Header/Wave.h"
 class Line
 {
 public:
@@ -64,6 +65,12 @@ private:
     TransformationMatrix* transformationMatrixData_ = nullptr;
 
     MaterialResource materialResource_{};
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
+    Balloon* expansionData_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
+    Wave* waveData = nullptr;
 
     ModelConfig modelConfig_{};
 

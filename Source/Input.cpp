@@ -4,9 +4,11 @@
 #pragma comment(lib,"dxguid.lib")
 
 #include"../Header/Log.h"
-#define FPS 120
+#include"../Header/Camera.h"
 
-HRESULT Input::Initialize(Window& window) {
+HRESULT Input::Initialize(Window& window,int& fps) {
+
+    fps_ = &fps;
 
     HRESULT result;
     //DirectInputの初期化 ゲームパッドを追加するにしてもこのオブジェクトは一つでよい。
@@ -132,9 +134,43 @@ Vector2& Input::GetMousePos() {
 }
 
 float Input::GetMouseWheel() {
-    mouseWheelVol_ += static_cast<float>(mouseState_.lZ) / FPS;
+    mouseWheelVol_ += static_cast<float>(mouseState_.lZ) / *fps_;
     return mouseWheelVol_;
 };
+
+void Input::EyeOperation(Camera& camera) {
+
+    if (IsPressMouse(2) && IsPushKey(DIK_LSHIFT)) {
+        //視点の移動 offset をずらす
+        //後でoffsetをくわえる
+        offset_ += GetMousePos();
+        camera.SetOffset({ offset_.x / *fps_ ,offset_.y / *fps_ * 2.0f });
+    } else if (IsPressMouse(2)) {
+        //視点の回転
+        //中ボタン押し込み&&ドラッグ
+        isDragging_ = true;
+    }
+
+    //マウススクロールする //初期位置-10
+    shericalCoordinate_.radius = -10 + GetMouseWheel();
+
+    if (!IsPressMouse(2)) {
+        isDragging_ = false;
+    }
+
+    if (isDragging_) {
+        currentPos_ = GetMousePos();
+        shericalCoordinate_.polar += currentPos_.x / *fps_;
+        shericalCoordinate_.azimuthal += currentPos_.y / *fps_;
+        camera.SetRotateY(shericalCoordinate_.polar);
+        camera.SetRotateZ(shericalCoordinate_.azimuthal);
+    }
+
+    pos_ = TransformCoordinate(shericalCoordinate_);
+
+    camera.SetTarnslate(pos_);
+
+}
 
 Input::~Input() {
 

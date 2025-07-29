@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include"../Header/Texture.h"
 #include"../Header/Camera.h"
 #include"../Header/ModelData.h"
@@ -7,42 +10,37 @@
 #include"../Header/Balloon.h"
 #include"../Header/Wave.h"
 
-class Model
+class Sphere
 {
 public:
 
-    Model(ModelConfig mc)
+    Sphere(ModelConfig mc)
         : modelConfig_(mc)
     {
     }
 
     void Create(
-        const std::string& directoryPath,
-        const std::string& filename,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void PreDraw();
-    void Draw(const Matrix4x4& worldMatrix, Camera& camera);
+    void Draw(
+        const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv);
 
-    Material* GetMaterial() { return materialResource_.GetMaterial(); };
+    Material* GetMaterial() { return materialResource_.GetMaterial(); }
 
-    VertexData* GetVertexData() {
-        return vertexData_;
-    }
-
-    Balloon& GetExpansionData() {
-        return *expansionData_;
-    }
-
-    Wave& GetWaveData(size_t index) { return waveData_[index]; };
+    VertexData* GetVertexData() { return vertexData_; }
+    Transform& GetUVTransform() { return uvTransform_; }
 
     void SetColor(const Vector4& color);
+    void UpdateUV();
 
-    ~Model();
+    ~Sphere();
 
 private:
+    void CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
     void CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
+    void CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 private:
     ShaderResourceView srv_;
 
@@ -55,13 +53,6 @@ private:
 
     Matrix4x4 worldViewProjectionMatrix_ = { 0.0f };
     MaterialResource materialResource_;
-    ModelData modelData_;
-
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-    Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-    VertexData* vertexData_ = nullptr;
-
-    Texture* texture_ = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource_;
     Balloon* expansionData_ = nullptr;
@@ -70,4 +61,17 @@ private:
     Wave* waveData_ = nullptr;
 
 
+    D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+    Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+    VertexData* vertexData_ = nullptr;
+
+    Transform uvTransform_ = { 0.0f };
+    Matrix4x4 uvTransformMatrix_{};
+
+    Texture* texture_ = nullptr;
+
+    const uint32_t kSubdivision_ = 16;//分割数
+
 };
+
+

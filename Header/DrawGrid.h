@@ -1,6 +1,7 @@
 #pragma once
 
 #include"Line.h"
+#include"Cube.h"
 
 class DrawGrid {
 public:
@@ -8,5 +9,5 @@ public:
     void Draw(ShaderResourceView& srv);
 private:
     Line line_[102];
-
+    Cube cube_[2];
 };

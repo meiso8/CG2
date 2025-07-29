@@ -1,6 +1,8 @@
 #include<numbers>
 #include"MyEngine.h"
 
+#include"FPSCounter.h"
+
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
@@ -8,11 +10,13 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"EEZEngine", WIN_WIDTH, WIN_HEIGHT);
+
+    FPSCounter fpsCounter;
 
     Input input;
     //入力
-    input.Initialize(myEngine.GetWC());
+    input.Initialize(myEngine.GetWC(),fpsCounter.GetFPS());
 
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
@@ -26,6 +30,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     SoundData soundData2 = sound.SoundLoad(L"resources/dreamcore.mp3");
 
 #pragma endregion
+
+    DebugUI debugUI;
+
 
 #pragma region//Camera
 
@@ -46,14 +53,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 
     Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture.Load("resources/uvChecker.png");
+    texture.Load("resources/dvd.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv = {};
     srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture2.Load("resources/white2x2.png");
+    texture2.Load("resources/uvChecker.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv2 = {};
@@ -63,19 +70,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Sprite sprite;
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
+    sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig());
-    model.Create("resources/cube", "cube.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
+    Model model2(myEngine.GetModelConfig());
+    model2.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
+    Sphere sphere(myEngine.GetModelConfig());
+    sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Vector2 offset = { 0.0f,0.0f };
-    Vector2 currentPos = { 0.0f };
-    Vector2 delta = { 0.0f };
-    Vector3 pos = { 0.0f };
-    ShericalCoordinate sc = { 0.0f,0.0f,0.0f };
+    Vector3 scale = { 1.0f,1.0f,1.0f };
+    Vector3 rotation = { 0.0f,0.0f,0.0f };
+    Vector3 translation = { 0.0f,0.0f,0.0f };
+    Matrix4x4 modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
 
     MSG msg{};
+
+    Vector2 speed = { 2.0f,2.0f };
+    size_t currentIndex = 0;
+    Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
+    float timer = 0.0f;
+    float t = timer / 2.0f;
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -94,52 +111,75 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //エンジンのアップデート
             myEngine.Update();
 
+            fpsCounter.Update();
+
 #pragma region //ゲームの処理
 
 #ifdef _DEBUG
 
-            ImGui::Begin("Input");
-            ImGui::SliderFloat("polar", &sc.polar, -10.0f, 10.0f);
-            ImGui::SliderFloat("azimuthal", &sc.azimuthal, -10.0f, 10.0f);
-            ImGui::SliderFloat("radius", &sc.radius, -100.0f, 100.0f);
-            ImGui::SliderFloat3("camera", &camera.GetRotate().x, -3.14f, 3.14f);
-            ImGui::SliderFloat2("startPos", &offset.x, -100.0f, 100.0f);
-            ImGui::SliderFloat2("currentPos", &currentPos.x, -100.0f, 100.0f);
+            {
+
+                ImGui::Text("FPS : %d", fpsCounter.GetFPS());
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
+                static char str0[128] = "Hello, world!";
+                ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+
+                const char* items[] = { "1", "2", "3" };
+                static int item_current = 0;
+
+                ImGui::Combo("Sprite", &item_current, items, IM_ARRAYSIZE(items));
+
+                if (ImGui::BeginMenu("file")) {
+                    if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
+                    if (ImGui::BeginMenu("open")) {
+                        if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
+                        if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenu();
+                }
+
+            }
+
+            ImGui::Begin("ModelWorldMatrix");
+            ImGui::SliderFloat3("translation", &translation.x, -10.0f, 10.0f);
+            ImGui::SliderFloat3("rotation", &rotation.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+            ImGui::SliderFloat3("scale", &scale.x, 0.0f, 10.0f);
             ImGui::End();
+            modelWorldMat = MakeAffineMatrix(scale, rotation, translation);
+
+            debugUI.SphereUpdate(sphere);
+            debugUI.SpriteUpdate(sprite);
+            debugUI.ModelUpdate(model2);
+            debugUI.InputUpdate(input);
+
+            sphere.UpdateUV();
 #endif
 
-#pragma region//視点操作
-            if (input.IsPressMouse(2) && input.IsPushKey(DIK_LSHIFT)) {
-                //視点の移動 offset をずらす
-                //後でoffsetをくわえる
-                offset += input.GetMousePos();
-                camera.SetOffset({ offset.x / 120,offset.y / 60 });
-            } else if (input.IsPressMouse(2)) {
-                //視点の回転
-                //中ボタン押し込み&&ドラッグ
-                input.isDragging_ = true;
+            timer++;
+            t = timer / 120.0f;
+
+            sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
+
+            if (t >= 1.0f) {
+                currentIndex = (currentIndex + 1) % 4;
+                timer = 0.0f;
             }
 
-            //マウススクロールする //初期位置-10
-            sc.radius = -10 + input.GetMouseWheel();
+            sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
 
-            if (!input.IsPressMouse(2)) {
-                input.isDragging_ = false;
+            if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
+                speed.x *= -1.0f;
             }
 
-            if (input.isDragging_) {
-                currentPos = input.GetMousePos();
-                sc.polar += currentPos.x / 120;
-                sc.azimuthal += currentPos.y / 120;
-                camera.SetRotateY(sc.polar);
-                camera.SetRotateZ(sc.azimuthal);
+            if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
+                speed.y *= -1.0f;
             }
 
-            pos = TransformCoordinate(sc);
+            sprite.Update();
 
-            camera.SetTarnslate(pos);
-
-#pragma endregion
+            //視点操作
+            input.EyeOperation(camera);
 
             if (input.IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -147,11 +187,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             if (input.IsTriggerKey(DIK_2)) {
-                //音声データの解放
-              /*  sound.SoundUnload(&soundData1);*/
-            }
-
-            if (input.IsTriggerKey(DIK_3)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
             }
@@ -177,20 +212,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
-
+#pragma region //描画
             myEngine.PreCommandSet();
-
-
-#pragma region //Modelを描画する
 
             grid.Draw(srv2);
 
             model.PreDraw();
-            model.Draw(MakeIdentity4x4(), camera);
 
-#pragma endregion
+            //model.Draw(MakeIdentity4x4(), camera);
+
+            model2.Draw(MakeIdentity4x4(), camera);
+
+            sphere.Draw(modelWorldMat, camera, srv);
+
+            sprite.Draw(srv);
+
 
             myEngine.PostCommandSet();
+#pragma endregion
 
         }
     }

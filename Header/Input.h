@@ -5,10 +5,13 @@
 #include<cstdint>
 #include"../Header/math/Vector2.h"
 #include"../Header/Window.h"
+#include"../Header/math/SphericalCoordinate.h"
+
+class Camera;
 
 class Input {
 public:
-    HRESULT Initialize(Window& window);
+    HRESULT Initialize(Window& window, int& fps);
 
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
@@ -29,6 +32,13 @@ public:
     Vector2& GetMousePos();
     float GetMouseWheel();
 
+    void EyeOperation(Camera& camera);
+
+    Vector2& GetOffset() { return offset_; }
+    Vector2& GetCurrentPos() { return currentPos_; }
+    Vector3& GetPos() { return pos_; }
+    ShericalCoordinate& GetSc() { return shericalCoordinate_; }
+
 public:
     IDirectInputDevice8* keyboard_ = nullptr;
     //全キー入力状態を取得する
@@ -40,4 +50,13 @@ public:
     DIMOUSESTATE mouseState_bak_ = {};	// マウス情報(変化検知用)
     float mouseWheelVol_ = 0;
     bool isDragging_ = false;
+
+
+    Vector2 offset_ = { 0.0f,0.0f };
+    Vector2 currentPos_ = { 0.0f };
+    Vector3 pos_ = { 0.0f };
+    ShericalCoordinate shericalCoordinate_ = { 0.0f,0.0f,0.0f };
+
+    int* fps_ = 0;
+
 };

@@ -28,6 +28,7 @@
 #include"Header/ShaderResourceView.h"
 #include"Header/Model.h"
 #include"Header/Sprite.h"
+#include"Header/Sphere.h"
 #include"Header/Line.h"
 #include"Header/Sound.h"
 #include"Header/Input.h"
@@ -54,18 +55,18 @@
 #include"Header/math/MakeOrthographicMatrix.h"
 #include"Header/math/Multiply.h"
 #include"Header/math/SphericalCoordinate.h"
-
-#include"Header/Wave.h"//波打ちアニメーション用
-#include"Header/Balloon.h"
+#include"Header/math/Lerp.h"
 
 #include"Header/DrawGrid.h"
 #include"Header/Cube.h"
+
+#include"Header/DebugUI.h"
 
 #pragma endregion
 
 class MyEngine {
 public:
-    void Create(int32_t clientWidth, int32_t clientHeight);
+    void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
     void Update();
     void PreCommandSet();
     void PostCommandSet();
@@ -108,11 +109,6 @@ private:
     RasterizerState rasterizerState = {};
     DepthStencil depthStencil = {};
     PSO pso = {};
-
-    Microsoft::WRL::ComPtr <ID3D12Resource> waveResource = nullptr;
-    Wave* waveData = nullptr;
-    Microsoft::WRL::ComPtr <ID3D12Resource> expansionResource = nullptr;
-    Balloon* expansionData = nullptr;
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};

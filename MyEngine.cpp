@@ -1,6 +1,6 @@
 #include "MyEngine.h"
 
-void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
+void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t clientHeight) {
 
     clientWidth_ = clientWidth;
     clientHeight_ = clientHeight;
@@ -16,7 +16,7 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
     logStream = logFile.CreateLogFile();
 
     //WindowClassの生成
-    wc.Create(clientWidth, clientHeight);
+    wc.Create(title,clientWidth, clientHeight);
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成
@@ -109,7 +109,7 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
 #pragma endregion
 
     //BlendStateの設定を行う
-    blendState.Create(false);
+    blendState.Create(true);
     Log(logStream, "SetBlendState");
 
     //RasterizerStateの設定を行う
@@ -135,44 +135,9 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
         rasterizerState,
         depthStencil,
         device);
+
     Log(logStream, "CreatePSO");
 
-#pragma region//time
-
-    int waveCount = 2;
-
-    waveResource = CreateBufferResource(device, sizeof(Wave) * waveCount);
-
-    //データを書き込む
-
-    //書き込むためのアドレスを取得
-    waveResource->Map(0, nullptr, reinterpret_cast<void**>(&waveData));
-
-    waveData[0].direction = { 1.0f,0.0f,0.0f };
-    waveData[0].time = 0.0f;
-    waveData[0].amplitude = 0.0f;
-    waveData[0].frequency = 4;
-
-    waveData[1].direction = { 1.0f,0.0f,0.0f };
-    waveData[1].time = 0.0f;
-    waveData[1].amplitude = 0.0f;
-    waveData[1].frequency = 4;
-
-#pragma endregion
-
-#pragma region//Balloon
-
-    expansionResource = CreateBufferResource(device, sizeof(Balloon));
-
-    //書き込むためのアドレスを取得
-    expansionResource->Map(0, nullptr, reinterpret_cast<void**>(&expansionData));
-    //データを書き込む
-    expansionData->expansion = 0.0f;
-    expansionData->sphere = 0.0f;
-    expansionData->cube = 0.0f;
-    expansionData->isSphere = false;
-
-#pragma endregion
 
 #pragma region//stencileTextureResourceの作成
     depthStencilResource = CreateDepthStencileTextureResource(device, clientWidth_, clientHeight_);
@@ -211,10 +176,9 @@ void MyEngine::Create(int32_t clientWidth, int32_t clientHeight) {
         &scissorRect,
         &rootSignature,
         &pso,
-        directionalLightResource,
-        waveResource,
-        expansionResource
+        directionalLightResource
     };
+
 
 #ifdef _DEBUG
     //ImGuiの初期化。
@@ -238,7 +202,6 @@ void MyEngine::Update() {
 
 #ifdef _DEBUG
 
-
 #pragma region//Lightを設定
     Vector3 direction = directionalLightData->direction;
 
@@ -250,32 +213,6 @@ void MyEngine::Update() {
     ImGui::DragFloat("intensity", &directionalLightData->intensity);
     ImGui::End();
 #pragma endregion
-
-    ImGui::Begin("Wave1");
-    ImGui::DragFloat("time1", &waveData[0].time, 0.03f);
-    ImGui::DragFloat("amplitude1", &waveData[0].amplitude, 0.03f);
-    ImGui::DragFloat3("direction1", &waveData[0].direction.x, 0.03f, 0.0f, 1.0f);
-    ImGui::SliderFloat("frequency1", &waveData[0].frequency, 1.0f, 10.0f);
-    ImGui::End();
-    Vector3 waveDirection1 = waveData[0].direction;
-    waveData[0].direction = Normalize(waveDirection1);
-
-    ImGui::Begin("Wave2");
-    ImGui::DragFloat("time2", &waveData[1].time, 0.03f);
-    ImGui::DragFloat("amplitude2", &waveData[1].amplitude, 0.03f);
-    ImGui::DragFloat3("direction2", &waveData[1].direction.x, 0.03f, 0.0f, 1.0f);
-    ImGui::SliderFloat("frequency2", &waveData[1].frequency, 1.0f, 10.0f);
-    ImGui::End();
-    Vector3 waveDirection2 = waveData[1].direction;
-    waveData[1].direction = Normalize(waveDirection2);
-
-    ImGui::Begin("expansion");
-    ImGui::DragFloat("expansionData", &expansionData->expansion, 0.03f);
-    ImGui::DragFloat("sphere", &expansionData->sphere, 0.03f, 0.0f, 1.0f);
-    ImGui::DragFloat("cube", &expansionData->cube, 0.03f, 0.0f, 1.0f);
-    ImGui::Checkbox("isSphere", &expansionData->isSphere);
-
-    ImGui::End();
 
 #endif
 

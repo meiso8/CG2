@@ -5,6 +5,10 @@ Vector3 Multiply(const float scalar, const Vector3& v) {
     return { scalar * v.x,scalar * v.y,scalar * v.z };
 };
 
+Vector4 Multiply(const float scalar, const Vector4& v) {
+    return { scalar * v.x,scalar * v.y,scalar * v.z,scalar * v.w };
+};
+
 
 //行列の積
 Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {

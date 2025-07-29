@@ -10,6 +10,4 @@ struct ModelConfig {
     RootSignature* rootSignature;
     PSO* pso;
     Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource;
-    Microsoft::WRL::ComPtr<ID3D12Resource> waveResource;
-    Microsoft::WRL::ComPtr<ID3D12Resource> expansionResource;
 };
