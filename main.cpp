@@ -76,19 +76,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     srv3.Create(texture3, 4, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
 
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig());
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(0));
 
     Sprite sprite;
-    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig());
+    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
-    Model model(myEngine.GetModelConfig());
+    Model model(myEngine.GetModelConfig(0));
     model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Model bunnyModel(myEngine.GetModelConfig());
+    Model bunnyModel(myEngine.GetModelConfig(0));
     bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Sphere sphere(myEngine.GetModelConfig());
+    Sphere sphere(myEngine.GetModelConfig(1));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Vector3 scale[3] = {};
@@ -104,11 +104,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     scale[1] = { 10.0f,10.0f,10.0f };
+    scale[2] = { 2.5f,2.5f,2.5f };
+    translation[2] = { 0.0f,1.0f,0.0f };
 
     MSG msg{};
 
     bool isExpansion = false;
     float expansionSpeed = 1.0f / 120.0f;
+    float toCubeSpeed = 1.0f / 240.0f;
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -189,16 +192,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             ImGui::End();
 
-            rotation[0].y += 1.0f / 60.0f;
-
-            worldMat[0] = MakeAffineMatrix(scale[0], rotation[0], translation[0]);
-            worldMat[1] = MakeAffineMatrix(scale[1], rotation[1], translation[1]);
-            worldMat[2] = MakeAffineMatrix(scale[2], rotation[2], translation[2]);
-
             debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
             debugUI.ModelUpdate(bunnyModel);
             debugUI.InputUpdate(input);
+
+
+#endif
+
+            rotation[0].y += 1.0f / 60.0f;
+            worldMat[0] = Multiply(MakeAffineMatrix(scale[0], rotation[0], translation[0]), MakeRotateYMatrix(rotation[0].y));
+            worldMat[1] = MakeAffineMatrix(scale[1], rotation[1], translation[1]);
+            worldMat[2] = MakeAffineMatrix(scale[2], rotation[2], translation[2]);
 
             sphere.SetUVScale({ 1.0f,50.0f,1.0f });
             sphere.GetUVTransform().translate += { 0.0f, 1.0f / 60.0f, 0.0f };
@@ -210,7 +215,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             if (isExpansion) {
                 bunnyModel.GetExpansionData().expansion += expansionSpeed;
-
+                sphere.GetExpansionData().expansion = -1.0f;
                 bool isSmall = bunnyModel.GetExpansionData().expansion <= 0.0f;
 
                 if (isSmall) {
@@ -218,15 +223,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     bunnyModel.GetExpansionData().expansion = 0.0f;
                 }
 
-                if (bunnyModel.GetExpansionData().expansion >= 1.0f || isSmall) {
+                if (bunnyModel.GetExpansionData().expansion >= 0.18f || isSmall) {
                     expansionSpeed *= -1.0f;
 
                 }
+
             }
 
-#endif
-
-
+            sphere.GetExpansionData().cube += toCubeSpeed;
+            if (sphere.GetExpansionData().cube <= 0.0f || sphere.GetExpansionData().cube >= 1.0f) {
+                toCubeSpeed *= -1.0f;
+            }
             sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
             sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
 
@@ -291,8 +298,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             model.Draw(worldMat[0], camera);
             bunnyModel.Draw(worldMat[1], camera);
+
+            sphere.PreDraw();
             sphere.Draw(worldMat[2], camera, srv3);
 
+            sprite.PreDraw();
             sprite.Draw(srv);
 
 

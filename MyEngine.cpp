@@ -109,7 +109,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
 #pragma endregion
 
     //BlendStateの設定を行う
-    blendState.Create(true);
+    blendState[0].Create(false);
+    blendState[1].Create(true);
     Log(logStream, "SetBlendState");
 
     //RasterizerStateの設定を行う
@@ -127,11 +128,20 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
 #pragma endregion
 
     //PSOを生成する
-    pso.Create(
+    pso[0].Create(
         rootSignature,
         inputLayout,
         dxcCompiler,
-        blendState,
+        blendState[0],
+        rasterizerState,
+        depthStencil,
+        device);
+
+    pso[1].Create(
+        rootSignature,
+        inputLayout,
+        dxcCompiler,
+        blendState[1],
         rasterizerState,
         depthStencil,
         device);
@@ -170,13 +180,21 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     scissorRect = CreateScissorRect(wc.GetClientWidth(), wc.GetClientHeight());
     Log(logStream, "ViewportAndScissor");
 
-    modelConfig_ = {
+    modelConfig_[0] = {
         &commandList,
         &viewport,
         &scissorRect,
         &rootSignature,
-        &pso,
+        &pso[0],
         directionalLightResource
+    };
+    modelConfig_[1] = {
+    &commandList,
+    &viewport,
+    &scissorRect,
+    &rootSignature,
+    &pso[1],
+    directionalLightResource
     };
 
 
@@ -206,7 +224,7 @@ void MyEngine::Update() {
     Vector3 direction = directionalLightData->direction;
 
     ImGui::Begin("DirectionalLight");
-    ImGui::DragFloat4("color", &directionalLightData->color.x);
+    ImGui::ColorEdit4("color", &directionalLightData->color.x);
     ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
     directionalLightData->direction = Normalize(direction);
 

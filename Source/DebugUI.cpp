@@ -70,4 +70,11 @@ void DebugUI::SphereUpdate(Sphere& sphere) {
     ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
     ImGui::ColorEdit4("color", &sphere.GetColor().x);
     ImGui::End();
+
+    ImGui::Begin("SphereExpansion");
+    ImGui::DragFloat("expansionData", &sphere.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
+    ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
+    ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
+    ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+    ImGui::End();
 }

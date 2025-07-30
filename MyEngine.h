@@ -53,6 +53,7 @@
 #include"Header/math/Inverse.h"
 #include"Header/math/MakePerspectiveFovMatrix.h"
 #include"Header/math/MakeOrthographicMatrix.h"
+#include"Header/math/MakeRotateMatrix.h"
 #include"Header/math/Multiply.h"
 #include"Header/math/SphericalCoordinate.h"
 #include"Header/math/Lerp.h"
@@ -73,7 +74,7 @@ public:
     void End();
     Window& GetWC() { return wc; };
     CommandList& GetCommandList() { return commandList; };
-    ModelConfig& GetModelConfig() { return modelConfig_; };
+    ModelConfig& GetModelConfig(size_t index) { return modelConfig_[index]; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
 private:
@@ -105,10 +106,10 @@ private:
     DxcCompiler dxcCompiler = {};
     RootSignature rootSignature = {};
     InputLayout inputLayout = {};
-    BlendState blendState = {};
+    BlendState blendState[2] = {};
     RasterizerState rasterizerState = {};
     DepthStencil depthStencil = {};
-    PSO pso = {};
+    PSO pso[2] = {};
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
@@ -121,6 +122,6 @@ private:
 #endif // _DEBUG
 
     TransitionBarrier barrier = {};
-    ModelConfig modelConfig_ = {};
+    ModelConfig modelConfig_[2] = {};
 };
 
