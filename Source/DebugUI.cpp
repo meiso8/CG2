@@ -13,17 +13,26 @@ void DebugUI::Update() {
 
 void DebugUI::ModelUpdate(Model& model) {
 
-    ImGui::Begin("Wave");
-    ImGui::DragFloat("time1", &model.GetWaveData(0).time, 0.03f);
-    ImGui::DragFloat("amplitude1", &model.GetWaveData(0).amplitude, 0.03f);
-    ImGui::DragFloat3("direction1", &model.GetWaveData(0).direction.x, 0.03f, 0.0f, 1.0f);
-    ImGui::SliderFloat("frequency1", &model.GetWaveData(0).frequency, 1.0f, 10.0f);
+    ImGui::Begin("Model");
 
-    ImGui::DragFloat("time2", &model.GetWaveData(1).time, 0.03f);
-    ImGui::DragFloat("amplitude2", &model.GetWaveData(1).amplitude, 0.03f);
-    ImGui::DragFloat3("direction2", &model.GetWaveData(1).direction.x, 0.03f, 0.0f, 1.0f);
-    ImGui::SliderFloat("frequency2", &model.GetWaveData(1).frequency, 1.0f, 10.0f);
-    ImGui::End();
+    if (ImGui::TreeNode("Wave")) {
+
+        ImGui::DragFloat("time", &model.GetWaveData(0).time, 0.03f);
+        ImGui::DragFloat("amplitude", &model.GetWaveData(0).amplitude, 0.03f);
+        ImGui::DragFloat3("direction", &model.GetWaveData(0).direction.x, 0.03f, 0.0f, 1.0f);
+        ImGui::SliderFloat("frequency", &model.GetWaveData(0).frequency, 1.0f, 10.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Wave2")) {
+        ImGui::DragFloat("time", &model.GetWaveData(1).time, 0.03f);
+        ImGui::DragFloat("amplitude", &model.GetWaveData(1).amplitude, 0.03f);
+        ImGui::DragFloat3("direction", &model.GetWaveData(1).direction.x, 0.03f, 0.0f, 1.0f);
+        ImGui::SliderFloat("frequency", &model.GetWaveData(1).frequency, 1.0f, 10.0f);
+
+        ImGui::TreePop();
+    }
+
 
     Vector3 waveDirection1 = model.GetWaveData(0).direction;
     model.GetWaveData(0).direction = Normalize(waveDirection1);
@@ -31,14 +40,16 @@ void DebugUI::ModelUpdate(Model& model) {
     Vector3 waveDirection2 = model.GetWaveData(1).direction;
     model.GetWaveData(1).direction = Normalize(waveDirection2);
 
-    ImGui::Begin("expansion");
-    ImGui::DragFloat("expansionData", &model.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
-    ImGui::DragFloat("sphere", &model.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
-    ImGui::DragFloat("cube", &model.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
-    ImGui::Checkbox("isSphere", &model.GetExpansionData().isSphere);
+    if (ImGui::TreeNode("Expansion")) {
 
+        ImGui::DragFloat("expansionData", &model.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
+        ImGui::DragFloat("sphere", &model.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
+        ImGui::DragFloat("cube", &model.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
+        ImGui::Checkbox("isSphere", &model.GetExpansionData().isSphere);
+
+        ImGui::TreePop();
+    }
     ImGui::End();
-
 
 }
 

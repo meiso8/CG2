@@ -178,17 +178,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             ImGui::Begin("WorldMatrix");
-            ImGui::SliderFloat3("0:translation", &translation[0].x, -10.0f, 10.0f);
-            ImGui::SliderFloat3("0:rotation", &rotation[0].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("0:scale", &scale[0].x, 0.0f, 10.0f);
 
-            ImGui::SliderFloat3("1:translation", &translation[1].x, -10.0f, 10.0f);
-            ImGui::SliderFloat3("1:rotation", &rotation[1].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("1:scale", &scale[1].x, 0.0f, 10.0f);
+            if (ImGui::TreeNode("0")) {
+                ImGui::SliderFloat3("translation", &translation[0].x, -10.0f, 10.0f);
+                ImGui::SliderFloat3("rotation", &rotation[0].x, 0.0f, std::numbers::pi_v<float>*2.0f);
+                ImGui::SliderFloat3("scale", &scale[0].x, 0.0f, 10.0f);
+                ImGui::TreePop();
+            }
 
-            ImGui::SliderFloat3("2:translation", &translation[2].x, -10.0f, 10.0f);
-            ImGui::SliderFloat3("2:rotation", &rotation[2].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-            ImGui::SliderFloat3("2:scale", &scale[2].x, 0.0f, 10.0f);
+            if (ImGui::TreeNode("1")) {
+                ImGui::SliderFloat3("translation", &translation[1].x, -10.0f, 10.0f);
+                ImGui::SliderFloat3("rotation", &rotation[1].x, 0.0f, std::numbers::pi_v<float>*2.0f);
+                ImGui::SliderFloat3("scale", &scale[1].x, 0.0f, 10.0f);
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("2")) {
+                ImGui::SliderFloat3("translation", &translation[2].x, -10.0f, 10.0f);
+                ImGui::SliderFloat3("rotation", &rotation[2].x, 0.0f, std::numbers::pi_v<float>*2.0f);
+                ImGui::SliderFloat3("scale", &scale[2].x, 0.0f, 10.0f);
+                ImGui::TreePop();
+            }
 
             ImGui::End();
 
