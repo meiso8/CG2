@@ -9,7 +9,7 @@
 class MaterialResource {
 
 public:
-    void CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device, bool lighting);
+    void CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device, uint32_t lightType);
     Material* GetMaterial() {
         return materialData_;
     };

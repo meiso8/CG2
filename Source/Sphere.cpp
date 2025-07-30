@@ -137,7 +137,7 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 void Sphere::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
-    materialResource_.CreateMaterial(device, true);
+    materialResource_.CreateMaterial(device, 2);
 
 }
 

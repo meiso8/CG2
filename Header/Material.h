@@ -5,7 +5,7 @@
 
 struct Material {
     Vector4 color;
-    int32_t enableLighting;
+    int32_t lightType;
     float padding[3];
     Matrix4x4 uvTransform;
 };

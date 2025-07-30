@@ -5,6 +5,7 @@
 #include"../Header/math/MakeAffineMatrix.h"
 #include"../Header/math/Multiply.h"
 #include"../Header/math/Transform.h"
+#include"../Header/math/MakeIdentity4x4.h"
 #include<numbers>
 
 void Model::Create(
@@ -37,6 +38,15 @@ void Model::Create(
 
     //これだとダメだわ
     srv_.Create(*texture_, index, device, srvDescriptorHeap);
+
+    uvTransform_ = {
+        {1.0f,1.0f,1.0f},
+        {0.0f,0.0f,0.0f},
+        {0.0f,0.0f,0.0f},
+    };
+
+    uvTransformMatrix_ = MakeIdentity4x4();
+
 
 
 #pragma region//time
@@ -85,6 +95,13 @@ void Model::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& de
     //書き込むためのアドレスを取得
     wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate_));
 };
+
+void Model::UpdateUV() {
+
+    uvTransformMatrix_ = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
+    materialResource_.SetUV(uvTransformMatrix_);
+}
+
 
 void Model::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);

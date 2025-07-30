@@ -83,10 +83,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig(0));
-    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),3);
+    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 3);
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),5);
+    bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
 
     Sphere sphere(myEngine.GetModelConfig(1));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
@@ -204,7 +204,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
-            debugUI.ModelUpdate(bunnyModel);
+
+            debugUI.ModelUpdate(model);
             debugUI.InputUpdate(input);
 
 
@@ -222,6 +223,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             bunnyModel.GetWaveData(0).amplitude = 1.0f / 64.0f;
             bunnyModel.GetWaveData(0).time += 1.0f / 60.0f;
+
+            model.UpdateUV();
 
             if (isExpansion) {
                 bunnyModel.GetExpansionData().expansion += expansionSpeed;

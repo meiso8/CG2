@@ -6,6 +6,7 @@
 #include"../Header/Config.h"
 #include"../Header/Balloon.h"
 #include"../Header/Wave.h"
+#include"../Header/math/Transform.h"
 
 class Model
 {
@@ -22,6 +23,8 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap, uint32_t index);
 
+    void UpdateUV();
+
     void PreDraw();
     void Draw(const Matrix4x4& worldMatrix, Camera& camera);
 
@@ -36,7 +39,8 @@ public:
     }
 
     Wave& GetWaveData(size_t index) { return waveData_[index]; };
-
+    Transform& GetUVTransform() { return uvTransform_; }
+    Vector4& GetColor() { return materialResource_.GetMaterial()->color; }
     void SetColor(const Vector4& color);
 
     ~Model();
@@ -69,5 +73,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
     Wave* waveData_ = nullptr;
 
+    Transform uvTransform_;
+    Matrix4x4 uvTransformMatrix_{};
 
 };

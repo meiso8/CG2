@@ -145,7 +145,7 @@ void Line::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>
 void Line::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
-    materialResource_.CreateMaterial(device, false);
+    materialResource_.CreateMaterial(device, 0);
 
 }
 

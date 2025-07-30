@@ -49,6 +49,19 @@ void DebugUI::ModelUpdate(Model& model) {
 
         ImGui::TreePop();
     }
+
+
+    if (ImGui::TreeNode("UV")) {
+
+        ImGui::SliderFloat3("Translate", &model.GetUVTransform().translate.x, -100.0f, 100.0f);
+        ImGui::SliderFloat3("Rotation", &model.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("Scale", &model.GetUVTransform().scale.x, 0.0f, 100.0f);
+        ImGui::ColorEdit4("color", &model.GetColor().x);
+        ImGui::TreePop();
+    }
+
+    ImGui::SliderInt("lightType", &model.GetMaterial()->lightType, 0, 2);
+
     ImGui::End();
 
 }
@@ -87,5 +100,7 @@ void DebugUI::SphereUpdate(Sphere& sphere) {
     ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
     ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
     ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+    ImGui::SliderInt("lightType", &sphere.GetMaterial()->lightType, 0, 2);
+
     ImGui::End();
 }
