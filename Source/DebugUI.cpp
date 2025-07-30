@@ -67,6 +67,7 @@ void DebugUI::SphereUpdate(Sphere& sphere) {
     ImGui::Begin("Sphere");
     ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
     ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-    ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 10.0f);
+    ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
+    ImGui::ColorEdit4("color", &sphere.GetColor().x);
     ImGui::End();
 }
