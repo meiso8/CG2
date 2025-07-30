@@ -11,7 +11,7 @@ void Model::Create(
     const std::string& directoryPath,
     const std::string& filename,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {
 
     //マテリアルの作成
     materialResource_.CreateMaterial(device, true);
@@ -36,7 +36,7 @@ void Model::Create(
     texture_->Load(modelData_.material.textureFilePath);
 
     //これだとダメだわ
-    srv_.Create(*texture_, 3, device, srvDescriptorHeap);
+    srv_.Create(*texture_, index, device, srvDescriptorHeap);
 
 
 #pragma region//time

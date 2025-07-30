@@ -83,10 +83,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig(0));
-    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),3);
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),5);
 
     Sphere sphere(myEngine.GetModelConfig(1));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
@@ -225,7 +225,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             if (isExpansion) {
                 bunnyModel.GetExpansionData().expansion += expansionSpeed;
-                sphere.GetExpansionData().expansion = -1.0f;
+
                 bool isSmall = bunnyModel.GetExpansionData().expansion <= 0.0f;
 
                 if (isSmall) {

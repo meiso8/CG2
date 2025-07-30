@@ -20,7 +20,7 @@ public:
         const std::string& directoryPath,
         const std::string& filename,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
+        const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap, uint32_t index);
 
     void PreDraw();
     void Draw(const Matrix4x4& worldMatrix, Camera& camera);
