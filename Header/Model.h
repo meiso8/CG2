@@ -25,7 +25,7 @@ public:
 
     void UpdateUV();
 
-    void PreDraw();
+    void PreDraw(PSO::PSOType type);
     void Draw(const Matrix4x4& worldMatrix, Camera& camera);
 
     Material* GetMaterial() { return materialResource_.GetMaterial(); };

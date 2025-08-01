@@ -21,7 +21,7 @@ class DxcCompiler
 public:
     enum PSType {
         NORMAL,
-        BLUR,
+        NONE_TEX,
         PS_MAX
     };
     void Initialize();

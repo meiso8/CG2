@@ -46,7 +46,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-5.0f } };
+    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f } };
     camera.SetTransform(cameraTransform);
     camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
 
@@ -161,10 +161,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             timer++;
             float t = timer / 240.0f;
 
+            static int light_current = 2;
+
             if (t >= 1.0f) {
                 currentIndex = (currentIndex + 1) % 4;
                 timer = 0.0f;
                 t = 0.0f;
+                light_current++;
             }
 
 #ifdef _DEBUG
@@ -203,13 +206,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 ImGui::DragFloat("intensity", &myEngine.GetDirectionalLightData().intensity);
 
                 const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
-                static int light_current = 2;
+ 
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                sphere.GetMaterial()->lightType = light_current;
-                bunnyModel.GetMaterial()->lightType = light_current;
-                model.GetMaterial()->lightType = light_current;
-                multiMesh.GetMaterial()->lightType = light_current;
+                sphere.GetMaterial()->lightType = light_current%3;
+                bunnyModel.GetMaterial()->lightType = light_current%3;
+                model.GetMaterial()->lightType = light_current%3;
+                multiMesh.GetMaterial()->lightType = light_current%3;
 
                 ImGui::End();
             }
@@ -331,11 +334,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             grid.Draw(srv2);
 
-            model.PreDraw();
+            model.PreDraw(PSO::TRIANGLE);
 
             model.Draw(worldMat[TEAPOT], camera);
             bunnyModel.Draw(worldMat[BUNNY], camera);
-            multiMesh.PreDraw();
+            multiMesh.PreDraw(PSO::TRIANGLE);
             multiMesh.Draw(worldMat[MULTIMESH], camera);
 
             sphere.PreDraw();

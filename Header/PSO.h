@@ -15,12 +15,14 @@
 class PSO {
 public:
 
-  enum TopologyType {
+    enum PSOType {
         TRIANGLE,
         LINE,
         POINT,
-        TOPOLOGY_MAX
+        NONE_TEX,
+        PSO_MAX
     };
+
     void Create(
         RootSignature& rootSignature,
         InputLayout& inputLayout,
@@ -30,10 +32,10 @@ public:
         DepthStencil& depthStencil,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device);
 
-    Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState(TopologyType type) {
-        return graphicsPipelineState_[type]
+    Microsoft::WRL::ComPtr <ID3D12PipelineState>& GetGraphicsPipelineState(PSOType type) {
+        return graphicsPipelineState_[type];
             ;
     }
 private:
-    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_[TOPOLOGY_MAX] = {nullptr};
+    Microsoft::WRL::ComPtr <ID3D12PipelineState> graphicsPipelineState_[PSO_MAX] = { nullptr };
 };

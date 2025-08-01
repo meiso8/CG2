@@ -7,6 +7,13 @@
 #include"../Header/Camera.h"
 #include"../Header/math/Normalize.h"
 
+BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) {
+    auto* self = static_cast<Input*>(pContext);
+    self->joystickGUID = pdidInstance->guidInstance;
+    self->foundJoystick_ = true;
+    return DIENUM_STOP; // 最初のデバイスだけ取得
+}
+
 HRESULT Input::Initialize(Window& window, int& fps) {
 
     fps_ = &fps;
@@ -37,21 +44,7 @@ HRESULT Input::Initialize(Window& window, int& fps) {
     );
     assert(SUCCEEDED(result));
 
-    result = directInput->CreateDevice(GUID_Joystick, &gamePad_, NULL);
-    assert(SUCCEEDED(result));
 
-    //入力データ形式のセット
-    result = gamePad_->SetDataFormat(&c_dfDIJoystick);//標準形式 
-    assert(SUCCEEDED(result));
-
-    //排他制御レベルのセット
-    result = gamePad_->SetCooperativeLevel(
-        window.GetHwnd(),
-        DISCL_FOREGROUND//画面が手前にある場合のみ入力を受け付ける
-        | DISCL_NONEXCLUSIVE //デバイスをこのアプリだけで占有しない
-        | DISCL_NOWINKEY//Windowsキーを無効にする
-    );
-    assert(SUCCEEDED(result));
 
 
     //マウスデバイスの生成
@@ -81,6 +74,27 @@ HRESULT Input::Initialize(Window& window, int& fps) {
 
     result = mouse_->SetProperty(DIPROP_AXISMODE, &diprop.diph);
     assert(SUCCEEDED(result));
+
+
+    directInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, this, DIEDFL_ATTACHEDONLY);
+
+    if (foundJoystick_) {
+        HRESULT result = directInput->CreateDevice(GUID_Joystick, &gamePad_, NULL);
+        assert(SUCCEEDED(result));
+
+        //入力データ形式のセット
+        result = gamePad_->SetDataFormat(&c_dfDIJoystick);//標準形式 
+        assert(SUCCEEDED(result));
+
+        //排他制御レベルのセット
+        result = gamePad_->SetCooperativeLevel(
+            window.GetHwnd(),
+            DISCL_FOREGROUND//画面が手前にある場合のみ入力を受け付ける
+            | DISCL_NONEXCLUSIVE //デバイスをこのアプリだけで占有しない
+            | DISCL_NOWINKEY//Windowsキーを無効にする
+        );
+        assert(SUCCEEDED(result));
+    }
 
     return result;
 
@@ -139,92 +153,97 @@ void Input::InputInfoGet() {
     //マウスの状態を取得する
     mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
 
-    //ゲームパッドの状態を取得する
-    gamePad_->Acquire();
-    gamePad_->Poll(); // デバイスにポーリング
-    gamePad_->GetDeviceState(sizeof(DIJOYSTATE), &joyState_);
 
+    if (foundJoystick_) {
+        ////ゲームパッドの状態を取得する
+        gamePad_->Acquire();
+        gamePad_->Poll(); // デバイスにポーリング
+        gamePad_->GetDeviceState(sizeof(DIJOYSTATE), &joyState_);
+    }
 }
 
 
 bool Input::GetJoyStick(int stickNo, float* x, float* y) {
-
-    if (!x || !y) {
-        return 0;
-    }
-
-    if (stickNo == 0) {
-
-        if (joyState_.lX >= SHRT_MAX - deadZone_ && joyState_.lX <= SHRT_MAX + deadZone_) {
+    if (foundJoystick_) {
+        if (!x || !y) {
             return 0;
         }
 
-        if (joyState_.lY >= SHRT_MAX - deadZone_ && joyState_.lY <= SHRT_MAX + deadZone_) {
-            return 0;
+        if (stickNo == 0) {
+
+            if (joyState_.lX >= SHRT_MAX - deadZone_ && joyState_.lX <= SHRT_MAX + deadZone_) {
+                return 0;
+            }
+
+            if (joyState_.lY >= SHRT_MAX - deadZone_ && joyState_.lY <= SHRT_MAX + deadZone_) {
+                return 0;
+            }
+
+            Vector2 normL = Normalize(Vector2(static_cast<float>(joyState_.lX), static_cast<float>(joyState_.lY)));
+
+            if (joyState_.lX >= 0.0f && joyState_.lX <= SHRT_MAX - deadZone_) {
+                *x = -normL.x;
+            } else if (joyState_.lX >= SHRT_MAX + deadZone_) {
+                *x = normL.x;
+            } else {
+                *x = 0.0f;
+            }
+
+            if (joyState_.lY >= 0.0f && joyState_.lY <= SHRT_MAX - deadZone_) {
+                *y = -normL.y;
+            } else if (joyState_.lY >= SHRT_MAX + deadZone_) {
+                *y = normL.y;
+            } else {
+                *y = 0.0f;
+            }
+
+
+            return 1;
         }
 
-        Vector2 normL = Normalize(Vector2(static_cast<float>(joyState_.lX), static_cast<float>(joyState_.lY)));
+        /* if (stickNo == 1) {
 
-        if (joyState_.lX >= 0.0f && joyState_.lX <= SHRT_MAX - deadZone_) {
-            *x = -normL.x;
-        } else if (joyState_.lX >= SHRT_MAX + deadZone_) {
-            *x = normL.x;
-        } else {
-            *x = 0.0f;
-        }
+             if (joyState_.lRx >= SHRT_MAX - deadZone_ && joyState_.lRx <= SHRT_MAX + deadZone_) {
+                 return 0;
+             }
 
-        if (joyState_.lY >= 0.0f && joyState_.lY <= SHRT_MAX - deadZone_) {
-            *y = -normL.y;
-        } else if (joyState_.lY >= SHRT_MAX + deadZone_) {
-            *y = normL.y;
-        } else {
-            *y = 0.0f;
-        }
+             if (joyState_.lRy >= SHRT_MAX - deadZone_ && joyState_.lRy <= SHRT_MAX + deadZone_) {
+                 return 0;
+             }
+
+             Vector2 normR = Normalize(Vector2(static_cast<float>(joyState_.lRx), static_cast<float>(joyState_.lRy)));
+
+             if (joyState_.lRx >= 0.0f && joyState_.lRx <= SHRT_MAX - deadZone_) {
+                 normR.x *= -1.0f;
+             }
+
+             if (joyState_.lRy >= 0.0f && joyState_.lRy <= SHRT_MAX - deadZone_) {
+                 normR.y *= -1.0f;
+             }
 
 
-        return 1;
+
+             *x = normR.x;
+             *y = normR.y;
+             return 1;
+         }*/
+
     }
 
-    /* if (stickNo == 1) {
-
-         if (joyState_.lRx >= SHRT_MAX - deadZone_ && joyState_.lRx <= SHRT_MAX + deadZone_) {
-             return 0;
-         }
-
-         if (joyState_.lRy >= SHRT_MAX - deadZone_ && joyState_.lRy <= SHRT_MAX + deadZone_) {
-             return 0;
-         }
-
-         Vector2 normR = Normalize(Vector2(static_cast<float>(joyState_.lRx), static_cast<float>(joyState_.lRy)));
-
-         if (joyState_.lRx >= 0.0f && joyState_.lRx <= SHRT_MAX - deadZone_) {
-             normR.x *= -1.0f;
-         }
-
-         if (joyState_.lRy >= 0.0f && joyState_.lRy <= SHRT_MAX - deadZone_) {
-             normR.y *= -1.0f;
-         }
-
-
-
-         *x = normR.x;
-         *y = normR.y;
-         return 1;
-     }*/
 
     *x = 0.0f;
     *y = 0.0f;
     return 0;
-
 }
 
 
 
 bool Input::IsJoyStickPressButton(uint32_t index) {
-    if (joyState_.rgbButtons[index] & 0x80) {
-        return true;
+    if (foundJoystick_) {
+        if (joyState_.rgbButtons[index] & 0x80) {
+            return true;
+        }
     }
-
     return false;
 };
 
@@ -259,7 +278,7 @@ void Input::EyeOperation(Camera& camera) {
     }
 
     //マウススクロールする //初期位置-10
-    shericalCoordinate_.radius = -10 + GetMouseWheel();
+    shericalCoordinate_.radius = -30 + GetMouseWheel();
 
     if (!IsPressMouse(2)) {
         isDragging_ = false;

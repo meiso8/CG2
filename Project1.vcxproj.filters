@@ -543,8 +543,4 @@
       <Filter>imgui</Filter>
     </Text>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\shader\Object3d.hlsli" />
-    <None Include="resources\shader\DirectionalLight.hlsli" />
-  </ItemGroup>
 </Project>

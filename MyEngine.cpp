@@ -157,7 +157,6 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         depthStencil,
         device);
 
-
     Log(logStream, "CreatePSO");
 
 

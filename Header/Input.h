@@ -12,7 +12,6 @@ class Camera;
 class Input {
 public:
     HRESULT Initialize(Window& window, int& fps);
-
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
     /// @briefキーを押した瞬間
@@ -69,4 +68,6 @@ public:
     IDirectInputDevice8* gamePad_ = nullptr;
     DIJOYSTATE joyState_{};
     float deadZone_ = 1000;
+    bool foundJoystick_ = false;
+    GUID joystickGUID = GUID_NULL;
 };
