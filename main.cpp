@@ -6,8 +6,6 @@
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
-#include<algorithm>
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -28,8 +26,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ここはゲームによって異なる
      //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = sound.SoundLoad(L"resources/Alarm01.wav");
-    SoundData soundData2 = sound.SoundLoad(L"resources/dreamcore.mp3");
+    SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/Alarm01.wav");
+    SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/maou_se_battle_explosion05.mp3");
 
 #pragma endregion
 
@@ -83,29 +81,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig(0));
-    model.Create("resources/teapot", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 3);
+    model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 3);
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources/bunny", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+
+    Model multiMesh(myEngine.GetModelConfig(2));
+    multiMesh.Create("resources", "multiMesh.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
 
     Sphere sphere(myEngine.GetModelConfig(1));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    Vector3 scale[3] = {};
-    Vector3 rotation[3] = {};
-    Vector3 translation[3] = {};
-    Matrix4x4 worldMat[3] = {};
+    const int maxMatrix = 4;
 
-    for (int i = 0; i < 3; ++i) {
+    enum Matrix {
+        TEAPOT,
+        BUNNY,
+        SPHERE,
+        MULTIMESH,
+        MAX_MATRIX
+    };
+
+    Vector3 scale[MAX_MATRIX] = {};
+    Vector3 rotation[MAX_MATRIX] = {};
+    Vector3 translation[MAX_MATRIX] = {};
+    Matrix4x4 worldMat[MAX_MATRIX] = {};
+
+    for (int i = 0; i < MAX_MATRIX; ++i) {
         scale[i] = { 1.0f,1.0f,1.0f };
         rotation[i] = { 0.0f,0.0f,0.0f };
-        translation[i] = { (i - 1) * 5.0f,0.0f,0.0f };
         worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
     }
 
-    scale[1] = { 10.0f,10.0f,10.0f };
-    scale[2] = { 2.5f,2.5f,2.5f };
-    translation[2] = { 0.0f,1.0f,0.0f };
+    scale[SPHERE] = { 2.5f,2.5f,2.5f };
+
+    translation[TEAPOT] = { -7.5f,0.75f,0.0f };
+    translation[BUNNY] = { 0.0f };
+    translation[SPHERE] = { 0.0f,1.0f,0.0f };
+    translation[MULTIMESH] = { -10.0f,1.0f,0.0f };
 
     MSG msg{};
 
@@ -154,16 +167,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 
             {
-
                 ImGui::Text("FPS : %d", fpsCounter.GetFPS());
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
                 static char str0[128] = "Hello, world!";
                 ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
-
-                const char* items[] = { "1", "2", "3" };
-                static int item_current = 0;
-
-                ImGui::Combo("Sprite", &item_current, items, IM_ARRAYSIZE(items));
 
                 if (ImGui::BeginMenu("file")) {
                     if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
@@ -178,29 +185,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             ImGui::Begin("WorldMatrix");
-
-            if (ImGui::TreeNode("0")) {
-                ImGui::SliderFloat3("translation", &translation[0].x, -10.0f, 10.0f);
-                ImGui::SliderFloat3("rotation", &rotation[0].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-                ImGui::SliderFloat3("scale", &scale[0].x, 0.0f, 10.0f);
-                ImGui::TreePop();
+            const char* items[] = { "TEAPOT", "BUNNY", "SPHERE","MULTIMESH"};
+            for (int i = 0; i < MAX_MATRIX; ++i) {
+                debugUI.WorldMatrixUpdate(scale[i], rotation[i], translation[i], items[i]);
             }
-
-            if (ImGui::TreeNode("1")) {
-                ImGui::SliderFloat3("translation", &translation[1].x, -10.0f, 10.0f);
-                ImGui::SliderFloat3("rotation", &rotation[1].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-                ImGui::SliderFloat3("scale", &scale[1].x, 0.0f, 10.0f);
-                ImGui::TreePop();
-            }
-
-            if (ImGui::TreeNode("2")) {
-                ImGui::SliderFloat3("translation", &translation[2].x, -10.0f, 10.0f);
-                ImGui::SliderFloat3("rotation", &rotation[2].x, 0.0f, std::numbers::pi_v<float>*2.0f);
-                ImGui::SliderFloat3("scale", &scale[2].x, 0.0f, 10.0f);
-                ImGui::TreePop();
-            }
-
             ImGui::End();
+
+            {
+                Vector3 direction = myEngine.GetDirectionalLightData().direction;
+                ImGui::Begin("DirectionalLight");
+                ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
+                ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
+                myEngine.GetDirectionalLightData().direction = Normalize(direction);
+                ImGui::DragFloat("intensity", &myEngine.GetDirectionalLightData().intensity);
+
+                const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
+                static int light_current = 2;
+
+                ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
+                sphere.GetMaterial()->lightType = light_current;
+                bunnyModel.GetMaterial()->lightType = light_current;
+                model.GetMaterial()->lightType = light_current;
+                multiMesh.GetMaterial()->lightType = light_current;
+
+                ImGui::End();
+            }
 
             debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
@@ -208,13 +217,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.ModelUpdate(model);
             debugUI.InputUpdate(input);
 
-
+  
 #endif
 
-            rotation[0].y += 1.0f / 60.0f;
-            worldMat[0] = Multiply(MakeAffineMatrix(scale[0], rotation[0], translation[0]), MakeRotateYMatrix(rotation[0].y));
-            worldMat[1] = MakeAffineMatrix(scale[1], rotation[1], translation[1]);
-            worldMat[2] = MakeAffineMatrix(scale[2], rotation[2], translation[2]);
+            rotation[TEAPOT].y += 1.0f / 60.0f;
+            rotation[MULTIMESH].y += 1.0f / 60.0f;
+            worldMat[TEAPOT] = Multiply(MakeAffineMatrix(scale[TEAPOT], rotation[TEAPOT], translation[TEAPOT]), MakeRotateYMatrix(rotation[TEAPOT].y));
+
+            for (int i = BUNNY; i < MAX_MATRIX; ++i) {
+                worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
+            }
 
             sphere.SetUVScale({ 1.0f,50.0f,1.0f });
             sphere.GetUVTransform().translate += { 0.0f, 1.0f / 60.0f, 0.0f };
@@ -268,24 +280,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 sound.SoundPlay(soundData1);
             }
 
-            if (input.IsTriggerKey(DIK_2)) {
+            if (input.IsTriggerKey(DIK_SPACE)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
                 isExpansion = true;
             }
 
-            if (input.IsTriggerKey(DIK_3)) {
-                //音声再生
-                sound.SoundPlay(soundData2);
-            }
-
-            if (input.IsTriggerKey(DIK_SPACE)) {
-                //デバッグの切り替え
-                isDebug = (isDebug) ? false : true;
-            }
-
             if (input.IsTriggerKey(DIK_RETURN)) {
                 debugCamera.SetIsOrthographic(true);
+            }
+
+            if (input.IsTriggerKey(DIK_D)) {
+                //デバッグの切り替え
+                isDebug = (isDebug) ? false : true;
             }
 
             //カメラの切り替え処理
@@ -309,11 +316,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             model.PreDraw();
 
-            model.Draw(worldMat[0], camera);
-            bunnyModel.Draw(worldMat[1], camera);
+            model.Draw(worldMat[TEAPOT], camera);
+            bunnyModel.Draw(worldMat[BUNNY], camera);
+            multiMesh.PreDraw();
+            multiMesh.Draw(worldMat[MULTIMESH], camera);
 
             sphere.PreDraw();
-            sphere.Draw(worldMat[2], camera, srv3);
+            sphere.Draw(worldMat[SPHERE], camera, srv3);
 
             sprite.PreDraw();
             sprite.Draw(srv);

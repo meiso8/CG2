@@ -4,7 +4,7 @@
 
 class RasterizerState {
 public:
-    void Create();
+    void Create(D3D12_CULL_MODE cullMode, D3D12_FILL_MODE fillMode);
     D3D12_RASTERIZER_DESC& GetDesc()
     {
         return rasterizerDesc_;

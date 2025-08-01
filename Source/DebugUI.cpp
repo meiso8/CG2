@@ -5,6 +5,7 @@
 #include"../Header/Sprite.h"
 #include"../Header/Sphere.h"
 #include<numbers>
+#include<algorithm>
 
 void DebugUI::Update() {
 
@@ -37,6 +38,7 @@ void DebugUI::ModelUpdate(Model& model) {
     Vector3 waveDirection1 = model.GetWaveData(0).direction;
     model.GetWaveData(0).direction = Normalize(waveDirection1);
 
+
     Vector3 waveDirection2 = model.GetWaveData(1).direction;
     model.GetWaveData(1).direction = Normalize(waveDirection2);
 
@@ -59,8 +61,6 @@ void DebugUI::ModelUpdate(Model& model) {
         ImGui::ColorEdit4("color", &model.GetColor().x);
         ImGui::TreePop();
     }
-
-    ImGui::SliderInt("lightType", &model.GetMaterial()->lightType, 0, 2);
 
     ImGui::End();
 
@@ -100,7 +100,17 @@ void DebugUI::SphereUpdate(Sphere& sphere) {
     ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
     ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
     ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
-    ImGui::SliderInt("lightType", &sphere.GetMaterial()->lightType, 0, 2);
 
     ImGui::End();
 }
+
+void DebugUI::WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& translate, const char* label) {
+
+    if (ImGui::TreeNode(label)) {
+        ImGui::SliderFloat3("translation", &translate.x, -10.0f, 10.0f);
+        ImGui::SliderFloat3("rotation", &rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &scale.x, 0.0f, 10.0f);
+        ImGui::TreePop();
+    }
+
+};

@@ -1,4 +1,5 @@
 #include "MyEngine.h"
+#include<algorithm>
 
 void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t clientHeight) {
 
@@ -16,7 +17,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     logStream = logFile.CreateLogFile();
 
     //WindowClassの生成
-    wc.Create(title,clientWidth, clientHeight);
+    wc.Create(title, clientWidth, clientHeight);
     Log(logStream, "CreateWindowClass");
 
     //DXGIFactoryの生成
@@ -114,7 +115,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     Log(logStream, "SetBlendState");
 
     //RasterizerStateの設定を行う
-    rasterizerState.Create();
+    rasterizerState[0].Create(D3D12_CULL_MODE_BACK, D3D12_FILL_MODE_SOLID);
+    rasterizerState[1].Create(D3D12_CULL_MODE_NONE, D3D12_FILL_MODE_SOLID);
     Log(logStream, "SetRasterizerState");
 
 #pragma region//ShaderをCompileする
@@ -133,7 +135,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         inputLayout,
         dxcCompiler,
         blendState[0],
-        rasterizerState,
+        rasterizerState[0],
         depthStencil,
         device);
 
@@ -142,9 +144,19 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         inputLayout,
         dxcCompiler,
         blendState[1],
-        rasterizerState,
+        rasterizerState[0],
         depthStencil,
         device);
+
+    pso[2].Create(
+        rootSignature,
+        inputLayout,
+        dxcCompiler,
+        blendState[0],
+        rasterizerState[1],
+        depthStencil,
+        device);
+
 
     Log(logStream, "CreatePSO");
 
@@ -170,7 +182,7 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
     //デフォルト値はとりあえず以下のようにしておく   
     directionalLightData->color = { 1.0f,1.0f,1.0f,1.0f };
-    directionalLightData->direction = { 0.0f,-1.0f,0.0f };//向きは正規化する
+    directionalLightData->direction = { 0.0f,1.0f,0.0f };//向きは正規化する
     directionalLightData->intensity = 1.0f;
 
 #pragma endregion
@@ -197,6 +209,14 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     directionalLightResource
     };
 
+    modelConfig_[2] = {
+&commandList,
+&viewport,
+&scissorRect,
+&rootSignature,
+&pso[2],
+directionalLightResource
+    };
 
 #ifdef _DEBUG
     //ImGuiの初期化。
@@ -216,24 +236,6 @@ void MyEngine::Update() {
     //ImGuiにここからフレームが始まる旨を伝える
     imGuiClass.FrameStart();
 #endif
-
-
-#ifdef _DEBUG
-
-#pragma region//Lightを設定
-    Vector3 direction = directionalLightData->direction;
-
-    ImGui::Begin("DirectionalLight");
-    ImGui::ColorEdit4("color", &directionalLightData->color.x);
-    ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
-    directionalLightData->direction = Normalize(direction);
-
-    ImGui::DragFloat("intensity", &directionalLightData->intensity);
-    ImGui::End();
-#pragma endregion
-
-#endif
-
 }
 
 void MyEngine::PreCommandSet(Vector4& color) {

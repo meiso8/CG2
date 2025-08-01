@@ -14,8 +14,8 @@ void Model::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {
 
-    //マテリアルの作成
-    materialResource_.CreateMaterial(device, true);
+    //マテリアルの作成 lightType halfLambert
+    materialResource_.CreateMaterial(device, 2);
 
     CreateWorldVPResource(device);
 

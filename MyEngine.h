@@ -67,7 +67,7 @@
 
 class MyEngine {
 public:
-    void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
+    void Create(const std::wstring& title, int32_t clientWidth, int32_t clientHeight);
     void Update();
     void PreCommandSet(Vector4& color);
     void PostCommandSet();
@@ -77,6 +77,7 @@ public:
     ModelConfig& GetModelConfig(size_t index) { return modelConfig_[index]; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
+    DirectionalLight& GetDirectionalLightData() {return *directionalLightData;}
 private:
 
     int32_t clientWidth_ = 1280;
@@ -107,9 +108,9 @@ private:
     RootSignature rootSignature = {};
     InputLayout inputLayout = {};
     BlendState blendState[2] = {};
-    RasterizerState rasterizerState = {};
+    RasterizerState rasterizerState[2] = {};
     DepthStencil depthStencil = {};
-    PSO pso[2] = {};
+    PSO pso[3] = {};
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
@@ -122,6 +123,6 @@ private:
 #endif // _DEBUG
 
     TransitionBarrier barrier = {};
-    ModelConfig modelConfig_[2] = {};
+    ModelConfig modelConfig_[3] = {};
 };
 
