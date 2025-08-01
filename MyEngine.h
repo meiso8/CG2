@@ -40,6 +40,8 @@
 #include"Header/InputLayout.h"
 #include "Header/RootSignature.h"
 
+#include"Header/FPSCounter.h"
+
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/DirectionalLight.h"
@@ -77,7 +79,7 @@ public:
     ModelConfig& GetModelConfig(size_t index) { return modelConfig_[index]; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
-    DirectionalLight& GetDirectionalLightData() {return *directionalLightData;}
+    DirectionalLight& GetDirectionalLightData() { return *directionalLightData; }
 private:
 
     int32_t clientWidth_ = 1280;

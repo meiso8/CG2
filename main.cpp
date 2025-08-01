@@ -1,7 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
 
-#include"FPSCounter.h"
+
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -214,7 +214,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
 
-            debugUI.ModelUpdate(model);
+            debugUI.ModelUpdate(bunnyModel);
             debugUI.InputUpdate(input);
 
   
@@ -233,7 +233,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             sphere.UpdateUV();
             sphere.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
 
-            bunnyModel.GetWaveData(0).amplitude = 1.0f / 64.0f;
+            bunnyModel.GetWaveData(0).amplitude = 1.0f / 16.0f;
             bunnyModel.GetWaveData(0).time += 1.0f / 60.0f;
 
             model.UpdateUV();

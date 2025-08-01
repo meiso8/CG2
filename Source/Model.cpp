@@ -63,7 +63,7 @@ void Model::Create(
     waveData_[0].direction = { 1.0f,0.0f,0.0f };
     waveData_[0].time = 0.0f;
     waveData_[0].amplitude = 0.0f;
-    waveData_[0].frequency = 15.0f;
+    waveData_[0].frequency = 2.0f;
 
     waveData_[1].direction = { 0.0f,1.0f,0.0f };
     waveData_[1].time = 0.0f;

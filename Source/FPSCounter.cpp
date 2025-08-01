@@ -1,4 +1,4 @@
-#include "FPSCounter.h"
+#include "../Header/FPSCounter.h"
 
 void FPSCounter::Update() {
     auto now = std::chrono::high_resolution_clock::now();

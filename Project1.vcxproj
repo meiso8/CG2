@@ -93,7 +93,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FPSCounter.cpp" />
+    <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\Line.cpp" />
@@ -188,7 +188,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FPSCounter.h" />
+    <ClInclude Include="Header\FPSCounter.h" />
     <ClInclude Include="Header\DebugUI.h" />
     <ClInclude Include="Header\Cube.h" />
     <ClInclude Include="Header\Config.h" />
