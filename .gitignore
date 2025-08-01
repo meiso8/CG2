@@ -371,3 +371,6 @@ logs/
 
 # vbfile
 *.vb
+
+# Game
+Game/
