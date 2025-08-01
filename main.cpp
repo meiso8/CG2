@@ -123,8 +123,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     MSG msg{};
 
     bool isExpansion = false;
-    float expansionSpeed = 1.0f / 120.0f;
+    float expansionSpeed = 1.0f / 30.0f;
     float toCubeSpeed = 1.0f / 240.0f;
+
+    bool isButton[4] = { false };
+
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -185,7 +188,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             ImGui::Begin("WorldMatrix");
-            const char* items[] = { "TEAPOT", "BUNNY", "SPHERE","MULTIMESH"};
+            const char* items[] = { "TEAPOT", "BUNNY", "SPHERE","MULTIMESH" };
             for (int i = 0; i < MAX_MATRIX; ++i) {
                 debugUI.WorldMatrixUpdate(scale[i], rotation[i], translation[i], items[i]);
             }
@@ -217,10 +220,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.ModelUpdate(bunnyModel);
             debugUI.InputUpdate(input);
 
-  
+
 #endif
 
             rotation[TEAPOT].y += 1.0f / 60.0f;
+
+            float x = 0.0f;
+            float y = 0.0f;
+
+            if (input.GetJoyStick(0, &x, &y)) {
+                translation[BUNNY].x += x / 60.0f;
+                translation[BUNNY].z += y / 60.0f;
+            }
+
             rotation[MULTIMESH].y += 1.0f / 60.0f;
             worldMat[TEAPOT] = Multiply(MakeAffineMatrix(scale[TEAPOT], rotation[TEAPOT], translation[TEAPOT]), MakeRotateYMatrix(rotation[TEAPOT].y));
 
@@ -248,7 +260,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     bunnyModel.GetExpansionData().expansion = 0.0f;
                 }
 
-                if (bunnyModel.GetExpansionData().expansion >= 0.18f || isSmall) {
+                if (bunnyModel.GetExpansionData().expansion >= 1.5f || isSmall) {
                     expansionSpeed *= -1.0f;
 
                 }
@@ -293,6 +305,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input.IsTriggerKey(DIK_D)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
+            }
+
+
+            if (input.IsJoyStickPressButton(0)) {
+                isExpansion = true;
             }
 
             //カメラの切り替え処理

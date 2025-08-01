@@ -75,6 +75,29 @@ void DebugUI::InputUpdate(Input& input) {
     ImGui::SliderFloat2("startPos", &input.GetOffset().x, -100.0f, 100.0f);
     ImGui::SliderFloat2("currentPos", &input.GetCurrentPos().x, -100.0f, 100.0f);
 
+
+    Vector2 normL = Normalize(Vector2(static_cast<float>(input.GetJoyState().lX), static_cast<float>(input.GetJoyState().lY)));
+
+    ImGui::Text("normLX: %f %f", normL.x,normL.y);//x軸位置
+
+
+    ImGui::Text("joyStateLX: %ld", input.GetJoyState().lX);//x軸位置
+    ImGui::Text("joyStateLY: %ld", input.GetJoyState().lY);
+    ImGui::Text("joyStateLZ: %ld", input.GetJoyState().lZ);
+    ImGui::Text("joyStateRX: %ld", input.GetJoyState().lRx);//右スティック
+    ImGui::Text("joyStateRY: %ld", input.GetJoyState().lRy);
+
+    if (input.GetJoyState().rgdwPOV[0] != -1) {//十字キー　角度を表す
+        ImGui::Text("POV[%d]: %lu", 0, input.GetJoyState().rgdwPOV[0]);
+    } else {
+        ImGui::Text("POV[%d]: Centered", 0);
+    }
+
+    for (int i = 0; i < 12; ++i) {
+        ImGui::Text("Button[%d]: %s", i,
+            (input.GetJoyState().rgbButtons[i] & 0x80) ? "Pressed" : "Released");
+    }
+
     ImGui::End();
 
 }
