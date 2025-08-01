@@ -23,16 +23,21 @@ void DxcCompiler::Initialize() {
 }
 
 
-void DxcCompiler::ShaderSeting() {
+void DxcCompiler::ShaderSetting() {
 
     //Shaderをコンパイルする
     vertexShaderBlob_ = CompileShader(L"resources/shader/Object3D.VS.hlsl",
         L"vs_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
     assert(vertexShaderBlob_ != nullptr);
 
-    pixelShaderBlob_ = CompileShader(L"resources/shader/Object3D.PS.hlsl",
+    pixelShaderBlob_[NORMAL] = CompileShader(L"resources/shader/Object3D.PS.hlsl",
         L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
-    assert(pixelShaderBlob_ != nullptr);
+    assert(pixelShaderBlob_[NORMAL] != nullptr);
+
+    pixelShaderBlob_[NONE_TEX] = CompileShader(L"resources/shader/Object3DNoneTex.PS.hlsl",
+        L"ps_6_0", dxcUtils_, dxcCompiler_, includeHandler_);
+    assert(pixelShaderBlob_[NONE_TEX] != nullptr);
+
 
 }
 

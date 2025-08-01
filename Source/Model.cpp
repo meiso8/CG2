@@ -5,16 +5,17 @@
 #include"../Header/math/MakeAffineMatrix.h"
 #include"../Header/math/Multiply.h"
 #include"../Header/math/Transform.h"
+#include"../Header/math/MakeIdentity4x4.h"
 #include<numbers>
 
 void Model::Create(
     const std::string& directoryPath,
     const std::string& filename,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {
 
-    //マテリアルの作成
-    materialResource_.CreateMaterial(device, true);
+    //マテリアルの作成 lightType halfLambert
+    materialResource_.CreateMaterial(device, 2);
 
     CreateWorldVPResource(device);
 
@@ -36,7 +37,16 @@ void Model::Create(
     texture_->Load(modelData_.material.textureFilePath);
 
     //これだとダメだわ
-    srv_.Create(*texture_, 3, device, srvDescriptorHeap);
+    srv_.Create(*texture_, index, device, srvDescriptorHeap);
+
+    uvTransform_ = {
+        {1.0f,1.0f,1.0f},
+        {0.0f,0.0f,0.0f},
+        {0.0f,0.0f,0.0f},
+    };
+
+    uvTransformMatrix_ = MakeIdentity4x4();
+
 
 
 #pragma region//time
@@ -53,12 +63,12 @@ void Model::Create(
     waveData_[0].direction = { 1.0f,0.0f,0.0f };
     waveData_[0].time = 0.0f;
     waveData_[0].amplitude = 0.0f;
-    waveData_[0].frequency = 4;
+    waveData_[0].frequency = 2.0f;
 
-    waveData_[1].direction = { 1.0f,0.0f,0.0f };
+    waveData_[1].direction = { 0.0f,1.0f,0.0f };
     waveData_[1].time = 0.0f;
     waveData_[1].amplitude = 0.0f;
-    waveData_[1].frequency = 4;
+    waveData_[1].frequency = 10.0f;
 
 #pragma endregion
 
@@ -86,16 +96,28 @@ void Model::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& de
     wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate_));
 };
 
+void Model::UpdateUV() {
+
+    uvTransformMatrix_ = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
+    materialResource_.SetUV(uvTransformMatrix_);
+}
+
+
 void Model::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
 };
 
-void Model::PreDraw() {
+void Model::PreDraw(PSO::PSOType type) {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
-    modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature().Get());
-    modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState(PSO::TRIANGLE).Get());//PSOを設定
+    if (type == PSO::NONE_TEX) {
+        modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature(1).Get());
+
+    } else {
+        modelConfig_.commandList->GetComandList()->SetGraphicsRootSignature(modelConfig_.rootSignature->GetRootSignature(0).Get());
+    }
+modelConfig_.commandList->GetComandList()->SetPipelineState(modelConfig_.pso->GetGraphicsPipelineState(type).Get());//PSOを設定
     //形状を設定。PSOに設定している物とはまた別。同じものを設定すると考えておけばよい。
     modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

@@ -31,9 +31,13 @@ public:
 
     VertexData* GetVertexData() { return vertexData_; }
     Transform& GetUVTransform() { return uvTransform_; }
-
+    Vector4& GetColor() { return materialResource_.GetMaterial()->color; }
     void SetColor(const Vector4& color);
+    void SetUVScale(const Vector3& scale) { uvTransform_.scale = scale; };
     void UpdateUV();
+    Balloon& GetExpansionData() {
+        return *expansionData_;
+    }
 
     ~Sphere();
 

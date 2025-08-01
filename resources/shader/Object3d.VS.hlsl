@@ -36,7 +36,7 @@ struct VertexShaderInput
     float32_t3 normal : NORMAL0;
 };
 
-float Wave(VertexShaderInput input)
+float WaveUpdate(VertexShaderInput input)
 {
      
     float Dot1 = dot(input.position, normalize(gWave[0].direction) * gWave[0].frequency);
@@ -48,7 +48,7 @@ float Wave(VertexShaderInput input)
     return Wave1 + Wave2;
 }
 
-float32_t3 Balloon(VertexShaderInput input)
+float32_t3 BalloonUpdate(VertexShaderInput input)
 {
     float32_t3 output;
     
@@ -57,7 +57,7 @@ float32_t3 Balloon(VertexShaderInput input)
     return output;
 }
 
-float32_t4 Sphere(VertexShaderInput input)
+float32_t4 SphereUpdate(VertexShaderInput input)
 {
     float32_t4 output;
     
@@ -67,7 +67,7 @@ float32_t4 Sphere(VertexShaderInput input)
     return output;
 }
 
-float32_t4 Cube(VertexShaderInput input)
+float32_t4 CubeUpdate(VertexShaderInput input)
 {
     float32_t4 output;
     
@@ -82,19 +82,19 @@ VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderOutput output;
     //行列の積を計算する関数がhlslの組み込み関数で定義されている
-    input.position.y += Wave(input);
+    input.position.y += WaveUpdate(input);
     
     
-    input.position.xyz += Balloon(input);
+    input.position.xyz += BalloonUpdate(input);
     //output.position = ;
     
     if (gBalloon.isSphere)
     {
-        output.position = mul(Sphere(input), gTransformationMatrix.WVP);
+        output.position = mul(SphereUpdate(input), gTransformationMatrix.WVP);
     }
     else
     {
-        output.position = mul(Cube(input), gTransformationMatrix.WVP);
+        output.position = mul(CubeUpdate(input), gTransformationMatrix.WVP);
     }
 
     

@@ -19,14 +19,19 @@ IDxcBlob* CompileShader(
 class DxcCompiler
 {
 public:
+    enum PSType {
+        NORMAL,
+        NONE_TEX,
+        PS_MAX
+    };
     void Initialize();
-    void ShaderSeting();
+    void ShaderSetting();
     Microsoft::WRL::ComPtr <IDxcBlob>& GetVertexShaderBlob() { return vertexShaderBlob_; };
-    Microsoft::WRL::ComPtr <IDxcBlob>& GetPixelShaderBlob() { return pixelShaderBlob_; };
+    Microsoft::WRL::ComPtr <IDxcBlob>& GetPixelShaderBlob(PSType type) { return pixelShaderBlob_[type]; };
 private:
     IDxcUtils* dxcUtils_ = nullptr;
     IDxcCompiler3* dxcCompiler_ = nullptr;
     IDxcIncludeHandler* includeHandler_ = nullptr;
     Microsoft::WRL::ComPtr <IDxcBlob> vertexShaderBlob_;
-    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob_;
+    Microsoft::WRL::ComPtr <IDxcBlob>pixelShaderBlob_[PS_MAX];
 };

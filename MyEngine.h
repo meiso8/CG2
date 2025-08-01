@@ -40,6 +40,8 @@
 #include"Header/InputLayout.h"
 #include "Header/RootSignature.h"
 
+#include"Header/FPSCounter.h"
+
 #include"Header/Material.h"
 #include"Header/VertexData.h"
 #include"Header/DirectionalLight.h"
@@ -53,6 +55,7 @@
 #include"Header/math/Inverse.h"
 #include"Header/math/MakePerspectiveFovMatrix.h"
 #include"Header/math/MakeOrthographicMatrix.h"
+#include"Header/math/MakeRotateMatrix.h"
 #include"Header/math/Multiply.h"
 #include"Header/math/SphericalCoordinate.h"
 #include"Header/math/Lerp.h"
@@ -66,16 +69,17 @@
 
 class MyEngine {
 public:
-    void Create(const std::wstring& title,int32_t clientWidth, int32_t clientHeight);
+    void Create(const std::wstring& title, int32_t clientWidth, int32_t clientHeight);
     void Update();
-    void PreCommandSet();
+    void PreCommandSet(Vector4& color);
     void PostCommandSet();
     void End();
     Window& GetWC() { return wc; };
     CommandList& GetCommandList() { return commandList; };
-    ModelConfig& GetModelConfig() { return modelConfig_; };
+    ModelConfig& GetModelConfig(size_t index) { return modelConfig_[index]; };
     Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() { return device; };
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvDescriptorHeap() { return srvDescriptorHeap; }
+    DirectionalLight& GetDirectionalLightData() { return *directionalLightData; }
 private:
 
     int32_t clientWidth_ = 1280;
@@ -105,10 +109,10 @@ private:
     DxcCompiler dxcCompiler = {};
     RootSignature rootSignature = {};
     InputLayout inputLayout = {};
-    BlendState blendState = {};
-    RasterizerState rasterizerState = {};
+    BlendState blendState[2] = {};
+    RasterizerState rasterizerState[2] = {};
     DepthStencil depthStencil = {};
-    PSO pso = {};
+    PSO pso[3] = {};
     Microsoft::WRL::ComPtr <ID3D12Resource> depthStencilResource = nullptr;
     Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap = nullptr;
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
@@ -121,6 +125,6 @@ private:
 #endif // _DEBUG
 
     TransitionBarrier barrier = {};
-    ModelConfig modelConfig_ = {};
+    ModelConfig modelConfig_[3] = {};
 };
 

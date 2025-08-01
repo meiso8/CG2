@@ -12,7 +12,6 @@ class Camera;
 class Input {
 public:
     HRESULT Initialize(Window& window, int& fps);
-
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
     /// @briefキーを押した瞬間
@@ -27,6 +26,11 @@ public:
 
     bool IsPressMouse(uint32_t index);
 
+    bool IsJoyStickPressButton(uint32_t index);
+    bool GetJoyStick(int stickNo, float* x, float* y);
+
+    DIJOYSTATE& GetJoyState() { return joyState_; };
+
     ~Input();
 
     Vector2& GetMousePos();
@@ -38,6 +42,7 @@ public:
     Vector2& GetCurrentPos() { return currentPos_; }
     Vector3& GetPos() { return pos_; }
     ShericalCoordinate& GetSc() { return shericalCoordinate_; }
+
 
 public:
     IDirectInputDevice8* keyboard_ = nullptr;
@@ -59,4 +64,10 @@ public:
 
     int* fps_ = 0;
 
+    //ゲームパッド
+    IDirectInputDevice8* gamePad_ = nullptr;
+    DIJOYSTATE joyState_{};
+    float deadZone_ = 1000;
+    bool foundJoystick_ = false;
+    GUID joystickGUID = GUID_NULL;
 };
