@@ -10,7 +10,24 @@
 class Camera;
 
 class Input {
+
+private:
+    static Input* instance_;
+    Input() {
+
+
+    }
+
 public:
+
+    static Input* GetInstance() {
+
+        if (instance_ == nullptr) {
+            instance_ = new Input();
+        }
+        return instance_;
+    }
+
     HRESULT Initialize(Window& window, int& fps);
     /// @brief キーを押した状態 
     bool IsPushKey(const uint8_t& key);
@@ -44,7 +61,7 @@ public:
     ShericalCoordinate& GetSc() { return shericalCoordinate_; }
 
 
-public:
+private:
     IDirectInputDevice8* keyboard_ = nullptr;
     //全キー入力状態を取得する
     BYTE key_[256] = {};
@@ -68,6 +85,8 @@ public:
     IDirectInputDevice8* gamePad_ = nullptr;
     DIJOYSTATE joyState_{};
     float deadZone_ = 1000;
+
+public:
     bool foundJoystick_ = false;
     GUID joystickGUID = GUID_NULL;
 };

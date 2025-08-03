@@ -93,6 +93,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
@@ -280,6 +281,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\Line.h" />
     <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Header\Sphere.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

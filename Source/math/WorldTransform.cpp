@@ -8,5 +8,9 @@ void WorldTransform::Initialize() {
     rotate_ = { 0.0f,0.0f,0.0f };
     translate_ = { 0.0f,0.0f,0.0f };
     matWorld_ = MakeIdentity4x4();
-    //matWorld_ = MakeAffineMatrix(scale_, rotate_, transform_);
+}
+
+
+void WorldTransformUpdate(WorldTransform& worldTransform) {
+    worldTransform.matWorld_ = MakeAffineMatrix(worldTransform.scale_, worldTransform.rotate_, worldTransform.translate_);
 }

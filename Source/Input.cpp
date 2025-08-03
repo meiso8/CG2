@@ -7,6 +7,8 @@
 #include"../Header/Camera.h"
 #include"../Header/math/Normalize.h"
 
+Input* Input::instance_ = nullptr;
+
 BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) {
     auto* self = static_cast<Input*>(pContext);
     self->joystickGUID = pdidInstance->guidInstance;

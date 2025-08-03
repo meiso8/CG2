@@ -1,6 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
 
+#include"Player.h"
 
 
 #define WIN_WIDTH 1280
@@ -14,9 +15,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     FPSCounter fpsCounter;
 
-    Input input;
+    Input* input = Input::GetInstance();
     //入力
-    input.Initialize(myEngine.GetWC(), fpsCounter.GetFPS());
+    input->Initialize(myEngine.GetWC(), fpsCounter.GetFPS());
 
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
@@ -50,7 +51,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     camera.SetTransform(cameraTransform);
     camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
 
-    debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
+    debugCamera.Initialize(input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 
     Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
     texture.Load("resources/dvd.png");
@@ -84,7 +85,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
 
     Model multiMesh(myEngine.GetModelConfig(2));
     multiMesh.Create("resources", "multiMesh.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
@@ -136,6 +137,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
     float timer = 0.0f;
 
+    Player player;
+    player.Init(bunnyModel);
+
+
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
     // =============================================
@@ -148,7 +153,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         } else {
 
             //キーボード情報の取得開始
-            input.InputInfoGet();
+            input->InputInfoGet();
 
             //エンジンのアップデート
             myEngine.Update();
@@ -161,14 +166,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             timer++;
             float t = timer / 240.0f;
 
-            static int light_current = 2;
-
-            if (t >= 1.0f) {
-                currentIndex = (currentIndex + 1) % 4;
-                timer = 0.0f;
-                t = 0.0f;
-                light_current++;
-            }
 
 #ifdef _DEBUG
 
@@ -207,6 +204,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
  
+                static int light_current = 2;
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
                 sphere.GetMaterial()->lightType = light_current%3;
@@ -221,7 +219,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.SpriteUpdate(sprite);
 
             debugUI.ModelUpdate(bunnyModel);
-            debugUI.InputUpdate(input);
+            debugUI.InputUpdate(*input);
 
 
 #endif
@@ -231,7 +229,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             float x = 0.0f;
             float y = 0.0f;
 
-            if (input.GetJoyStick(0, &x, &y)) {
+            if (input->GetJoyStick(0, &x, &y)) {
                 translation[BUNNY].x += x / 60.0f;
                 translation[BUNNY].z += y / 60.0f;
             }
@@ -288,30 +286,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             sprite.Update();
 
             //視点操作
-            input.EyeOperation(camera);
+            input->EyeOperation(camera);
 
-            if (input.IsTriggerKey(DIK_1)) {
+            if (input->IsTriggerKey(DIK_1)) {
                 //音声再生
                 sound.SoundPlay(soundData1);
             }
 
-            if (input.IsTriggerKey(DIK_SPACE)) {
+            if (input->IsTriggerKey(DIK_SPACE)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
                 isExpansion = true;
             }
 
-            if (input.IsTriggerKey(DIK_RETURN)) {
+            if (input->IsTriggerKey(DIK_RETURN)) {
                 debugCamera.SetIsOrthographic(true);
             }
 
-            if (input.IsTriggerKey(DIK_D)) {
+            if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
             }
 
 
-            if (input.IsJoyStickPressButton(0)) {
+            if (input->IsJoyStickPressButton(0)) {
                 isExpansion = true;
             }
 
@@ -327,6 +325,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
+            player.Update();
+
 #pragma region //描画
 
 
@@ -337,8 +337,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             model.PreDraw(PSO::TRIANGLE);
 
             model.Draw(worldMat[TEAPOT], camera);
-            bunnyModel.PreDraw(PSO::TRIANGLE);
-            bunnyModel.Draw(worldMat[BUNNY], camera);
+
+            player.Draw(camera);
+
             multiMesh.PreDraw(PSO::TRIANGLE);
             multiMesh.Draw(worldMat[MULTIMESH], camera);
 

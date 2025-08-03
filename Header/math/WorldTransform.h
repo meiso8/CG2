@@ -2,6 +2,7 @@
 
 #include"Vector3.h"
 #include"Matrix4x4.h"
+#include"MakeAffineMatrix.h"
 
 class WorldTransform {
 public://一旦public
@@ -30,3 +31,6 @@ public:
     };
 
 };
+
+
+void WorldTransformUpdate(WorldTransform& worldTransform);
