@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //ShaderResourceViewを作る
     ShaderResourceView srv3 = {};
-    srv3.Create(texture3, 4, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    srv3.Create(texture3, 3, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
 
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(0));
@@ -81,10 +81,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
     Model model(myEngine.GetModelConfig(0));
-    model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 3);
+    model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    bunnyModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
 
     Model multiMesh(myEngine.GetModelConfig(2));
     multiMesh.Create("resources", "multiMesh.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
@@ -337,6 +337,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             model.PreDraw(PSO::TRIANGLE);
 
             model.Draw(worldMat[TEAPOT], camera);
+            bunnyModel.PreDraw(PSO::TRIANGLE);
             bunnyModel.Draw(worldMat[BUNNY], camera);
             multiMesh.PreDraw(PSO::TRIANGLE);
             multiMesh.Draw(worldMat[MULTIMESH], camera);
