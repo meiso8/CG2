@@ -22,8 +22,9 @@ void Mirror::Update() {
 
         model_->GetExpansionData().expansion += 1.0f / 10.0f;
 
-        if (model_->GetExpansionData().expansion >= 0.5f) {
-            model_->GetExpansionData().expansion = 0.5f;
+        if (model_->GetExpansionData().expansion >= 1.0f) {
+            model_->GetExpansionData().expansion = 1.0f;
+            isDead_ = true;
         }
     }
 };

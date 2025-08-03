@@ -26,10 +26,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
     sound.Initialize();
 
-    //ここはゲームによって異なる
-     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/Alarm01.wav");
+    //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
+    SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/broken.mp3");
     SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/maou_se_battle_explosion05.mp3");
+
+    bool isSound = false;
 
 #pragma endregion
 
@@ -239,12 +240,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             sprite.Update();
 
-
-            if (input->IsTriggerKey(DIK_1)) {
-                //音声再生
-                sound.SoundPlay(soundData1);
-            }
-
             if (input->IsTriggerKey(DIK_SPACE)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
@@ -274,8 +269,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             player.Update();
             for (Mirror* mirror : mirrors) {
                 mirror->Update();
+                if (mirror->IsDead()) {
+
+                    isSound = true;
+       
+                }
             }
-    
+
+            mirrors.remove_if([](Mirror* mirror) {
+                if (mirror->IsDead()) {
+
+                    delete mirror;
+                    return true;
+                }
+                return false;
+                });
+
+
+            if (isSound) {
+                sound.SoundPlay(soundData1);
+                isSound = false;
+            }
+
             collisionManager.RegisterList(&player, mirrors);
             collisionManager.CheckAllCollisions();
             collisionManager.ClearList();
@@ -308,7 +323,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     for (Mirror* mirror : mirrors) {
+        /*    if (mirror == nullptr) {*/
         delete mirror;
+        /*      }
+             */
     }
 
     mirrors.clear();

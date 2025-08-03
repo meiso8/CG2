@@ -22,9 +22,13 @@ public:
             ;
     }
     bool& IsBroken() { return isBroken_; }
+    bool& IsDead() {
+        return isDead_;
+    };
     ~Mirror();
 private:
     WorldTransform worldTransform_;
     Model* model_;
     bool isBroken_ = false;
+    bool isDead_ = false;
 };
