@@ -7,6 +7,9 @@ class Model;
 class Input;
 class Sprite;
 class Sphere;
+class Mirror;
+
+#include<list>
 
 class DebugUI
 {
@@ -17,6 +20,6 @@ public:
     void SpriteUpdate(Sprite& sprite);
     void SphereUpdate(Sphere& sphere);
     void WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& translate, const char* label);
-
+    void DebugMirror(std::list<Mirror*>mirrors);
 };
 

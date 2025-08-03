@@ -7,7 +7,27 @@
 #include<numbers>
 #include<algorithm>
 
+#include "../Mirror.h"
 void DebugUI::Update() {
+
+
+}
+
+void DebugUI::DebugMirror(std::list<Mirror*>mirrors) {
+    ImGui::Begin("Model");
+
+    for (Mirror* mirror : mirrors) {
+        if (ImGui::TreeNode("mirrors")) {
+
+            Vector3 pos = mirror->GetWorldPosition();
+            ImGui::DragFloat3("worldPos", &pos.x, 0.03f, 0.0f, 1000.0f);
+            ImGui::Text("%s", (mirror->IsBroken()) ? "broken" : "safe");
+            ImGui::TreePop();
+        }
+    }
+
+
+    ImGui::End();
 
 
 }

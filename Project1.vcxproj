@@ -93,6 +93,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
@@ -189,6 +192,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="CollisionConfig.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Header\FPSCounter.h" />
     <ClInclude Include="Header\DebugUI.h" />
     <ClInclude Include="Header\Cube.h" />
@@ -279,6 +285,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\RootSignature.h" />
     <ClInclude Include="Header\math\SphericalCoordinate.h" />
     <ClInclude Include="Header\Line.h" />
+    <ClInclude Include="Mirror.h" />
     <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Header\Sphere.h" />
     <ClInclude Include="Player.h" />

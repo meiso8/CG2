@@ -2,7 +2,8 @@
 #include"MyEngine.h"
 
 #include"Player.h"
-
+#include"Mirror.h"
+#include"CollisionManager.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -81,54 +82,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
-    Model model(myEngine.GetModelConfig(0));
-    model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
-
     Model bunnyModel(myEngine.GetModelConfig(0));
     bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
-
-    Model multiMesh(myEngine.GetModelConfig(2));
-    multiMesh.Create("resources", "multiMesh.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
 
     Sphere sphere(myEngine.GetModelConfig(1));
     sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    const int maxMatrix = 4;
 
-    enum Matrix {
-        TEAPOT,
-        BUNNY,
-        SPHERE,
-        MULTIMESH,
-        MAX_MATRIX
-    };
+    CollisionManager collisionManager;
 
-    Vector3 scale[MAX_MATRIX] = {};
-    Vector3 rotation[MAX_MATRIX] = {};
-    Vector3 translation[MAX_MATRIX] = {};
-    Matrix4x4 worldMat[MAX_MATRIX] = {};
 
-    for (int i = 0; i < MAX_MATRIX; ++i) {
-        scale[i] = { 1.0f,1.0f,1.0f };
-        rotation[i] = { 0.0f,0.0f,0.0f };
-        worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
-    }
+    Vector3 scale = {};
+    Vector3 rotation = {};
+    Vector3 translation = {};
+    Matrix4x4 worldMat = {};
 
-    scale[SPHERE] = { 2.5f,2.5f,2.5f };
-
-    translation[TEAPOT] = { -7.5f,0.75f,0.0f };
-    translation[BUNNY] = { 0.0f };
-    translation[SPHERE] = { 0.0f,1.0f,0.0f };
-    translation[MULTIMESH] = { -10.0f,1.0f,0.0f };
+    rotation = { 0.0f,0.0f,0.0f };
+    scale = { 2.5f,2.5f,2.5f };
+    translation = { 0.0f,1.0f,0.0f };
 
     MSG msg{};
 
-    bool isExpansion = false;
-    float expansionSpeed = 1.0f / 30.0f;
     float toCubeSpeed = 1.0f / 240.0f;
-
-    bool isButton[4] = { false };
-
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -137,9 +112,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
     float timer = 0.0f;
 
+
     Player player;
     player.Init(bunnyModel);
 
+    std::list< Mirror*> mirrors;
+    for (int i = 0; i < 3; ++i) {
+        Mirror* mirror = new Mirror();
+
+        Model* mirrorModel = new Model(myEngine.GetModelConfig(0));
+        mirrorModel->Create("resources/mirror", "mirror.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+
+        mirror->Init(*mirrorModel);
+        mirror->SetTranslate({ (i + 1) * 4.0f,0.0f,0.0f });
+        mirrors.push_back(mirror);
+    }
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -169,6 +156,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
+
+            //視点操作
+            input->EyeOperation(camera);
+
             {
                 ImGui::Text("FPS : %d", fpsCounter.GetFPS());
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
@@ -188,10 +179,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             ImGui::Begin("WorldMatrix");
-            const char* items[] = { "TEAPOT", "BUNNY", "SPHERE","MULTIMESH" };
-            for (int i = 0; i < MAX_MATRIX; ++i) {
-                debugUI.WorldMatrixUpdate(scale[i], rotation[i], translation[i], items[i]);
-            }
+            const char* items[] = { "SPHERE" };
+            debugUI.WorldMatrixUpdate(scale, rotation, translation, items[0]);
             ImGui::End();
 
             {
@@ -203,14 +192,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 ImGui::DragFloat("intensity", &myEngine.GetDirectionalLightData().intensity);
 
                 const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
- 
+
                 static int light_current = 2;
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                sphere.GetMaterial()->lightType = light_current%3;
-                bunnyModel.GetMaterial()->lightType = light_current%3;
-                model.GetMaterial()->lightType = light_current%3;
-                multiMesh.GetMaterial()->lightType = light_current%3;
+                sphere.GetMaterial()->lightType = light_current % 3;
+                bunnyModel.GetMaterial()->lightType = light_current % 3;
 
                 ImGui::End();
             }
@@ -218,28 +205,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(sprite);
 
-            debugUI.ModelUpdate(bunnyModel);
             debugUI.InputUpdate(*input);
 
 
+            debugUI.DebugMirror(mirrors);
+
 #endif
 
-            rotation[TEAPOT].y += 1.0f / 60.0f;
-
-            float x = 0.0f;
-            float y = 0.0f;
-
-            if (input->GetJoyStick(0, &x, &y)) {
-                translation[BUNNY].x += x / 60.0f;
-                translation[BUNNY].z += y / 60.0f;
-            }
-
-            rotation[MULTIMESH].y += 1.0f / 60.0f;
-            worldMat[TEAPOT] = Multiply(MakeAffineMatrix(scale[TEAPOT], rotation[TEAPOT], translation[TEAPOT]), MakeRotateYMatrix(rotation[TEAPOT].y));
-
-            for (int i = BUNNY; i < MAX_MATRIX; ++i) {
-                worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
-            }
+            worldMat = MakeAffineMatrix(scale, rotation, translation);
 
             sphere.SetUVScale({ 1.0f,50.0f,1.0f });
             sphere.GetUVTransform().translate += { 0.0f, 1.0f / 60.0f, 0.0f };
@@ -248,25 +221,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             bunnyModel.GetWaveData(0).amplitude = 1.0f / 16.0f;
             bunnyModel.GetWaveData(0).time += 1.0f / 60.0f;
-
-            model.UpdateUV();
-
-            if (isExpansion) {
-                bunnyModel.GetExpansionData().expansion += expansionSpeed;
-
-                bool isSmall = bunnyModel.GetExpansionData().expansion <= 0.0f;
-
-                if (isSmall) {
-                    isExpansion = false;
-                    bunnyModel.GetExpansionData().expansion = 0.0f;
-                }
-
-                if (bunnyModel.GetExpansionData().expansion >= 1.5f || isSmall) {
-                    expansionSpeed *= -1.0f;
-
-                }
-
-            }
 
             sphere.GetExpansionData().cube += toCubeSpeed;
             if (sphere.GetExpansionData().cube <= 0.0f || sphere.GetExpansionData().cube >= 1.0f) {
@@ -285,8 +239,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             sprite.Update();
 
-            //視点操作
-            input->EyeOperation(camera);
 
             if (input->IsTriggerKey(DIK_1)) {
                 //音声再生
@@ -296,7 +248,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input->IsTriggerKey(DIK_SPACE)) {
                 //音声再生
                 sound.SoundPlay(soundData2);
-                isExpansion = true;
             }
 
             if (input->IsTriggerKey(DIK_RETURN)) {
@@ -306,11 +257,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
-            }
-
-
-            if (input->IsJoyStickPressButton(0)) {
-                isExpansion = true;
             }
 
             //カメラの切り替え処理
@@ -326,25 +272,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             player.Update();
+            for (Mirror* mirror : mirrors) {
+                mirror->Update();
+            }
+    
+            collisionManager.RegisterList(&player, mirrors);
+            collisionManager.CheckAllCollisions();
+            collisionManager.ClearList();
 
 #pragma region //描画
 
 
             myEngine.PreCommandSet(worldColor);
 
+            //グリッドの描画
             grid.Draw(srv2);
 
-            model.PreDraw(PSO::TRIANGLE);
-
-            model.Draw(worldMat[TEAPOT], camera);
+            for (Mirror* mirror : mirrors) {
+                mirror->Draw(camera);
+            }
 
             player.Draw(camera);
 
-            multiMesh.PreDraw(PSO::TRIANGLE);
-            multiMesh.Draw(worldMat[MULTIMESH], camera);
-
             sphere.PreDraw();
-            sphere.Draw(worldMat[SPHERE], camera, srv3);
+            sphere.Draw(worldMat, camera, srv3);
 
             sprite.PreDraw();
             sprite.Draw(srv);
@@ -355,6 +306,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
     }
+
+    for (Mirror* mirror : mirrors) {
+        delete mirror;
+    }
+
+    mirrors.clear();
 
     myEngine.End();
 
