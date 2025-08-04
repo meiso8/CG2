@@ -9,7 +9,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"EEZEngine", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"ヨシダトモカ", WIN_WIDTH, WIN_HEIGHT);
 
     FPSCounter fpsCounter;
 
@@ -56,13 +56,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     debugCamera.Initialize(input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 #pragma endregion
 
-    //Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    //texture.Load("resources/dvd.png");
-
-    ////ShaderResourceViewを作る
-    //ShaderResourceView srv = {};
-    //srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
     Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
     texture2.Load("resources/white1x1.png");
 
@@ -77,13 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv3 = {};
     srv3.Create(texture3, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(0));
-
-    //Sprite sprite;
-    //sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
-    //sprite.SetSize(Vector2(256.0f, 128.0f));
-
 
     Texture texture4 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
     texture4.Load("resources/player/player.png");
@@ -111,7 +98,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         {1.0f, 0.8f, 0.6f, 1.0f}, // 朝方：暖かいオレンジ色
         {0.6f, 0.9f, 1.0f, 1.0f}, // 昼：爽やかな水色
         {1.0f, 0.5f, 0.3f, 1.0f}, // 夕方：夕焼けオレンジ
-        {0.1f, 0.1f, 0.3f, 1.0f}  // 深夜：濃いブルー
+        {0.1f, 0.1f, 0.2f, 1.0f}  // 深夜：濃いブルー
     };
 
     float timer = 0.0f;

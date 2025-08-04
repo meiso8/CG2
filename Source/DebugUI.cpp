@@ -7,7 +7,7 @@
 #include<numbers>
 #include<algorithm>
 
-#include "../Mirror.h"
+#include "../Game/Mirror.h"
 void DebugUI::Update() {
 
 
