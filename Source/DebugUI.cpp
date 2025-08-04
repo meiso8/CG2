@@ -157,3 +157,9 @@ void DebugUI::WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& transl
     }
 
 };
+
+void DebugUI::Color( Vector4& color) {
+    ImGui::Begin("Color");
+    ImGui::ColorEdit4("color", (float*)&color);
+    ImGui::End();
+}

@@ -30,7 +30,7 @@ public:
 
     void SetSize(const Vector2& size);
     void SetColor(const Vector4& color);
-    void SetTranslate(const Vector3& translate) { transform_.translate; }
+    void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 
     Vector2& GetSize() { return size_; }
 

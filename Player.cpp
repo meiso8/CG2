@@ -8,6 +8,7 @@ void Player::Init(Model& model) {
 
     model_ = &model;
 
+
     worldTransform_.Initialize();
     SetRadius(0.5f);
 
@@ -16,22 +17,40 @@ void Player::Init(Model& model) {
 
 };
 
-void Player::Update() {
+void Player::InputMove() {
+
 
     if (Input::GetInstance()->IsPushKey(DIK_A)) {
-        worldTransform_.translate_.x--;
+        worldTransform_.translate_.x -= speed_;
     }
 
     if (Input::GetInstance()->IsPushKey(DIK_D)) {
-        worldTransform_.translate_.x++;
+        worldTransform_.translate_.x += speed_;
     }
 
     if (Input::GetInstance()->IsPushKey(DIK_W)) {
-        worldTransform_.translate_.y++;
+        worldTransform_.translate_.y += speed_;
     }
 
     if (Input::GetInstance()->IsPushKey(DIK_S)) {
-        worldTransform_.translate_.y--;
+        worldTransform_.translate_.y -= speed_;
+    }
+
+};
+
+void Player::Update() {
+
+    InputMove();
+
+    if (isHit_) {
+
+        model_->GetExpansionData().expansion += 1.0f / 10.0f;
+
+        if (model_->GetExpansionData().expansion >= 0.2f) {
+            worldTransform_.Initialize();
+            model_->GetExpansionData().expansion = 0.0f;
+            isHit_ = false;
+        }
     }
 
     WorldTransformUpdate(worldTransform_);
@@ -57,13 +76,8 @@ Vector3 Player::GetWorldPosition() {
 
 void Player::OnCollision() {
 
-    model_->GetExpansionData().expansion += 1.0f / 10.0f;
     //HPを減らす
     hp_ -= 10;
-
-    if (model_->GetExpansionData().expansion >= 0.2f) {
-        worldTransform_.Initialize();
-        model_->GetExpansionData().expansion = 0.0f;
-    }
+    isHit_ = true;
 
 };

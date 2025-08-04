@@ -2,6 +2,7 @@
 
 #include"../Header/ImGuiClass.h"
 #include"../Header/math/Vector3.h"
+#include"../Header/math/Vector4.h"
 
 class Model;
 class Input;
@@ -21,5 +22,6 @@ public:
     void SphereUpdate(Sphere& sphere);
     void WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& translate, const char* label);
     void DebugMirror(std::list<Mirror*>mirrors);
+    void Color( Vector4& color);
 };
 

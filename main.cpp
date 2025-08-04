@@ -5,8 +5,11 @@
 #include"Mirror.h"
 #include"CollisionManager.h"
 
+#include "Header/math/Lerp.h"
+
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
+
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -20,6 +23,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //入力
     input->Initialize(myEngine.GetWC(), fpsCounter.GetFPS());
 
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
     //音声クラスの作成
@@ -28,9 +34,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
     SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/broken.mp3");
-    SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/maou_se_battle_explosion05.mp3");
+    SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/dreamcore.mp3");
+
+    SoundData voiceData[3] =
+    { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
+     sound.SoundLoad(L"resources/Sounds/voice2.wav"),
+     sound.SoundLoad(L"resources/Sounds/voice3.wav") };
 
     bool isSound = false;
+    bool isVoiceSound = false;
 
 #pragma endregion
 
@@ -83,6 +95,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
     sprite.SetSize(Vector2(256.0f, 128.0f));
 
+
+    Texture texture4 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
+    texture4.Load("resources/player/player.png");
+
+    //ShaderResourceViewを作る
+    ShaderResourceView srv4 = {};
+    srv4.Create(texture4, 6, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+
+    Sprite playerSprite;
+    playerSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+    playerSprite.SetSize(Vector2(256.0f, 256.0f));
+
+
     Model bunnyModel(myEngine.GetModelConfig(0));
     bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
 
@@ -118,7 +143,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     player.Init(bunnyModel);
 
     std::list< Mirror*> mirrors;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 7; ++i) {
         Mirror* mirror = new Mirror();
 
         Model* mirrorModel = new Model(myEngine.GetModelConfig(0));
@@ -204,10 +229,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             debugUI.SphereUpdate(sphere);
-            debugUI.SpriteUpdate(sprite);
+            debugUI.SpriteUpdate(playerSprite);
 
             debugUI.InputUpdate(*input);
-
+            debugUI.Color(worldColor);
 
             debugUI.DebugMirror(mirrors);
 
@@ -242,7 +267,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             if (input->IsTriggerKey(DIK_SPACE)) {
                 //音声再生
-                sound.SoundPlay(soundData2);
+                sound.SoundPlay(soundData2, 0.5f);
             }
 
             if (input->IsTriggerKey(DIK_RETURN)) {
@@ -262,17 +287,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 debugCamera.Update();
 
             } else {
-                //カメラの更新処理
+                Vector3 currentCamPos = camera.GetTranslate(); // カメラの現在位置
+                Vector3 targetCamPos = player.GetWorldPosition();
+                targetCamPos.z -= 20.0f; // プレイヤーの後ろに配置
+
+                // 補間：現在位置 → 目標位置へ滑らかに移動（αは追従の速さ）
+                float followSpeed = 0.1f; // 0.0〜1.0（小さいほどゆっくり）
+                Vector3 smoothedPos = Lerp(currentCamPos, targetCamPos, followSpeed);
+
+                camera.SetTarnslate(smoothedPos);
                 camera.Update();
             }
 
+            playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
+            playerSprite.Update();
+
             player.Update();
+            if (player.IsHit()) {
+
+                if (!isVoiceSound) {
+                    isVoiceSound = true;
+
+                }
+
+
+            }
+
             for (Mirror* mirror : mirrors) {
                 mirror->Update();
                 if (mirror->IsDead()) {
 
                     isSound = true;
-       
+
                 }
             }
 
@@ -287,8 +333,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
             if (isSound) {
-                sound.SoundPlay(soundData1);
+                sound.SoundPlay(soundData1, 0.125f);
                 isSound = false;
+            }
+
+            if (isVoiceSound) {
+                sound.SoundPlay(voiceData[rand() % 3], 0.125f);
+                isVoiceSound = false;
             }
 
             collisionManager.RegisterList(&player, mirrors);
@@ -315,6 +366,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             sprite.PreDraw();
             sprite.Draw(srv);
 
+            playerSprite.Draw(srv4);
 
             myEngine.PostCommandSet();
 #pragma endregion
@@ -323,10 +375,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     for (Mirror* mirror : mirrors) {
-        /*    if (mirror == nullptr) {*/
+
         delete mirror;
-        /*      }
-             */
+
     }
 
     mirrors.clear();

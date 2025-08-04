@@ -95,12 +95,15 @@ void Sound::SoundUnload(SoundData* soundData) {
 
 };
 
-void Sound::SoundPlay(const SoundData& soundData) {
+void Sound::SoundPlay(const SoundData& soundData, const float& volume) {
     HRESULT result;
 
     IXAudio2SourceVoice* pSourceVoice{ nullptr };
     result = xAudio2_->CreateSourceVoice(&pSourceVoice, soundData.pWaveFormat);
     assert(SUCCEEDED(result));
+
+
+    pSourceVoice->SetVolume(volume);
 
     XAUDIO2_BUFFER buf{};
     buf.pAudioData = soundData.mediaData.data();

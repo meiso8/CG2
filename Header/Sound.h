@@ -32,7 +32,7 @@ public:
 
     SoundData SoundLoad(const std::wstring& path);
 
-    void SoundPlay(const SoundData& soundData);
+    void SoundPlay(const SoundData& soundData, const float& volume);
     /// @brief 音声データの解放関数  
     /// @param soundData 音声データ  
     void SoundUnload(SoundData* soundData);
