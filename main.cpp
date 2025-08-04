@@ -146,13 +146,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             timer++;
             float t = timer / 240.0f;
-            //static int light_current = 2;
 
             if (t >= 1.0f) {
                 currentIndex = (currentIndex + 1) % 4;
                 timer = 0.0f;
                 t = 0.0f;
-                /* light_current++;*/
             }
 
 
@@ -202,35 +200,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 static int light_current = 2;
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                /*       sphere.GetMaterial()->lightType = light_current % 3;*/
                 bunnyModel.GetMaterial()->lightType = light_current % 3;
 
                 ImGui::End();
             }
 
-            //debugUI.SphereUpdate(sphere);
             debugUI.SpriteUpdate(playerSprite);
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.DebugMirror(gameScene.GetMirrors());
 
 #endif
-
-
-            /*       sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
-                   sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
-
-                   if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
-                       speed.x *= -1.0f;
-                   }
-
-                   if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
-                       speed.y *= -1.0f;
-                   }
-
-                   sprite.Update();*/
-
-
 
             if (input->IsTriggerKey(DIK_RETURN)) {
                 debugCamera.SetIsOrthographic(true);
