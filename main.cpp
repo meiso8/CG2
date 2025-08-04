@@ -107,11 +107,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector2 speed = { 2.0f,2.0f };
 
     size_t currentIndex = 0;
-    Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
+    Vector4 colors[4] = {
+        {1.0f, 0.8f, 0.6f, 1.0f}, // 朝方：暖かいオレンジ色
+        {0.6f, 0.9f, 1.0f, 1.0f}, // 昼：爽やかな水色
+        {1.0f, 0.5f, 0.3f, 1.0f}, // 夕方：夕焼けオレンジ
+        {0.1f, 0.1f, 0.3f, 1.0f}  // 深夜：濃いブルー
+    };
+
     float timer = 0.0f;
 
     GameScene gameScene;
-    gameScene.Init(myEngine,&bunnyModel);
+    gameScene.Init(myEngine, &bunnyModel);
 
 
     MSG msg{};
@@ -140,8 +146,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             timer++;
             float t = timer / 240.0f;
+            //static int light_current = 2;
 
-            gameScene.Update(sound,soundData1,soundData2,voiceData);
+            if (t >= 1.0f) {
+                currentIndex = (currentIndex + 1) % 4;
+                timer = 0.0f;
+                t = 0.0f;
+                /* light_current++;*/
+            }
+
+
+            worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
+            gameScene.Update(sound, soundData1, soundData2, voiceData);
 
 
 #ifdef _DEBUG
@@ -186,7 +202,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 static int light_current = 2;
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-         /*       sphere.GetMaterial()->lightType = light_current % 3;*/
+                /*       sphere.GetMaterial()->lightType = light_current % 3;*/
                 bunnyModel.GetMaterial()->lightType = light_current % 3;
 
                 ImGui::End();
@@ -201,20 +217,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
 
-     /*       sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
-            sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
+            /*       sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
+                   sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
 
-            if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
-                speed.x *= -1.0f;
-            }
+                   if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
+                       speed.x *= -1.0f;
+                   }
 
-            if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
-                speed.y *= -1.0f;
-            }
+                   if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
+                       speed.y *= -1.0f;
+                   }
 
-            sprite.Update();*/
+                   sprite.Update();*/
 
-    
+
 
             if (input->IsTriggerKey(DIK_RETURN)) {
                 debugCamera.SetIsOrthographic(true);
@@ -244,7 +260,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //グリッドの描画
             grid.Draw(srv2);
 
-            gameScene.Draw(camera,srv3,srv4,playerSprite);
+            gameScene.Draw(camera, srv3, srv4, playerSprite);
 
             myEngine.PostCommandSet();
 #pragma endregion
