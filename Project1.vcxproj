@@ -93,15 +93,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Collider.cpp" />
-    <ClCompile Include="CollisionManager.cpp" />
-    <ClCompile Include="Mirror.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Game\Collider.cpp" />
+    <ClCompile Include="Game\CollisionManager.cpp" />
+    <ClCompile Include="Game\GameScene.cpp" />
+    <ClCompile Include="Game\Mirror.cpp" />
+    <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\Line.cpp" />
-    <ClCompile Include="MyEngine.cpp" />
+    <ClCompile Include="Game\MyEngine.cpp" />
     <ClCompile Include="Source\DrawGrid.cpp" />
     <ClCompile Include="Source\math\Vector4.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
@@ -192,9 +193,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="CollisionConfig.h" />
-    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Game\GameScene.h" />
+    <ClInclude Include="Game\Collider.h" />
+    <ClInclude Include="Game\CollisionConfig.h" />
+    <ClInclude Include="Game\CollisionManager.h" />
     <ClInclude Include="Header\FPSCounter.h" />
     <ClInclude Include="Header\DebugUI.h" />
     <ClInclude Include="Header\Cube.h" />
@@ -285,10 +287,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Header\RootSignature.h" />
     <ClInclude Include="Header\math\SphericalCoordinate.h" />
     <ClInclude Include="Header\Line.h" />
-    <ClInclude Include="Mirror.h" />
-    <ClInclude Include="MyEngine.h" />
+    <ClInclude Include="Game\Mirror.h" />
+    <ClInclude Include="Game\MyEngine.h" />
     <ClInclude Include="Header\Sphere.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Game\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

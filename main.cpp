@@ -1,11 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
 
-#include"Player.h"
-#include"Mirror.h"
-#include"CollisionManager.h"
 
-#include "Header/math/Lerp.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -106,7 +102,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sprite playerSprite;
     playerSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
     playerSprite.SetSize(Vector2(256.0f, 256.0f));
-
+    playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
+    playerSprite.Update();
 
     Model bunnyModel(myEngine.GetModelConfig(0));
     bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
@@ -299,8 +296,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
             }
 
-            playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
-            playerSprite.Update();
 
             player.Update();
             if (player.IsHit()) {
