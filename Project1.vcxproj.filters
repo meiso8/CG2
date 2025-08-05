@@ -576,4 +576,11 @@
       <Filter>imgui</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mdd.lib" />
+    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mtd.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="externals\assimp\lib\Debug\assimp-vc143-mtd.pdb" />
+  </ItemGroup>
 </Project>
