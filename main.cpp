@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.Update();
 
     Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    bunnyModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
     assert(&bunnyModel);
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };

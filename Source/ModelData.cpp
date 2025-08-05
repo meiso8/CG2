@@ -29,7 +29,8 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
         if (identifier == "v") {
             Vector4 position;
             s >> position.x >> position.y >> position.z;
-            position.x *= -1.0f;//座標系の統一のため
+
+            position.z *= -1.0f;
             position.w = 1.0f;//同次座標のため
             positions.push_back(position);
 
@@ -42,7 +43,8 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
         } else if (identifier == "vn") {
             Vector3 normal;
             s >> normal.x >> normal.y >> normal.z;
-            normal.x *= -1.0f;//座標系の統一のため
+  
+            normal.z *= -1.0f;
             normals.push_back(normal);
         } else if (identifier == "f") {
             //三角形を作る
@@ -67,7 +69,7 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
 
                 //まずobj通りに保存、格納する際に逆にする　座標系の統一のため
                 triangle[faceVertex] = {position,texcoord,normal};
-              /*  modelData.vertices.push_back(triangle[faceVertex]);*/
+
             }
 
             //////頂点を逆順で登録することで、回り順を逆順にする
