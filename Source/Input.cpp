@@ -296,7 +296,7 @@ void Input::EyeOperation(Camera& camera) {
 
     pos_ = TransformCoordinate(shericalCoordinate_);
 
-    camera.SetTarnslate(pos_);
+    camera.SetTranslate(pos_);
 
 }
 

@@ -7,10 +7,10 @@
 #include"math/Multiply.h"
 
 void Cube::Create(
-    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device, ModelConfig& mc
 ) {
 
-    camera_ = &camera;
+    //camera_ = &camera;
 
     CreateVertex(device);
     CreateIndexResource(device);
@@ -155,8 +155,6 @@ void Cube::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>
 
     transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_, worldMatrix_ };
 }
 
 void Cube::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -195,14 +193,6 @@ void Cube::SetMinMax(const Vector3& min, const Vector3& max) {
 
 }
 
-void Cube::Update() {
-
-    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
-}
-
-
 void Cube::PreDraw() {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
@@ -214,8 +204,13 @@ void Cube::PreDraw() {
 }
 
 void Cube::Draw(
-    ShaderResourceView& srv
+    ShaderResourceView& srv, Camera& camera
 ) {
+
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera.GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
+
     //頂点バッファビューを設定
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //IBVを設定new

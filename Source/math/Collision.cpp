@@ -9,8 +9,8 @@
 
 bool IsCollision(const Sphere& s1, const Sphere& s2) {
 
-    //2つの急の中心点間距離を求める オペレーターが機能しないので一旦べた書き
-    float distance = Length({ s2.center.x - s1.center.x,s2.center.y - s1.center.y,s2.center.z - s1.center.z });
+    //2つの急の中心点間距離を求める 
+    float distance = Length({ s2.center- s1.center });
 
     if (distance <= s1.radius + s2.radius) {
         return true;

@@ -21,13 +21,11 @@ class LineMesh
 {
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc);
-
-    void Update();
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, ModelConfig& mc);
 
     void PreDraw();
     void Draw(
-        ShaderResourceView& srv
+        ShaderResourceView& srv ,Camera& camera
     );
 
     void SetColor(const Vector4& color);
@@ -73,8 +71,6 @@ private:
     Wave* waveData = nullptr;
 
     ModelConfig modelConfig_{};
-
-    Camera* camera_ = nullptr;
 
 };
 

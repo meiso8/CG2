@@ -106,11 +106,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Game\Mirror.cpp" />
     <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Game\Hammer.cpp" />
+    <ClCompile Include="MyEngine.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\LineMesh.cpp" />
-    <ClCompile Include="Game\MyEngine.cpp" />
     <ClCompile Include="Source\DrawGrid.cpp" />
     <ClCompile Include="Source\math\AABB.cpp" />
     <ClCompile Include="Source\math\CatmullRom.cpp" />
@@ -218,8 +218,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Game\Mirror.h" />
-    <ClInclude Include="Game\MyEngine.h" />
     <ClInclude Include="Game\Player.h" />
+    <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />
     <ClInclude Include="Source\Camera.h" />

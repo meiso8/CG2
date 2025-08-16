@@ -52,8 +52,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Camera cameraSprite;
     cameraSprite.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), true);
 
-    DebugCamera debugCamera;
-    debugCamera.Initialize(input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
 #pragma endregion
 
     Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
@@ -70,7 +68,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ShaderResourceView srv3 = {};
     srv3.Create(texture3, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(0));
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
     Texture texture4 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
     texture4.Load("resources/player/player.png");
@@ -152,9 +150,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 
 
-            //視点操作
-            input->EyeOperation(camera);
-
+  
             {
                 ImGui::Text("FPS : %d", fpsCounter.GetFPS());
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
@@ -198,9 +194,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #endif
 
-            if (input->IsTriggerKey(DIK_RETURN)) {
-                debugCamera.SetIsOrthographic(true);
-            }
 
             if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
@@ -210,9 +203,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //カメラの切り替え処理
             if (isDebug) {
                 //デバッグカメラに切り替え
-                camera.SetViewMatrix(debugCamera.GetViewMatrix());
-                camera.SetProjectionMatrix(debugCamera.GetProjectionMatrix());
-                debugCamera.Update();
+                          //視点操作
+                input->EyeOperation(camera);
+
+                camera.Update();
 
             } else {
                 gameScene.CameraUpdate(camera);
@@ -224,7 +218,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             myEngine.PreCommandSet(worldColor);
 
             //グリッドの描画
-            grid.Draw(srv2);
+            grid.Draw(srv2,camera);
 
             gameScene.Draw(camera, srv3, srv4, playerSprite);
 

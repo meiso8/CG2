@@ -5,11 +5,8 @@
 #include"math/Multiply.h"
 
 void LineMesh::Create(
-    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc
 ) {
-
-    camera_ = &camera;
-
     CreateVertex(device);
     CreateTransformationMatrix(device);
     CreateMaterial(device);
@@ -138,8 +135,7 @@ void LineMesh::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Dev
 
     transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
     worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_, worldMatrix_ };
+
 }
 
 void LineMesh::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -153,14 +149,6 @@ void LineMesh::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
 }
 
-void LineMesh::Update() {
-
-    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
-}
-
-
 void LineMesh::PreDraw() {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
@@ -172,8 +160,11 @@ void LineMesh::PreDraw() {
 }
 
 void LineMesh::Draw(
-    ShaderResourceView& srv
+    ShaderResourceView& srv, Camera& camera
 ) {
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera.GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
     //頂点バッファビューを設定
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/

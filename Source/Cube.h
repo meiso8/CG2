@@ -25,13 +25,10 @@ class Cube
 
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc);
-
-    void Update();
-
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc);
    void  PreDraw();
     void Draw(
-        ShaderResourceView& srv
+        ShaderResourceView& srv, Camera& camera
     );
 
     void SetColor(const Vector4& color);
@@ -77,7 +74,5 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> waveResource_;
     Wave* waveData_ = nullptr;
-
-    Camera* camera_ = nullptr;
 };
 

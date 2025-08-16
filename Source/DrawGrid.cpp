@@ -1,10 +1,10 @@
 #include"DrawGrid.h"
 #include<numbers>
 
-DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc) {
+DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc) {
 
     for (int i = 0; i < 102; ++i) {
-        line_[i].Create(device, camera, mc);
+        line_[i].Create(device, mc);
     }
 
     for (int i = 0; i < 51; ++i) {
@@ -23,8 +23,8 @@ DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& c
         }
     }
 
-    cube_[0].Create(device, camera, mc);
-    cube_[1].Create(device, camera, mc);
+    cube_[0].Create(device, mc);
+    cube_[1].Create(device, mc);
 
     cube_[0].SetMinMax({ -1.0f / 128.0f,-1.0f / 128.0f,-25.0f }, { 1.0f / 128.0f,1.0f / 128.0f,25.0f });
     cube_[1].SetMinMax({ -25.0f,-1.0f / 128.0f,-1.0f / 128.0f }, { 25.0f,1.0f / 128.0f,1.0f / 128.0f });
@@ -34,21 +34,19 @@ DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& c
 
 }
 
-void DrawGrid::Draw(ShaderResourceView& srv) {
+void DrawGrid::Draw(ShaderResourceView& srv,Camera& camera ) {
 
     line_[0].PreDraw();
 
     for (int i = 0; i < 102; ++i) {
-        line_[i].Update();
-        line_[i].Draw(srv);
+        line_[i].Draw(srv,camera);
     }
 
 
     cube_[0].PreDraw();
 
     for (int i = 0; i < 2; ++i) {
-        cube_[i].Update();
-        cube_[i].Draw(srv);
+        cube_[i].Draw(srv,camera);
     }
 
 }
