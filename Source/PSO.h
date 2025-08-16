@@ -5,12 +5,12 @@
 #include<dxcapi.h>
 //ComPtr(コムポインタ)
 #include<wrl.h>
-#include"../Header/RootSignature.h"
-#include"../Header/InputLayout.h"
-#include"../Header/CompileShader.h"
-#include"../Header/BlendState.h"
-#include"../Header/RasterizerState.h"
-#include"../Header/Depth.h"
+#include"RootSignature.h"
+#include"InputLayout.h"
+#include"CompileShader.h"
+#include"BlendState.h"
+#include"RasterizerState.h"
+#include"Depth.h"
 
 class PSO {
 public:

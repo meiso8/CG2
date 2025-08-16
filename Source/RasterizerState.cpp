@@ -1,4 +1,4 @@
-#include "../Header/RasterizerState.h"
+#include "RasterizerState.h"
 
 
 void RasterizerState::Create(D3D12_CULL_MODE cullMode, D3D12_FILL_MODE fillMode) {

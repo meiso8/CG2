@@ -1,8 +1,8 @@
-#include "../Header/RootSignature.h"
+#include "RootSignature.h"
 
 #include<cassert>
 
-#include"../Header/Log.h"
+#include"Log.h"
 
 void RootSignature::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 

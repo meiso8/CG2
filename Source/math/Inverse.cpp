@@ -1,4 +1,4 @@
-#include"../../Header/math/Inverse.h"
+#include"Inverse.h"
 
 //逆行列
 Matrix4x4 Inverse(const Matrix4x4& m) {

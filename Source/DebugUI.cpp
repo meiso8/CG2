@@ -1,9 +1,9 @@
-#include "../Header/DebugUI.h"
-#include"../Header/math/Normalize.h"
-#include"../Header/Model.h"
-#include"../Header/Input.h"
-#include"../Header/Sprite.h"
-#include"../Header/Sphere.h"
+#include "DebugUI.h"
+#include"math/Normalize.h"
+#include"Model.h"
+#include"Input.h"
+#include"Sprite.h"
+#include"SphereMesh.h"
 #include<numbers>
 #include<algorithm>
 
@@ -130,7 +130,7 @@ void DebugUI::SpriteUpdate(Sprite& sprite) {
     ImGui::End();
 }
 
-void DebugUI::SphereUpdate(Sphere& sphere) {
+void DebugUI::SphereUpdate(SphereMesh& sphere) {
     ImGui::Begin("Sphere");
     ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
     ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);

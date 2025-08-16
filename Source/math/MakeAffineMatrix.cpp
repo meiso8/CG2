@@ -1,4 +1,4 @@
-#include"../../Header/math/MakeAffineMatrix.h"
+#include"MakeAffineMatrix.h"
 #include <cmath>
 
 //3次元アフィン変換行列の生成

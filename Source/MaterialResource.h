@@ -1,6 +1,6 @@
 #pragma once
 
-#include"../Header/Material.h"
+#include"Material.h"
 
 //ComPtr(コムポインタ)
 #include<wrl.h>

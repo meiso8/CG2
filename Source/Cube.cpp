@@ -1,10 +1,10 @@
-#include "../Header/Cube.h"
+#include "Cube.h"
 
-#include"../Header/CreateBufferResource.h"
+#include"CreateBufferResource.h"
 
 
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
+#include"math/MakeAffineMatrix.h"
+#include"math/Multiply.h"
 
 void Cube::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc

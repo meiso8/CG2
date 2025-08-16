@@ -4,7 +4,7 @@
 #include<d3d12.h>
 #include<dxgi1_6.h>
 
-#include"../Header/DXGIFactory.h"
+#include"DXGIFactory.h"
 
 class GPU
 {

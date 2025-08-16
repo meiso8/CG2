@@ -2,8 +2,8 @@
 #include<wrl.h>
 #include<d3d12.h>
 #include<cstdint>
-#include"../Header/FenceEvent.h"
-#include"../Header/CommandQueue.h"
+#include"FenceEvent.h"
+#include"CommandQueue.h"
 
 class Fence
 {

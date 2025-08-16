@@ -1,10 +1,10 @@
-#include "../Header/Line.h"
-#include"../Header/CreateBufferResource.h"
+#include "LineMesh.h"
+#include"CreateBufferResource.h"
 
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
+#include"math/MakeAffineMatrix.h"
+#include"math/Multiply.h"
 
-void Line::Create(
+void LineMesh::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
 ) {
 
@@ -55,7 +55,7 @@ void Line::Create(
 
 }
 
-void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void LineMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //VertexResourceとVertexBufferViewを用意
     vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 2);
@@ -83,14 +83,14 @@ void Line::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 }
 
-void Line::SetVertexPos(const Vector3& start, const Vector3& end) {
+void LineMesh::SetVertexPos(const Vector3& start, const Vector3& end) {
     vertexData_[0].position = { start.x,start.y,start.z,1.0f };//左下
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
     vertexData_[1].position = { end.x,end.y,end.z,1.0f };//右下
     vertexData_[1].normal = { vertexData_[1].position.x,  vertexData_[1].position.y,  vertexData_[1].position.z };
 };
 
-void Line::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void LineMesh::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 #pragma region//IndexResourceを作成
     indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * 12);
@@ -128,7 +128,7 @@ void Line::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& devic
 #pragma endregion
 }
 
-void Line::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void LineMesh::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //Matrix4x4　1つ分のサイズを用意
     transformationMatrixResource_ = CreateBufferResource(device, sizeof(TransformationMatrix));
@@ -142,18 +142,18 @@ void Line::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>
     *transformationMatrixData_ = { worldViewProjectionMatrix_, worldMatrix_ };
 }
 
-void Line::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void LineMesh::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
     materialResource_.CreateMaterial(device, 0);
 
 }
 
-void Line::SetColor(const Vector4& color) {
+void LineMesh::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
 }
 
-void Line::Update() {
+void LineMesh::Update() {
 
     worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
     worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
@@ -161,7 +161,7 @@ void Line::Update() {
 }
 
 
-void Line::PreDraw() {
+void LineMesh::PreDraw() {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
@@ -171,7 +171,7 @@ void Line::PreDraw() {
     modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
-void Line::Draw(
+void LineMesh::Draw(
     ShaderResourceView& srv
 ) {
     //頂点バッファビューを設定

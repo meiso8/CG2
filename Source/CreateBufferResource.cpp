@@ -1,4 +1,4 @@
-#include"../Header/CreateBufferResource.h"
+#include"CreateBufferResource.h"
 
 //Resource作成の関数化
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(

@@ -1,4 +1,4 @@
-#include"../Header/math/SphericalCoordinate.h"
+#include"math/SphericalCoordinate.h"
 
 ShericalCoordinate TransformCoordinate(const Vector3& v) {
 

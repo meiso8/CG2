@@ -1,7 +1,7 @@
 #pragma once
 #include"math/Vector3.h"
 #include"math/Matrix4x4.h"
-#include"../Header/Input.h"
+#include"Input.h"
 
 class Input;
 

@@ -1,12 +1,12 @@
-#include"../Header/Texture.h"
-#include"../Header/Camera.h"
-#include"../Header/ModelData.h"
-#include"../Header/MaterialResource.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/Config.h"
-#include"../Header/Balloon.h"
-#include"../Header/Wave.h"
-#include"../Header/math/Transform.h"
+#include"Texture.h"
+#include"Camera.h"
+#include"ModelData.h"
+#include"MaterialResource.h"
+#include"TransformationMatrix.h"
+#include"Config.h"
+#include"Balloon.h"
+#include"Wave.h"
+#include"math/Transform.h"
 
 class Model
 {

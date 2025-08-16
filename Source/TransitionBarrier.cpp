@@ -1,4 +1,4 @@
-#include "../Header/TransitionBarrier.h"
+#include "TransitionBarrier.h"
 
 //TransitionBarrierの設定
 void TransitionBarrier::SettingBarrier(

@@ -1,14 +1,14 @@
-#include "../Header/Sphere.h"
-#include"../Header/CreateBufferResource.h"
-#include"../Header/Texture.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
-#include"../Header/math/Transform.h"
-#include"../Header/math/MakeIdentity4x4.h"
+#include "SphereMesh.h"
+#include"CreateBufferResource.h"
+#include"Texture.h"
+#include"TransformationMatrix.h"
+#include"math/MakeAffineMatrix.h"
+#include"math/Multiply.h"
+#include"math/Transform.h"
+#include"math/MakeIdentity4x4.h"
 #include<numbers>
 
-void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void SphereMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //VertexResourceとVertexBufferViewを用意 矩形を表現するための三角形を二つ(頂点4つ)
     vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6 * kSubdivision_ * kSubdivision_);
@@ -134,14 +134,14 @@ void Sphere::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
 
 };
-void Sphere::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void SphereMesh::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
     materialResource_.CreateMaterial(device, 2);
 
 }
 
-void Sphere::Create(
+void SphereMesh::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap) {
 
@@ -195,14 +195,14 @@ void Sphere::Create(
 //#pragma endregion
 //}
 
-void Sphere::UpdateUV() {
+void SphereMesh::UpdateUV() {
 
     uvTransformMatrix_ = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
     materialResource_.SetUV(uvTransformMatrix_);
 }
 
 
-void Sphere::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
+void SphereMesh::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     //WVP用のリソースを作る。Matrix3x3 1つ分のサイズを用意する。
     wvpResource_ = CreateBufferResource(device, sizeof(TransformationMatrix));
     //データを書き込む
@@ -210,11 +210,11 @@ void Sphere::CreateWorldVPResource(const Microsoft::WRL::ComPtr<ID3D12Device>& d
     wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate_));
 };
 
-void Sphere::SetColor(const Vector4& color) {
+void SphereMesh::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
 };
 
-void Sphere::PreDraw() {
+void SphereMesh::PreDraw() {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
     //RootSignatureを設定。PSOに設定しているけど別途設定が必要
@@ -224,7 +224,7 @@ void Sphere::PreDraw() {
     modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Sphere::Draw(
+void SphereMesh::Draw(
 
     const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv
 ) {
@@ -251,7 +251,7 @@ void Sphere::Draw(
 
 }
 
-Sphere::~Sphere() {
+SphereMesh::~SphereMesh() {
 
     delete texture_;
 };

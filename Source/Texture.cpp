@@ -1,6 +1,6 @@
-#include"../Header/Texture.h"
-#include"../Header/Log.h"
-#include"../Header/CreateBufferResource.h"
+#include"Texture.h"
+#include"Log.h"
+#include"CreateBufferResource.h"
 
 #include<cassert>
 

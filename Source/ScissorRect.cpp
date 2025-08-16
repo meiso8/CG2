@@ -1,4 +1,4 @@
-#include "../Header/ScissorRect.h"
+#include "ScissorRect.h"
 
 D3D12_RECT CreateScissorRect(const int32_t& width, const int32_t& height) {
     //シザー矩形

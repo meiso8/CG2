@@ -1,4 +1,4 @@
-#include"../Header/Log.h"
+#include"Log.h"
 #include<Windows.h>
 #include <filesystem>
 #include <chrono>

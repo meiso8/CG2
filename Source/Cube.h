@@ -16,8 +16,8 @@
 #include"MaterialResource.h"  
 #include"math/Vector2.h"  
 #include"RootSignature.h"  
-#include"../Header/Balloon.h"
-#include"../Header/Wave.h"
+#include"Balloon.h"
+#include"Wave.h"
 
 class Cube
 {

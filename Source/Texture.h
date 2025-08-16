@@ -10,8 +10,8 @@
 //Textureの転送のために
 #include"../externals/DirectXTex/d3dx12.h"
 
-#include"../Header/CommandList.h"
-#include"../Header/ShaderResourceView.h"
+#include"../Source/CommandList.h"
+#include"../Source/ShaderResourceView.h"
 
 //テクスチャの読み込み関数
 DirectX::ScratchImage LoadTexture(const std::string& filePath);

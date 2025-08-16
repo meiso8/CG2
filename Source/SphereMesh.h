@@ -1,20 +1,20 @@
 #pragma once
 
 
-#include"../Header/Texture.h"
-#include"../Header/Camera.h"
-#include"../Header/ModelData.h"
-#include"../Header/MaterialResource.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/Config.h"
-#include"../Header/Balloon.h"
-#include"../Header/Wave.h"
+#include"Texture.h"
+#include"Camera.h"
+#include"ModelData.h"
+#include"MaterialResource.h"
+#include"TransformationMatrix.h"
+#include"Config.h"
+#include"Balloon.h"
+#include"Wave.h"
 
-class Sphere
+class SphereMesh
 {
 public:
 
-    Sphere(ModelConfig mc)
+    SphereMesh(ModelConfig mc)
         : modelConfig_(mc)
     {
     }
@@ -39,7 +39,7 @@ public:
         return *expansionData_;
     }
 
-    ~Sphere();
+    ~SphereMesh();
 
 private:
     void CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device);

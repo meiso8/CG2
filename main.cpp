@@ -85,9 +85,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
     playerSprite.Update();
 
-    Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
-    assert(&bunnyModel);
+    Model playerModel(myEngine.GetModelConfig(0));
+    playerModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    assert(&playerModel);
+
+    Model hammerModel(myEngine.GetModelConfig(0));
+    hammerModel.Create("resources/hammer", "hammer.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
+    assert(&hammerModel);
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -104,7 +108,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     float timer = 0.0f;
 
     GameScene gameScene;
-    gameScene.Init(myEngine, &bunnyModel);
+    gameScene.Init(myEngine, &playerModel,&hammerModel);
 
 
     MSG msg{};
@@ -141,7 +145,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
 
-            worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
+           /* worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);*/
             gameScene.Update(sound, soundData1, soundData2, voiceData);
 
 
@@ -169,13 +173,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             }
 
-            //ImGui::Begin("WorldMatrix");
-            //const char* items[] = { "SPHERE" };
-            //debugUI.WorldMatrixUpdate(scale, rotation, translation, items[0]);
-            //ImGui::End();
-
             {
-                Vector3 direction = myEngine.GetDirectionalLightData().direction;
+                Vector3 direction = {-1.0f,0.0f,0.0f};
                 ImGui::Begin("DirectionalLight");
                 ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
                 ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
@@ -187,7 +186,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 static int light_current = 2;
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                bunnyModel.GetMaterial()->lightType = light_current % 3;
+                playerModel.GetMaterial()->lightType = light_current % 3;
 
                 ImGui::End();
             }

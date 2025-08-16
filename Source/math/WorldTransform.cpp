@@ -1,6 +1,6 @@
-#include "../../Header/math/WorldTransform.h"  
-#include "../../Header/math/MakeAffineMatrix.h"  
-#include"../../Header/math/MakeIdentity4x4.h"
+#include "WorldTransform.h"  
+#include "MakeAffineMatrix.h"  
+#include"MakeIdentity4x4.h"
 
 void WorldTransform::Initialize() {
 

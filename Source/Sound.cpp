@@ -1,4 +1,4 @@
-#include"../Header/Sound.h"
+#include"Sound.h"
 #include <fstream>
 #include<assert.h>
 
@@ -95,26 +95,63 @@ void Sound::SoundUnload(SoundData* soundData) {
 
 };
 
-void Sound::SoundPlay(const SoundData& soundData, const float& volume) {
+void Sound::SoundPlay(const SoundData& soundData, const float& volume, bool isLoop) {
     HRESULT result;
 
-    IXAudio2SourceVoice* pSourceVoice{ nullptr };
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice, soundData.pWaveFormat);
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, soundData.pWaveFormat);
     assert(SUCCEEDED(result));
 
-
-    pSourceVoice->SetVolume(volume);
+    pSourceVoice_->SetVolume(volume);
 
     XAUDIO2_BUFFER buf{};
     buf.pAudioData = soundData.mediaData.data();
     buf.AudioBytes = /*sizeof(BYTE) * */static_cast<UINT32>(soundData.mediaData.size());
-    buf.Flags = XAUDIO2_END_OF_STREAM;
+    buf.Flags =  XAUDIO2_END_OF_STREAM;
 
-    result = pSourceVoice->SubmitSourceBuffer(&buf);
+    if (isLoop) {
+        buf.LoopCount = XAUDIO2_LOOP_INFINITE; 
+    }
+
+    result = pSourceVoice_->SubmitSourceBuffer(&buf);
     assert(SUCCEEDED(result));
-    result = pSourceVoice->Start();//再生開始
+    result = pSourceVoice_->Start();//再生開始
     assert(SUCCEEDED(result));
+    isStarted_ = true;
+    isPaused_ = false;
 };
+
+void Sound::SoundStop() {
+    if (pSourceVoice_) {
+        pSourceVoice_->Stop();                // 再生停止
+        pSourceVoice_->FlushSourceBuffers(); // バッファをクリア
+    }
+}
+
+void Sound::SoundPause() {
+    if (pSourceVoice_) {
+        pSourceVoice_->Stop(); // バッファは保持されたまま停止
+        isPaused_ = true;
+    }
+}
+
+void Sound::SoundResume() {
+    if (pSourceVoice_) {
+        pSourceVoice_->Start(); // 停止した位置から再開
+    }
+}
+
+bool Sound::IsActuallyPlaying() const {
+    return isStarted_ && !isPaused_;
+}
+
+bool Sound::IsPlaying() const {
+    if (!pSourceVoice_) return false;
+
+    XAUDIO2_VOICE_STATE state{};
+    pSourceVoice_->GetState(&state);
+
+    return state.BuffersQueued > 0;
+}
 
 Sound::~Sound() {
 

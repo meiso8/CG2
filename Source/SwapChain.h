@@ -3,7 +3,7 @@
 #include<d3d12.h>
 //ComPtr(コムポインタ)
 #include<wrl.h>
-#include"../Header/Window.h"
+#include"Window.h"
 
 class SwapChain
 {

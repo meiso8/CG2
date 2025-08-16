@@ -1,4 +1,4 @@
-#include"../Header/ModelData.h"
+#include"ModelData.h"
 //ファイルやディレクトリに関する操作を行うライブラリ
 #include <filesystem>
 #include <fstream>//ファイルの書いたり読んだりするライブラリ
@@ -16,7 +16,13 @@ ModelData LoadObjeFile(const std::string& directoryPath, const std::string& file
 
     Assimp::Importer importer;
     std::string filePath = directoryPath + "/" + filename;
-    const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs/* | aiProcess_Triangulate*/);
+
+    const aiScene* scene = importer.ReadFile(filePath.c_str(),
+        aiProcess_Triangulate |
+        aiProcess_FlipWindingOrder |
+        aiProcess_FlipUVs |
+        aiProcess_SortByPType);
+
     assert(scene->HasMeshes());
 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {

@@ -1,4 +1,4 @@
-#include"../../Header/math/Subtract.h"
+#include"Subtract.h"
 
 
 //ベクトル減算

@@ -1,5 +1,5 @@
-#include "../Header/Window.h"
-#include"../Header/ImGuiClass.h"
+#include "Window.h"
+#include"ImGuiClass.h"
 
 //ComPtr(コムポインタ)
 #include<wrl.h>

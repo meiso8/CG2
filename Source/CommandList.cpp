@@ -1,4 +1,4 @@
-#include "../Header/CommandList.h"
+#include "CommandList.h"
 #pragma comment(lib,"d3d12.lib")
 #include<cassert> //assertも利用するため
 

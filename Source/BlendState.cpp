@@ -1,6 +1,6 @@
 
 
-#include "../Header/BlendState.h"
+#include "BlendState.h"
 
 void BlendState::Create(bool isBlend) {
 

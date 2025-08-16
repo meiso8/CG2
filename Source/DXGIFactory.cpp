@@ -1,4 +1,4 @@
-#include "../Header/DXGIFactory.h"
+#include "DXGIFactory.h"
 #include<cassert> //assertも利用するため
 
 void DXGIFactory::Create() {

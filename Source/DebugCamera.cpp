@@ -1,13 +1,13 @@
-#include "../Header/DebugCamera.h"
-#include"../Header/math/Inverse.h"
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/MakeRotateMatrix.h"
-#include"../Header/math/MakeIdentity4x4.h"
-#include"../Header/math/MakeTranslateMatrix.h"
-#include"../Header/math/MakePerspectiveFovMatrix.h"
-#include"../Header/math/MakeOrthographicMatrix.h"
-#include"../Header/math/CoordinateTransform.h"
-#include"../Header/math/Multiply.h"
+#include "DebugCamera.h"
+#include"math/Inverse.h"
+#include"math/MakeAffineMatrix.h"
+#include"math/MakeRotateMatrix.h"
+#include"math/MakeIdentity4x4.h"
+#include"math/MakeTranslateMatrix.h"
+#include"math/MakePerspectiveFovMatrix.h"
+#include"math/MakeOrthographicMatrix.h"
+#include"math/CoordinateTransform.h"
+#include"math/Multiply.h"
 #include<numbers>
 #include<cmath>
 

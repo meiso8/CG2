@@ -1,4 +1,4 @@
-#include "../Header/CommandQueue.h"
+#include "CommandQueue.h"
 
 #include<cassert> //assertも利用するため
 

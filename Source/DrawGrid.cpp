@@ -1,4 +1,4 @@
-#include"../Header/DrawGrid.h"
+#include"DrawGrid.h"
 #include<numbers>
 
 DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc) {

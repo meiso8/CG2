@@ -1,6 +1,6 @@
 #pragma once
 
-#include"../Header/VertexData.h"
+#include"VertexData.h"
 #include<wrl.h>
 #include<d3d12.h>
 #include"Config.h"
@@ -15,9 +15,9 @@
 #include"MaterialResource.h"  
 #include"math/Vector2.h"  
 #include"RootSignature.h"  
-#include"../Header/Balloon.h"
-#include"../Header/Wave.h"
-class Line
+#include"Balloon.h"
+#include"Wave.h"
+class LineMesh
 {
 public:
     void Create(

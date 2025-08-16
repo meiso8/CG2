@@ -1,18 +1,18 @@
 #pragma once  
 
-#include"../Header/CommandList.h"  
-#include"../Header/ModelData.h"  
-#include"../Header/PSO.h"  
-#include"../Header/ShaderResourceView.h"  
-#include"../Header/Camera.h"  
-#include"../Header/math/Transform.h"  
-#include"../Header/TransformationMatrix.h"  
-#include"../Header/MaterialResource.h"  
-#include"../Header/math/Vector2.h"  
-#include"../Header/RootSignature.h"  
-#include"../Header/Config.h"
-#include"../Header/Balloon.h"
-#include"../Header/Wave.h"
+#include"CommandList.h"  
+#include"ModelData.h"  
+#include"PSO.h"  
+#include"ShaderResourceView.h"  
+#include"Camera.h"  
+#include"math/Transform.h"  
+#include"TransformationMatrix.h"  
+#include"MaterialResource.h"  
+#include"math/Vector2.h"  
+#include"RootSignature.h"  
+#include"Config.h"
+#include"Balloon.h"
+#include"Wave.h"
 
 class Sprite
 {

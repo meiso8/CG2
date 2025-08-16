@@ -1,11 +1,11 @@
-#include "../Header/Model.h"
-#include"../Header/CreateBufferResource.h"
-#include"../Header/Texture.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
-#include"../Header/math/Transform.h"
-#include"../Header/math/MakeIdentity4x4.h"
+#include "Model.h"
+#include"CreateBufferResource.h"
+#include"Texture.h"
+#include"TransformationMatrix.h"
+#include"math/MakeAffineMatrix.h"
+#include"math/Multiply.h"
+#include"math/Transform.h"
+#include"math/MakeIdentity4x4.h"
 #include<numbers>
 
 void Model::Create(

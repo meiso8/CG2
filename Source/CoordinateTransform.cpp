@@ -1,4 +1,4 @@
-#include"../Header/math/CoordinateTransform.h"
+#include"math/CoordinateTransform.h"
 #include<assert.h>
 
 //座標変換関数

@@ -1,13 +1,13 @@
 #pragma once
 
-#include"../Header/ImGuiClass.h"
-#include"../Header/math/Vector3.h"
-#include"../Header/math/Vector4.h"
+#include"ImGuiClass.h"
+#include"math/Vector3.h"
+#include"math/Vector4.h"
 
 class Model;
 class Input;
 class Sprite;
-class Sphere;
+class SphereMesh;
 class Mirror;
 
 #include<list>
@@ -19,7 +19,7 @@ public:
     void ModelUpdate(Model& model);
     void InputUpdate(Input& input);
     void SpriteUpdate(Sprite& sprite);
-    void SphereUpdate(Sphere& sphere);
+    void SphereUpdate(SphereMesh& sphere);
     void WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& translate, const char* label);
     void DebugMirror(std::list<Mirror*>mirrors);
     void Color( Vector4& color);

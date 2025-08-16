@@ -1,7 +1,7 @@
 #pragma once
-#include"../Header/CommandList.h"
-#include"../Header/PSO.h"
-#include"../Header/RootSignature.h"
+#include"CommandList.h"
+#include"PSO.h"
+#include"RootSignature.h"
 
 struct ModelConfig {
     CommandList* commandList;

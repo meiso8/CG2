@@ -1,4 +1,4 @@
-#include"../../Header/math/MakeScaleMatrix.h"
+#include"MakeScaleMatrix.h"
 
 //拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3& scale) {

@@ -1,7 +1,7 @@
 #pragma once
 #include<vector>
-#include"../Header/VertexData.h"
-#include"../Header/MaterialData.h"
+#include"VertexData.h"
+#include"MaterialData.h"
 
 struct ModelData {
     std::vector<VertexData> vertices;

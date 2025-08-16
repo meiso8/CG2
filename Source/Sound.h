@@ -32,13 +32,23 @@ public:
 
     SoundData SoundLoad(const std::wstring& path);
 
-    void SoundPlay(const SoundData& soundData, const float& volume);
+    void SoundPlay(const SoundData& soundData, const float& volume, bool isLoop = false);
     /// @brief 音声データの解放関数  
     /// @param soundData 音声データ  
     void SoundUnload(SoundData* soundData);
+    void SoundStop();
+    void SoundPause();  // 一時停止
+    void SoundResume(); // 再開
+
+    bool IsActuallyPlaying() const;
+
+    bool IsPlaying() const;
     ~Sound();
 private:
 
     Microsoft::WRL::ComPtr<IXAudio2> xAudio2_ = nullptr; // ComオブジェクトなのでComPtrで管理する。  
     IXAudio2MasteringVoice* masterVoice_ = { nullptr }; // ReleaseなしのためComPtrで管理することが出来ない。  
+    IXAudio2SourceVoice* pSourceVoice_ = { nullptr };
+    bool isStarted_ = false;
+    bool isPaused_ = false;
 };

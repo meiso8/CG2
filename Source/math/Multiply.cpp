@@ -1,4 +1,4 @@
-#include"../../Header/math/Multiply.h"
+#include"Multiply.h"
 
 //スカラー倍
 Vector3 Multiply(const float scalar, const Vector3& v) {

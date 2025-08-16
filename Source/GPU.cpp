@@ -1,5 +1,5 @@
-#include "../Header/GPU.h"
-#include"../Header/Log.h"
+#include "GPU.h"
+#include"Log.h"
 
 #include<cassert>
 #include<format>
