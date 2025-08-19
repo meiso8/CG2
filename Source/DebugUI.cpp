@@ -6,9 +6,25 @@
 #include"SphereMesh.h"
 #include<numbers>
 #include<algorithm>
+#include"Camera.h"
 
 #include "../Game/Mirror.h"
 void DebugUI::Update() {
+
+
+}
+
+void DebugUI::CameraUpdate(Camera& camera) {
+    ImGui::Begin("Camera");
+
+    ImGui::SliderFloat3("translate", &camera.GetTranslate().x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("rotate", &camera.GetRotate().x, -100.0f, 100.0f);
+
+
+
+
+    ImGui::End();
+
 
 
 }

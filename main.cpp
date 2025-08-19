@@ -191,7 +191,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.DebugMirror(gameScene.GetMirrors());
-
+            debugUI.CameraUpdate(camera);
 #endif
 
 

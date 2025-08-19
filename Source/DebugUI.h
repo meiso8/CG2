@@ -9,6 +9,7 @@ class Input;
 class Sprite;
 class SphereMesh;
 class Mirror;
+class Camera;
 
 #include<list>
 
@@ -23,5 +24,6 @@ public:
     void WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& translate, const char* label);
     void DebugMirror(std::list<Mirror*>mirrors);
     void Color( Vector4& color);
+    void CameraUpdate(Camera& camera);
 };
 
