@@ -2,6 +2,7 @@
 #include"MyEngine.h"
 #include"Game/GameScene.h"
 
+
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
@@ -24,11 +25,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //DirectX初期化処理の末尾に追加する
     //音声クラスの作成
     Sound sound;
-    sound.Initialize();
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/broken.mp3");
-    SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/dreamcore.mp3");
+    SoundData bgmData = sound.SoundLoad(L"resources/Sounds/dreamcore.mp3");
+    SoundData seData[2] = {
+        sound.SoundLoad(L"resources/Sounds/broken.mp3"),
+        sound.SoundLoad(L"resources/Sounds/pico.mp3") };
 
     SoundData voiceData[3] =
     { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
@@ -84,8 +86,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.Update();
 
     Model playerModel(myEngine.GetModelConfig(0));
-    playerModel.Create("resources/player", "player.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    playerModel.Create("resources/player", "body.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
     assert(&playerModel);
+
+
+    Model armLModel(myEngine.GetModelConfig(0));
+    armLModel.Create("resources/player", "arm_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    assert(&armLModel);
+    Model armRModel(myEngine.GetModelConfig(0));
+    armRModel.Create("resources/player", "arm_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    assert(&armRModel);
+    Model legLModel(myEngine.GetModelConfig(0));
+    legLModel.Create("resources/player", "leg_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    assert(&legLModel);
+    Model legRModel(myEngine.GetModelConfig(0));
+    legRModel.Create("resources/player", "leg_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    assert(&legRModel);
+
+
 
     Model hammerModel(myEngine.GetModelConfig(0));
     hammerModel.Create("resources/hammer", "hammer.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
@@ -106,7 +124,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     float timer = 0.0f;
 
     GameScene gameScene;
-    gameScene.Init(myEngine, &playerModel,&hammerModel);
+    gameScene.Init(myEngine, &playerModel,&armLModel, &armRModel,&legLModel,&legRModel,&hammerModel);
 
 
     MSG msg{};
@@ -144,8 +162,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
            /* worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);*/
-            gameScene.Update(sound, soundData1, soundData2, voiceData);
-
+            gameScene.Update(sound,bgmData,seData,voiceData);
 
 #ifdef _DEBUG
 
@@ -192,6 +209,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.Color(worldColor);
             debugUI.DebugMirror(gameScene.GetMirrors());
             debugUI.CameraUpdate(camera);
+            debugUI.HammerUpdate(gameScene.GetHammer());
+            debugUI.UpdatePlayer(gameScene.GetPlayer());
 #endif
 
 

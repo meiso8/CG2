@@ -7,12 +7,34 @@
 #include<numbers>
 #include<algorithm>
 #include"Camera.h"
-
+#include"../Game/Hammer.h"
+#include"../Game/Player.h"
 #include "../Game/Mirror.h"
 void DebugUI::Update() {
 
 
 }
+
+void DebugUI::UpdatePlayer(Player& player) {
+
+    ImGui::Begin("Player");
+
+    // スライダーを作成
+    ImGui::SliderFloat3("ArmL Position", &player.armLWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("ArmR Position", &player.armRWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegL Position", &player.legLWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegR Position", &player.legRWorldTransform_.localPos_.x, -10.0f, 10.0f);
+
+    ImGui::SliderFloat3("ArmL rotate", &player.armLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("ArmR rotate", &player.armRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegL rotate", &player.legLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegR rotate", &player.legRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
+
+
+
+    ImGui::End();
+}
+
 
 void DebugUI::CameraUpdate(Camera& camera) {
     ImGui::Begin("Camera");
@@ -114,7 +136,7 @@ void DebugUI::InputUpdate(Input& input) {
 
     Vector2 normL = Normalize(Vector2(static_cast<float>(input.GetJoyState().lX), static_cast<float>(input.GetJoyState().lY)));
 
-    ImGui::Text("normLX: %f %f", normL.x,normL.y);//x軸位置
+    ImGui::Text("normLX: %f %f", normL.x, normL.y);//x軸位置
 
 
     ImGui::Text("joyStateLX: %ld", input.GetJoyState().lX);//x軸位置
@@ -174,8 +196,16 @@ void DebugUI::WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& transl
 
 };
 
-void DebugUI::Color( Vector4& color) {
+void DebugUI::Color(Vector4& color) {
     ImGui::Begin("Color");
     ImGui::ColorEdit4("color", (float*)&color);
     ImGui::End();
 }
+
+void DebugUI::HammerUpdate(Hammer& hammer) {
+    ImGui::Begin("Hammer");
+    ImGui::SliderFloat3("local", &hammer.GetWorldTransform().localPos_.x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);   
+    ImGui::SliderFloat3("translate", &hammer.GetWorldTransform().translate_.x, -10.0f, 10.0f);
+    ImGui::End();
+};

@@ -10,7 +10,8 @@ class Sprite;
 class SphereMesh;
 class Mirror;
 class Camera;
-
+class Hammer;
+class Player;
 #include<list>
 
 class DebugUI
@@ -25,5 +26,7 @@ public:
     void DebugMirror(std::list<Mirror*>mirrors);
     void Color( Vector4& color);
     void CameraUpdate(Camera& camera);
+    void HammerUpdate(Hammer& hammer);
+    void UpdatePlayer(Player& player);
 };
 

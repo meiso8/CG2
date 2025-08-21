@@ -24,12 +24,18 @@ struct SoundData {
 class Sound {
 public:
 
-    /// @brief 初期化処理  
-    /// @param xAudio2 XAudioエンジン  
-    /// @param masterVoice  
-    /// @return  
-   void Initialize();
+    static Sound* instance_;
+    Sound();
 
+public:
+
+    static Sound* GetInstance() {
+
+        if (instance_ == nullptr) {
+            instance_ = new Sound();
+        }
+        return instance_;
+    }
     SoundData SoundLoad(const std::wstring& path);
 
     void SoundPlay(const SoundData& soundData, const float& volume, bool isLoop = false);

@@ -122,7 +122,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\GPU.cpp" />
     <ClCompile Include="Source\ImGuiClass.cpp" />
     <ClCompile Include="Source\MaterialResource.cpp" />
-    <ClCompile Include="Source\math\EaseInOutCubic.cpp" />
+    <ClCompile Include="Source\math\Easing.cpp" />
     <ClCompile Include="Source\math\Lerp.cpp" />
     <ClCompile Include="Source\math\Matrix4x4.cpp" />
     <ClCompile Include="Source\math\Vector3.cpp" />
@@ -188,6 +188,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\Sprite.cpp" />
     <ClCompile Include="Source\SphereMesh.cpp" />
+    <ClCompile Include="SpriteFont.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -261,7 +262,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\math\cotangent.h" />
     <ClInclude Include="Source\math\Cross.h" />
     <ClInclude Include="Source\math\Dot.h" />
-    <ClInclude Include="Source\math\EaseInOutCubic.h" />
+    <ClInclude Include="Source\math\Easing.h" />
     <ClInclude Include="Source\math\Inverse.h" />
     <ClInclude Include="Source\math\Length.h" />
     <ClInclude Include="Source\math\Lerp.h" />
@@ -313,6 +314,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Viewport.h" />
     <ClInclude Include="Source\Wave.h" />
     <ClInclude Include="Source\Window.h" />
+    <ClInclude Include="SpriteFont.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
