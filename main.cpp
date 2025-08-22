@@ -217,6 +217,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.HammerUpdate(gameScene.GetHammer());
             debugUI.UpdatePlayer(gameScene.GetPlayer());
             debugUI.SphereUpdate(gameScene.GetSphereMesh());
+            debugUI.DoveUpdate(gameScene.GetDove());
 #endif
 
 

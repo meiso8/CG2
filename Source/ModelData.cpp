@@ -8,8 +8,6 @@
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
 
-
-
 ModelData LoadObjeFile(const std::string& directoryPath, const std::string& filename) {
 
     ModelData modelData;

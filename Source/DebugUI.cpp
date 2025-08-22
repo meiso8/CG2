@@ -10,10 +10,20 @@
 #include"../Game/Hammer.h"
 #include"../Game/Player.h"
 #include "../Game/Mirror.h"
+#include "../Game/Dove.h"
 void DebugUI::Update() {
 
 
 }
+
+void DebugUI::DoveUpdate(Dove& dove) {
+
+    ImGui::Begin("Dove");
+    ImGui::SliderFloat3("translate", &dove.GetWorldTransform().translate_.x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("rotate", &dove.GetWorldTransform().rotate_.x, -100.0f, 100.0f);
+    ImGui::End();
+
+};
 
 void DebugUI::UpdatePlayer(Player& player) {
 

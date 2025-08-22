@@ -12,6 +12,7 @@ class Mirror;
 class Camera;
 class Hammer;
 class Player;
+class Dove;
 #include<list>
 
 class DebugUI
@@ -28,5 +29,6 @@ public:
     void CameraUpdate(Camera& camera);
     void HammerUpdate(Hammer& hammer);
     void UpdatePlayer(Player& player);
+    void DoveUpdate(Dove& dove);
 };
 
