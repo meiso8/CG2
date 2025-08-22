@@ -2,10 +2,10 @@
 #include"CreateBufferResource.h"
 #include"Texture.h"
 #include"TransformationMatrix.h"
-#include"math/MakeAffineMatrix.h"
-#include"math/Multiply.h"
-#include"math/Transform.h"
-#include"math/MakeIdentity4x4.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
+#include"Transform.h"
+#include"MakeIdentity4x4.h"
 #include<numbers>
 
 void SphereMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -23,11 +23,9 @@ void SphereMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device
 
 #pragma region//Resourceにデータを書き込む
     //頂点リソースにデータを書き込む
-    VertexData* vertexData = nullptr;
     //書き込むためのアドレスを取得
     vertexResource_->Map(0, nullptr,
-        reinterpret_cast<void**>(&vertexData));
-
+        reinterpret_cast<void**>(&vertexData_));
 
     const float pi = std::numbers::pi_v<float>;
     const float kLonEvery = 2.0f * pi / float(kSubdivision_);
@@ -47,46 +45,46 @@ void SphereMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device
                 1.0f - float(latIndex) / float(kSubdivision_) };
 
             //a   
-            vertexData[startIndex].position.x = std::cos(lat) * std::cos(lon);
-            vertexData[startIndex].position.y = std::sin(lat);
-            vertexData[startIndex].position.z = std::cos(lat) * std::sin(lon);
-            vertexData[startIndex].position.w = 1.0f;
-            vertexData[startIndex].texcoord = uv;
-            vertexData[startIndex].normal = { vertexData[startIndex].position.x , vertexData[startIndex].position.y, vertexData[startIndex].position.z };
+            vertexData_[startIndex].position.x = std::cos(lat) * std::cos(lon);
+            vertexData_[startIndex].position.y = std::sin(lat);
+            vertexData_[startIndex].position.z = std::cos(lat) * std::sin(lon);
+            vertexData_[startIndex].position.w = 1.0f;
+            vertexData_[startIndex].texcoord = uv;
+            vertexData_[startIndex].normal = { vertexData_[startIndex].position.x , vertexData_[startIndex].position.y, vertexData_[startIndex].position.z };
 
             //b
-            vertexData[startIndex + 1].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
-            vertexData[startIndex + 1].position.y = std::sin(lat + kLatEvery);
-            vertexData[startIndex + 1].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
-            vertexData[startIndex + 1].position.w = 1.0f;
-            vertexData[startIndex + 1].texcoord = { uv.x,
+            vertexData_[startIndex + 1].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
+            vertexData_[startIndex + 1].position.y = std::sin(lat + kLatEvery);
+            vertexData_[startIndex + 1].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
+            vertexData_[startIndex + 1].position.w = 1.0f;
+            vertexData_[startIndex + 1].texcoord = { uv.x,
                uv.y - 1.0f / float(kSubdivision_) };
-            vertexData[startIndex + 1].normal = { vertexData[startIndex + 1].position.x , vertexData[startIndex + 1].position.y, vertexData[startIndex + 1].position.z };
+            vertexData_[startIndex + 1].normal = { vertexData_[startIndex + 1].position.x , vertexData_[startIndex + 1].position.y, vertexData_[startIndex + 1].position.z };
 
             //c
-            vertexData[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
-            vertexData[startIndex + 2].position.y = std::sin(lat);
-            vertexData[startIndex + 2].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
-            vertexData[startIndex + 2].position.w = 1.0f;
-            vertexData[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision_),
+            vertexData_[startIndex + 2].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
+            vertexData_[startIndex + 2].position.y = std::sin(lat);
+            vertexData_[startIndex + 2].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
+            vertexData_[startIndex + 2].position.w = 1.0f;
+            vertexData_[startIndex + 2].texcoord = { uv.x + 1.0f / float(kSubdivision_),
                  uv.y };
-            vertexData[startIndex + 2].normal = { vertexData[startIndex + 2].position.x , vertexData[startIndex + 2].position.y, vertexData[startIndex + 2].position.z };
+            vertexData_[startIndex + 2].normal = { vertexData_[startIndex + 2].position.x , vertexData_[startIndex + 2].position.y, vertexData_[startIndex + 2].position.z };
 
 
             //c
-            vertexData[startIndex + 3] = vertexData[startIndex + 2];
+            vertexData_[startIndex + 3] = vertexData_[startIndex + 2];
 
             //b
-            vertexData[startIndex + 4] = vertexData[startIndex + 1];
+            vertexData_[startIndex + 4] = vertexData_[startIndex + 1];
 
             //d
-            vertexData[startIndex + 5].position.x = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
-            vertexData[startIndex + 5].position.y = std::sin(lat + kLatEvery);
-            vertexData[startIndex + 5].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
-            vertexData[startIndex + 5].position.w = 1.0f;
-            vertexData[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision_),
+            vertexData_[startIndex + 5].position.x = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
+            vertexData_[startIndex + 5].position.y = std::sin(lat + kLatEvery);
+            vertexData_[startIndex + 5].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
+            vertexData_[startIndex + 5].position.w = 1.0f;
+            vertexData_[startIndex + 5].texcoord = { uv.x + 1.0f / float(kSubdivision_),
                 uv.y - 1.0f / float(kSubdivision_) };
-            vertexData[startIndex + 5].normal = { vertexData[startIndex + 5].position.x , vertexData[startIndex + 5].position.y, vertexData[startIndex + 5].position.z };
+            vertexData_[startIndex + 5].normal = { vertexData_[startIndex + 5].position.x , vertexData_[startIndex + 5].position.y, vertexData_[startIndex + 5].position.z };
 
         }
 
@@ -134,6 +132,7 @@ void SphereMesh::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device
 
 
 };
+
 void SphereMesh::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
 
     //マテリアルリソースを作成
@@ -154,6 +153,13 @@ void SphereMesh::Create(
     CreateVertex(device);
 
     //CreateIndexResource(device);
+
+    transform_ = {
+    {1.0f,1.0f,1.0f },
+    {0.0f,0.0f,0.0f},
+    {0.0f,0.0f,0.0f}
+    };
+    worldMatrix_ = MakeIdentity4x4();
 
     uvTransform_ = {
           {1.0f,1.0f,1.0f},
@@ -224,14 +230,13 @@ void SphereMesh::PreDraw() {
     modelConfig_.commandList->GetComandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SphereMesh::Draw(
-
-    const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv
+void SphereMesh::Draw( Camera& camera, ShaderResourceView& srv
 ) {
 
-    worldViewProjectionMatrix_ = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera.GetViewProjectionMatrix());
     //データを書き込む
-    *wvpDate_ = { worldViewProjectionMatrix_,worldMatrix };
+    *wvpDate_ = { worldViewProjectionMatrix_,worldMatrix_ };
 
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //マテリアルCBufferの場所を設定　/*RotParameter配列の0番目 0->register(b4)1->register(b0)2->register(b4)*/

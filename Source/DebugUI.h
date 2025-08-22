@@ -1,8 +1,8 @@
 #pragma once
 
 #include"ImGuiClass.h"
-#include"math/Vector3.h"
-#include"math/Vector4.h"
+#include"Vector3.h"
+#include"Vector4.h"
 
 class Model;
 class Input;

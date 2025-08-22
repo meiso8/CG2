@@ -3,9 +3,9 @@
 //　DIRECTINPUT_VERSION　dinput.hのインクルードより上に書くこと。
 #include <dinput.h>
 #include<cstdint>
-#include"math/Vector2.h"
+#include"Vector2.h"
 #include"Window.h"
-#include"math/SphericalCoordinate.h"
+#include"SphericalCoordinate.h"
 
 class Camera;
 

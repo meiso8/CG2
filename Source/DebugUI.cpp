@@ -1,5 +1,5 @@
 #include "DebugUI.h"
-#include"math/Normalize.h"
+#include"Normalize.h"
 #include"Model.h"
 #include"Input.h"
 #include"Sprite.h"
@@ -20,17 +20,17 @@ void DebugUI::UpdatePlayer(Player& player) {
     ImGui::Begin("Player");
 
     // スライダーを作成
-    ImGui::SliderFloat3("ArmL Position", &player.armLWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("ArmR Position", &player.armRWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegL Position", &player.legLWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegR Position", &player.legRWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    //ImGui::SliderFloat3("ArmL Position", &player.armLWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    //ImGui::SliderFloat3("ArmR Position", &player.armRWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    //ImGui::SliderFloat3("LegL Position", &player.legLWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    //ImGui::SliderFloat3("LegR Position", &player.legRWorldTransform_.localPos_.x, -10.0f, 10.0f);
 
     ImGui::SliderFloat3("ArmL rotate", &player.armLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
     ImGui::SliderFloat3("ArmR rotate", &player.armRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
     ImGui::SliderFloat3("LegL rotate", &player.legLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
     ImGui::SliderFloat3("LegR rotate", &player.legRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
 
-
+    ImGui::SliderInt("HP", &player.GetHP(), -100, 100);
 
     ImGui::End();
 }
@@ -170,17 +170,34 @@ void DebugUI::SpriteUpdate(Sprite& sprite) {
 
 void DebugUI::SphereUpdate(SphereMesh& sphere) {
     ImGui::Begin("Sphere");
-    ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
-    ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-    ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
-    ImGui::ColorEdit4("color", &sphere.GetColor().x);
-    ImGui::End();
 
-    ImGui::Begin("SphereExpansion");
-    ImGui::DragFloat("expansionData", &sphere.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
-    ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
-    ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
-    ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+
+    if (ImGui::TreeNode("worldTransform")) {
+        ImGui::SliderFloat3("translation", &sphere.GetTranslate().x, 0.0f, 6400.0f);
+        ImGui::SliderFloat3("rotation", &sphere.GetRotate().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &sphere.GetScale().x, 0.0f, 1000.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("uvTransform")) {
+        ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
+        ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Expansion")) {
+        ImGui::DragFloat("expansionData", &sphere.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
+        ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
+        ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
+        ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Color")) {
+        ImGui::ColorEdit4("color", &sphere.GetColor().x);
+        ImGui::TreePop();
+    }
 
     ImGui::End();
 }

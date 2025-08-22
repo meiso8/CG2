@@ -1,9 +1,9 @@
 #include"Camera.h"
-#include"math/Inverse.h"
-#include"math/MakeAffineMatrix.h"
-#include"math/Multiply.h"
-#include"math/MakePerspectiveFovMatrix.h"
-#include"math/MakeOrthographicMatrix.h"
+#include"Inverse.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
+#include"MakePerspectiveFovMatrix.h"
+#include"MakeOrthographicMatrix.h"
 
 void Camera::Initialize(const float& width, const float& height, const bool& isOrthographic) {
 

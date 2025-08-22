@@ -2,10 +2,10 @@
 #include"CreateBufferResource.h"
 #include"Texture.h"
 #include"TransformationMatrix.h"
-#include"math/MakeAffineMatrix.h"
-#include"math/Multiply.h"
-#include"math/Transform.h"
-#include"math/MakeIdentity4x4.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
+#include"Transform.h"
+#include"MakeIdentity4x4.h"
 #include<numbers>
 
 void Model::Create(
@@ -65,10 +65,10 @@ void Model::Create(
     waveData_[0].amplitude = 0.0f;
     waveData_[0].frequency = 2.0f;
 
-    waveData_[1].direction = { 0.0f,1.0f,0.0f };
+    waveData_[1].direction = { 1.0f,0.0f,0.0f };
     waveData_[1].time = 0.0f;
     waveData_[1].amplitude = 0.0f;
-    waveData_[1].frequency = 10.0f;
+    waveData_[1].frequency = 0.0f;
 
 #pragma endregion
 

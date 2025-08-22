@@ -1,13 +1,13 @@
 #include "DebugCamera.h"
-#include"math/Inverse.h"
-#include"math/MakeAffineMatrix.h"
-#include"math/MakeRotateMatrix.h"
-#include"math/MakeIdentity4x4.h"
-#include"math/MakeTranslateMatrix.h"
-#include"math/MakePerspectiveFovMatrix.h"
-#include"math/MakeOrthographicMatrix.h"
-#include"math/CoordinateTransform.h"
-#include"math/Multiply.h"
+#include"Inverse.h"
+#include"MakeAffineMatrix.h"
+#include"MakeRotateMatrix.h"
+#include"MakeIdentity4x4.h"
+#include"MakeTranslateMatrix.h"
+#include"MakePerspectiveFovMatrix.h"
+#include"MakeOrthographicMatrix.h"
+#include"CoordinateTransform.h"
+#include"Multiply.h"
 #include<numbers>
 #include<cmath>
 

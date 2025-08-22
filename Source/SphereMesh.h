@@ -24,8 +24,7 @@ public:
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap);
 
     void PreDraw();
-    void Draw(
-        const Matrix4x4& worldMatrix, Camera& camera, ShaderResourceView& srv);
+    void Draw(Camera& camera, ShaderResourceView& srv);
 
     Material* GetMaterial() { return materialResource_.GetMaterial(); }
 
@@ -38,6 +37,9 @@ public:
     Balloon& GetExpansionData() {
         return *expansionData_;
     }
+    Vector3& GetScale() { return transform_.scale; };
+    Vector3& GetRotate() { return transform_.rotate; };
+    Vector3& GetTranslate() { return transform_.translate; };
 
     ~SphereMesh();
 
@@ -49,6 +51,9 @@ private:
     ShaderResourceView srv_;
 
     Camera* camera_ = nullptr;
+
+    Transform transform_{};
+    Matrix4x4 worldMatrix_{};
 
     Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
     TransformationMatrix* wvpDate_ = nullptr;

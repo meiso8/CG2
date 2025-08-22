@@ -1,8 +1,8 @@
 #include "LineMesh.h"
 #include"CreateBufferResource.h"
 
-#include"math/MakeAffineMatrix.h"
-#include"math/Multiply.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
 
 void LineMesh::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc

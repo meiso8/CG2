@@ -1,7 +1,7 @@
 #pragma once
-#include"math/Matrix4x4.h"
-#include"math/Transform.h"
-#include"math/Vector2.h"
+#include"Matrix4x4.h"
+#include"Transform.h"
+#include"Vector2.h"
 
 class Camera {
 private:

@@ -28,14 +28,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
     SoundData bgmData = sound.SoundLoad(L"resources/Sounds/dreamcore.mp3");
-    SoundData seData[2] = {
+    SoundData seData[3] = {
         sound.SoundLoad(L"resources/Sounds/broken.mp3"),
-        sound.SoundLoad(L"resources/Sounds/pico.mp3") };
+        sound.SoundLoad(L"resources/Sounds/pico.mp3") ,
+        sound.SoundLoad(L"resources/Sounds/cracker.mp3") };
 
     SoundData voiceData[3] =
     { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
-     sound.SoundLoad(L"resources/Sounds/voice2.wav"),
-     sound.SoundLoad(L"resources/Sounds/voice3.wav") };
+      sound.SoundLoad(L"resources/Sounds/voice2.wav"),
+      sound.SoundLoad(L"resources/Sounds/voice3.wav") };
 
 
 #pragma endregion
@@ -56,28 +57,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture2.Load("resources/white1x1.png");
+    Texture textures[TEXTURES] = {
+        Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+            Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+                Texture(myEngine.GetDevice(), myEngine.GetCommandList()) ,
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
+
+    textures[0].Load("resources/white1x1.png");
+    textures[1].Load("resources/effect.png");
+    textures[2].Load("resources/player/player.png");
+    textures[3].Load("resources/sky.png");
 
     //ShaderResourceViewを作る
-    ShaderResourceView srv2 = {};
-    srv2.Create(texture2, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
-    Texture texture3 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture3.Load("resources/effect.png");
-
-    //ShaderResourceViewを作る
-    ShaderResourceView srv3 = {};
-    srv3.Create(texture3, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
+    ShaderResourceView srv[TEXTURES] = {};
+    for (int i = 0; i < TEXTURES; ++i) {
+        srv[i].Create(textures[i], i+1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    }
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
-
-    Texture texture4 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture4.Load("resources/player/player.png");
-
-    //ShaderResourceViewを作る
-    ShaderResourceView srv4 = {};
-    srv4.Create(texture4, 3, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
 
     Sprite playerSprite;
     playerSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
@@ -86,28 +82,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.Update();
 
     Model playerModel(myEngine.GetModelConfig(0));
-    playerModel.Create("resources/player", "body.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    playerModel.Create("resources/player", "body.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&playerModel);
 
-
     Model armLModel(myEngine.GetModelConfig(0));
-    armLModel.Create("resources/player", "arm_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    armLModel.Create("resources/player", "arm_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&armLModel);
     Model armRModel(myEngine.GetModelConfig(0));
-    armRModel.Create("resources/player", "arm_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    armRModel.Create("resources/player", "arm_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&armRModel);
     Model legLModel(myEngine.GetModelConfig(0));
-    legLModel.Create("resources/player", "leg_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    legLModel.Create("resources/player", "leg_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&legLModel);
     Model legRModel(myEngine.GetModelConfig(0));
-    legRModel.Create("resources/player", "leg_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 4);
+    legRModel.Create("resources/player", "leg_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&legRModel);
-
-
 
     Model hammerModel(myEngine.GetModelConfig(0));
     hammerModel.Create("resources/hammer", "hammer.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
     assert(&hammerModel);
+
+    Model doveModel(myEngine.GetModelConfig(0));
+    doveModel.Create("resources/dove", "dove.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 8);
+    assert(&doveModel);
+
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -124,8 +122,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     float timer = 0.0f;
 
     GameScene gameScene;
-    gameScene.Init(myEngine, &playerModel,&armLModel, &armRModel,&legLModel,&legRModel,&hammerModel);
-
+    gameScene.Init(
+        myEngine, 
+        &playerModel,
+        &armLModel,
+        &armRModel, 
+        &legLModel, 
+        &legRModel,
+        &hammerModel,
+         &doveModel);
 
     MSG msg{};
 
@@ -161,13 +166,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
 
-           /* worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);*/
-            gameScene.Update(sound,bgmData,seData,voiceData);
+            /* worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);*/
+            gameScene.Update(sound, bgmData, seData, voiceData);
 
 #ifdef _DEBUG
 
 
-  
+
             {
                 ImGui::Text("FPS : %d", fpsCounter.GetFPS());
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
@@ -187,7 +192,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             {
-                Vector3 direction = {-1.0f,0.0f,0.0f};
+                Vector3 direction = { -1.0f,0.0f,0.0f };
                 ImGui::Begin("DirectionalLight");
                 ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
                 ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
@@ -211,6 +216,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.CameraUpdate(camera);
             debugUI.HammerUpdate(gameScene.GetHammer());
             debugUI.UpdatePlayer(gameScene.GetPlayer());
+            debugUI.SphereUpdate(gameScene.GetSphereMesh());
 #endif
 
 
@@ -237,9 +243,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             myEngine.PreCommandSet(worldColor);
 
             //グリッドの描画
-            grid.Draw(srv2,camera);
+            grid.Draw(srv[WHITE], camera);
 
-            gameScene.Draw(camera, srv3, srv4, playerSprite);
+            gameScene.Draw(camera, srv, playerSprite);
 
             myEngine.PostCommandSet();
 #pragma endregion

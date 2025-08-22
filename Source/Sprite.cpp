@@ -1,9 +1,9 @@
 #include "Sprite.h"
 #include"CreateBufferResource.h"
 #include"TransformationMatrix.h"
-#include"math/MakeAffineMatrix.h"
-#include"math/MakeIdentity4x4.h"
-#include"math/Multiply.h"
+#include"MakeAffineMatrix.h"
+#include"MakeIdentity4x4.h"
+#include"Multiply.h"
 
 void Sprite::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
