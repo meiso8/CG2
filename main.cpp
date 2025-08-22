@@ -135,7 +135,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         &hammerModel,
          &doveModel);
 
-    Vector3 direction = { -1.0f,0.0f,0.0f };
+    Vector3 direction = { 0.0f,0.0f,1.0f };
 
     MSG msg{};
 
@@ -194,6 +194,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 break;
             }
 
+            myEngine.GetDirectionalLightData().direction = { 1.0f,0.0f,0.0f };
  
 #ifdef _DEBUG
 
