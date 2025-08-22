@@ -1,7 +1,7 @@
 #include<numbers>
 #include"MyEngine.h"
 #include"Game/GameScene.h"
-
+#include"Game/TitleScene.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -10,7 +10,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"ヨシダトモカ", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
 
     FPSCounter fpsCounter;
 
@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData bgmData = sound.SoundLoad(L"resources/Sounds/dreamcore.mp3");
+    SoundData bgmData[1] = { sound.SoundLoad(L"resources/Sounds/dreamcore.mp3") };
     SoundData seData[3] = {
         sound.SoundLoad(L"resources/Sounds/broken.mp3"),
         sound.SoundLoad(L"resources/Sounds/pico.mp3") ,
@@ -113,13 +113,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     size_t currentIndex = 0;
     Vector4 colors[4] = {
-        {1.0f, 0.8f, 0.6f, 1.0f}, // 朝方：暖かいオレンジ色
-        {0.6f, 0.9f, 1.0f, 1.0f}, // 昼：爽やかな水色
-        {1.0f, 0.5f, 0.3f, 1.0f}, // 夕方：夕焼けオレンジ
-        {0.1f, 0.1f, 0.2f, 1.0f}  // 深夜：濃いブルー
+        {1.0f, 0.0f, 0.0f, 1.0f},
+        {0.0f, 1.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, 1.0f, 1.0f},
+        {1.0f, 0.0f, 1.0f, 1.0f} 
     };
 
     float timer = 0.0f;
+
+    TitleScene titleScene;
+    titleScene.Init(myEngine,&hammerModel);
 
     GameScene gameScene;
     gameScene.Init(
@@ -132,7 +135,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         &hammerModel,
          &doveModel);
 
+    Vector3 direction = { -1.0f,0.0f,0.0f };
+
     MSG msg{};
+
+    enum SCENE {
+        TITLE,
+        GAME,
+        END
+    };
+
+    unsigned int scene = TITLE;
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -155,7 +168,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ゲームの処理
 
-
             timer++;
             float t = timer / 240.0f;
 
@@ -165,13 +177,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 t = 0.0f;
             }
 
+             worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
 
-            /* worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);*/
-            gameScene.Update(sound, bgmData, seData, voiceData);
+            switch (scene) {
+            case TITLE:
+                titleScene.Update(sound, seData, bgmData);
+                if (titleScene.IsTransition()) {
+                    scene = GAME;
+                }
+                break;
+            case GAME:
+                 gameScene.Update(sound, bgmData, seData, voiceData);
+                break;
+            case END:
 
+                break;
+            }
+
+ 
 #ifdef _DEBUG
-
-
 
             {
                 ImGui::Text("FPS : %d", fpsCounter.GetFPS());
@@ -192,7 +216,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             {
-                Vector3 direction = { -1.0f,0.0f,0.0f };
+
                 ImGui::Begin("DirectionalLight");
                 ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
                 ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
@@ -220,7 +244,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.DoveUpdate(gameScene.GetDove());
 #endif
 
-
             if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
@@ -235,7 +258,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 camera.Update();
 
             } else {
-                gameScene.CameraUpdate(camera);
+
+                switch (scene) {
+                case TITLE:
+                    titleScene.CameraUpdate(camera);
+                    break;
+                case GAME:
+                    gameScene.CameraUpdate(camera);
+                    break;
+                case END:
+
+                    break;
+                }
+  
             }
 
 #pragma region //描画
@@ -246,15 +281,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //グリッドの描画
             grid.Draw(srv[WHITE], camera);
 
-            gameScene.Draw(camera, srv, playerSprite);
+            switch (scene) {
+            case TITLE:
+
+                titleScene.Draw(camera, srv, playerSprite);
+                break;
+            case GAME:
+                gameScene.Draw(camera, srv, playerSprite);
+                break;
+            case END:
+
+                break;
+            }
 
             myEngine.PostCommandSet();
+
 #pragma endregion
 
         }
     }
-
-
 
     myEngine.End();
 

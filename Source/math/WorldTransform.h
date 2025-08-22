@@ -32,6 +32,9 @@ public:
         return rotate_;
     };
 
+    Vector3& GetTranslate() {
+        return translate_;
+    };
 };
 
 
