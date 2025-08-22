@@ -280,6 +280,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\math\Matrix4x4.h" />
     <ClInclude Include="Source\math\Multiply.h" />
     <ClInclude Include="Source\math\Normalize.h" />
+    <ClInclude Include="Source\math\Pendulum.h" />
     <ClInclude Include="Source\math\Plane.h" />
     <ClInclude Include="Source\math\Project.h" />
     <ClInclude Include="Source\math\Ray.h" />
