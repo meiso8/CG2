@@ -17,9 +17,7 @@ public:
     {
     }
 
-    void Create(
-        const std::string& directoryPath,
-        const std::string& filename,
+    void Create(const ModelData& modeldata,
         const Microsoft::WRL::ComPtr<ID3D12Device>& device,
         const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap, uint32_t index);
 

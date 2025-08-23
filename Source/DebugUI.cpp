@@ -35,10 +35,10 @@ void DebugUI::UpdatePlayer(Player& player) {
     //ImGui::SliderFloat3("LegL Position", &player.legLWorldTransform_.localPos_.x, -10.0f, 10.0f);
     //ImGui::SliderFloat3("LegR Position", &player.legRWorldTransform_.localPos_.x, -10.0f, 10.0f);
 
-    ImGui::SliderFloat3("ArmL rotate", &player.armLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("ArmR rotate", &player.armRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegL rotate", &player.legLWorldTransform_.GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegR rotate", &player.legRWorldTransform_.GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("ArmL rotate", &player.GetArmLWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("ArmR rotate", &player.GetArmRWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegL rotate", &player.GetLegLWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegR rotate", &player.GetLegRWorldTransform().GetRotate().x, -10.0f, 10.0f);
 
     ImGui::SliderInt("HP", &player.GetHP(), -100, 100);
 

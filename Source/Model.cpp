@@ -8,19 +8,17 @@
 #include"MakeIdentity4x4.h"
 #include<numbers>
 
-void Model::Create(
-    const std::string& directoryPath,
-    const std::string& filename,
+void Model::Create(const ModelData& modelData,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {
+
+    modelData_ = modelData;
 
     //マテリアルの作成 lightType halfLambert
     materialResource_.CreateMaterial(device, 2);
 
     CreateWorldVPResource(device);
 
-    //モデルの読み込み
-    modelData_ = LoadObjeFile(directoryPath, filename);
     //頂点リソースを作る
     vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * modelData_.vertices.size());
 

@@ -107,6 +107,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Game\Mirror.cpp" />
     <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="Game\Hammer.cpp" />
+    <ClCompile Include="Game\Merigora.cpp" />
     <ClCompile Include="MyEngine.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
@@ -222,6 +223,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Game\Mirror.h" />
     <ClInclude Include="Game\Player.h" />
+    <ClInclude Include="Game\Merigora.h" />
     <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />

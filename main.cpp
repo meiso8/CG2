@@ -2,6 +2,7 @@
 #include"MyEngine.h"
 #include"Game/GameScene.h"
 #include"Game/TitleScene.h"
+#include"Game/Merigora.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -71,7 +72,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     //ShaderResourceViewを作る
     ShaderResourceView srv[TEXTURES] = {};
     for (int i = 0; i < TEXTURES; ++i) {
-        srv[i].Create(textures[i], i+1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+        srv[i].Create(textures[i], i + 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
     }
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
@@ -81,31 +82,45 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
     playerSprite.Update();
 
-    Model playerModel(myEngine.GetModelConfig(0));
-    playerModel.Create("resources/player", "body.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
-    assert(&playerModel);
+    ModelData playerModelData[5] = {
+        LoadObjeFile("resources/player", "body.obj"),
+         LoadObjeFile("resources/player", "arm_L.obj"),
+         LoadObjeFile("resources/player", "arm_R.obj"),
+         LoadObjeFile("resources/player", "leg_L.obj"),
+         LoadObjeFile("resources/player", "leg_R.obj")
+    };
+    ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
+    ModelData doveModelData = LoadObjeFile("resources/dove", "dove.obj");
+    ModelData merigoraModelData = LoadObjeFile("resources/merigora", "merigora.obj");
+    ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
 
+    Model playerModel(myEngine.GetModelConfig(0));
+    playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    assert(&playerModel);
     Model armLModel(myEngine.GetModelConfig(0));
-    armLModel.Create("resources/player", "arm_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    armLModel.Create(playerModelData[1], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&armLModel);
     Model armRModel(myEngine.GetModelConfig(0));
-    armRModel.Create("resources/player", "arm_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    armRModel.Create(playerModelData[2], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&armRModel);
     Model legLModel(myEngine.GetModelConfig(0));
-    legLModel.Create("resources/player", "leg_L.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    legLModel.Create(playerModelData[3], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&legLModel);
     Model legRModel(myEngine.GetModelConfig(0));
-    legRModel.Create("resources/player", "leg_R.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    legRModel.Create(playerModelData[4], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
     assert(&legRModel);
 
     Model hammerModel(myEngine.GetModelConfig(0));
-    hammerModel.Create("resources/hammer", "hammer.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
+    hammerModel.Create(hammerModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
     assert(&hammerModel);
 
     Model doveModel(myEngine.GetModelConfig(0));
-    doveModel.Create("resources/dove", "dove.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 8);
+    doveModel.Create(doveModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 8);
     assert(&doveModel);
 
+    Model merigoraModel(myEngine.GetModelConfig(0));
+    merigoraModel.Create(merigoraModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 9);
+    assert(&merigoraModel);
 
     Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -116,24 +131,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         {1.0f, 0.0f, 0.0f, 1.0f},
         {0.0f, 1.0f, 0.0f, 1.0f},
         {0.0f, 0.0f, 1.0f, 1.0f},
-        {1.0f, 0.0f, 1.0f, 1.0f} 
+        {1.0f, 0.0f, 1.0f, 1.0f}
     };
 
     float timer = 0.0f;
 
     TitleScene titleScene;
-    titleScene.Init(myEngine,&hammerModel);
+    titleScene.Init(myEngine, &hammerModel,mirrorModelData);
 
     GameScene gameScene;
     gameScene.Init(
-        myEngine, 
+        myEngine,
         &playerModel,
         &armLModel,
-        &armRModel, 
-        &legLModel, 
+        &armRModel,
+        &legLModel,
         &legRModel,
         &hammerModel,
-         &doveModel);
+        &doveModel,
+        mirrorModelData);
+
+    Merigora merigora;
+
+    merigora.Init(merigoraModel, doveModel);
 
     Vector3 direction = { 0.0f,0.0f,1.0f };
 
@@ -177,7 +197,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 t = 0.0f;
             }
 
-             worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
+            worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
+
+            merigora.Update();
 
             switch (scene) {
             case TITLE:
@@ -187,7 +209,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 }
                 break;
             case GAME:
-                 gameScene.Update(sound, bgmData, seData, voiceData);
+                gameScene.Update(sound, bgmData, seData, voiceData);
                 break;
             case END:
 
@@ -195,7 +217,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             myEngine.GetDirectionalLightData().direction = { 1.0f,0.0f,0.0f };
- 
+
 #ifdef _DEBUG
 
             {
@@ -271,7 +293,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                     break;
                 }
-  
+
             }
 
 #pragma region //描画
@@ -281,6 +303,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //グリッドの描画
             grid.Draw(srv[WHITE], camera);
+
+            merigora.Draw(camera);
 
             switch (scene) {
             case TITLE:
