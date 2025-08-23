@@ -224,6 +224,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Game\Mirror.h" />
     <ClInclude Include="Game\Player.h" />
     <ClInclude Include="Game\Merigora.h" />
+    <ClInclude Include="Game\TextureIndex.h" />
     <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />

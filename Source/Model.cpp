@@ -8,6 +8,7 @@
 #include"MakeIdentity4x4.h"
 #include<numbers>
 
+
 void Model::Create(const ModelData& modelData,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {

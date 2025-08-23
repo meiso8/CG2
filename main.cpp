@@ -3,6 +3,8 @@
 #include"Game/GameScene.h"
 #include"Game/TitleScene.h"
 #include"Game/Merigora.h"
+#include"Game/TextureIndex.h"
+
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -58,21 +60,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    Texture textures[TEXTURES] = {
+    const int maxTexture = 5;
+
+    Texture textures[maxTexture] = {
         Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
             Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
                 Texture(myEngine.GetDevice(), myEngine.GetCommandList()) ,
-     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
 
-    textures[0].Load("resources/white1x1.png");
-    textures[1].Load("resources/effect.png");
-    textures[2].Load("resources/player/player.png");
-    textures[3].Load("resources/sky.png");
+    textures[WHITE].Load("resources/white1x1.png");
+    textures[EFFECT].Load("resources/effect.png");
+    textures[PRESS_SPACE].Load("resources/pressSpace.png");
+    textures[SKY_MODEL].Load("resources/sky.png"),
+    textures[PLAYER].Load("resources/player/player.png");
 
     //ShaderResourceViewを作る
-    ShaderResourceView srv[TEXTURES] = {};
-    for (int i = 0; i < TEXTURES; ++i) {
-        srv[i].Create(textures[i], i + 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
+    ShaderResourceView srv[maxTexture] = {};
+    for (int i = 0; i < maxTexture; ++i) {
+        srv[i].Create(textures[i], i, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
     }
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
@@ -81,6 +86,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     playerSprite.SetSize(Vector2(256.0f, 256.0f));
     playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
     playerSprite.Update();
+
+    Sprite spaceSprite;
+    spaceSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
 
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
@@ -95,49 +103,41 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
 
     Model playerModel(myEngine.GetModelConfig(0));
-    playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),PLAYER_MODEL);
     assert(&playerModel);
     Model armLModel(myEngine.GetModelConfig(0));
-    armLModel.Create(playerModelData[1], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    armLModel.Create(playerModelData[1], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
     assert(&armLModel);
     Model armRModel(myEngine.GetModelConfig(0));
-    armRModel.Create(playerModelData[2], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    armRModel.Create(playerModelData[2], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
     assert(&armRModel);
     Model legLModel(myEngine.GetModelConfig(0));
-    legLModel.Create(playerModelData[3], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    legLModel.Create(playerModelData[3], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
     assert(&legLModel);
     Model legRModel(myEngine.GetModelConfig(0));
-    legRModel.Create(playerModelData[4], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
+    legRModel.Create(playerModelData[4], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
     assert(&legRModel);
 
     Model hammerModel(myEngine.GetModelConfig(0));
-    hammerModel.Create(hammerModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
+    hammerModel.Create(hammerModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), HAMMER_MODEL);
     assert(&hammerModel);
 
     Model doveModel(myEngine.GetModelConfig(0));
-    doveModel.Create(doveModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 8);
+    doveModel.Create(doveModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), DOVE_MODEL);
     assert(&doveModel);
 
     Model merigoraModel(myEngine.GetModelConfig(0));
-    merigoraModel.Create(merigoraModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 9);
+    merigoraModel.Create(merigoraModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), MERIGORA_MODEL);
     assert(&merigoraModel);
 
-    Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
+    Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
     Vector2 speed = { 2.0f,2.0f };
-
-    size_t currentIndex = 0;
-    Vector4 colors[4] = {
-        {1.0f, 0.0f, 0.0f, 1.0f},
-        {0.0f, 1.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, 1.0f, 1.0f},
-        {1.0f, 0.0f, 1.0f, 1.0f}
-    };
 
     float timer = 0.0f;
 
     TitleScene titleScene;
-    titleScene.Init(myEngine, &hammerModel,mirrorModelData);
+    titleScene.Init(myEngine, &hammerModel,mirrorModelData,spaceSprite);
 
     GameScene gameScene;
     gameScene.Init(
@@ -153,7 +153,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Merigora merigora;
 
-    merigora.Init(merigoraModel, doveModel);
+    merigora.Init(merigoraModel, myEngine,doveModelData);
 
     Vector3 direction = { 0.0f,0.0f,1.0f };
 
@@ -188,16 +188,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ゲームの処理
 
-            timer++;
-            float t = timer / 240.0f;
-
-            if (t >= 1.0f) {
-                currentIndex = (currentIndex + 1) % 4;
-                timer = 0.0f;
-                t = 0.0f;
-            }
-
-            worldColor = Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t);
 
             merigora.Update();
 
@@ -304,12 +294,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //グリッドの描画
             grid.Draw(srv[WHITE], camera);
 
-            merigora.Draw(camera);
+            merigora.Draw(camera,srv);
 
             switch (scene) {
             case TITLE:
 
-                titleScene.Draw(camera, srv, playerSprite);
+                titleScene.Draw(camera, srv);
                 break;
             case GAME:
                 gameScene.Draw(camera, srv, playerSprite);

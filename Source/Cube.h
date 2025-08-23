@@ -11,13 +11,13 @@
 #include"PSO.h"  
 #include"ShaderResourceView.h"  
 #include"Camera.h"  
-#include"Transform.h"  
 #include"TransformationMatrix.h"  
 #include"MaterialResource.h"  
 #include"Vector2.h"  
 #include"RootSignature.h"  
 #include"Balloon.h"
 #include"Wave.h"
+#include"WorldTransform.h"
 
 class Cube
 {
@@ -25,22 +25,15 @@ class Cube
 
 public:
     void Create(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc);
-   void  PreDraw();
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device, ModelConfig& mc);
+    void  PreDraw();
     void Draw(
-        ShaderResourceView& srv, Camera& camera
+        ShaderResourceView& srv, Camera& camera, const Matrix4x4& worldMatrix
     );
 
     void SetColor(const Vector4& color);
-    void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
-    void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
-    void SetScale(const Vector3& scale) { transform_.scale = scale; }
     void SetMinMax(const Vector3& min, const Vector3& max);
 
-
-    Vector3& GetScaleRef() { return transform_.scale; };
-    Vector3& GetRotateRef() { return transform_.rotate; };
-    Vector3& GetTranslateRef() { return transform_.translate; };
     VertexData& GetVertexData(const uint32_t& index) {
         return vertexData_[index];
     }
@@ -60,8 +53,6 @@ private:
 
     Microsoft::WRL::ComPtr <ID3D12Resource> transformationMatrixResource_ = nullptr;
 
-    Transform transform_{};
-    Matrix4x4 worldMatrix_{};
     Matrix4x4 worldViewProjectionMatrix_{};
     TransformationMatrix* transformationMatrixData_ = nullptr;
 

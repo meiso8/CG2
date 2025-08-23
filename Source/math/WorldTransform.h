@@ -11,7 +11,6 @@ public://一旦public
     Vector3 translate_;
     Matrix4x4 matWorld_;
     const WorldTransform* parent_ = nullptr;
-    Vector3 localPos_ = {0.0f};
 public:
     void Initialize();
     void SetTranslation(const Vector3& translation) {
@@ -39,3 +38,6 @@ public:
 
 
 void WorldTransformUpdate(WorldTransform& worldTransform);
+
+
+void WorldTransformTRUpdate(WorldTransform& worldTransform, const Vector3& translate, const Vector3& rotate);

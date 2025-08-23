@@ -1,5 +1,6 @@
 #include"DrawGrid.h"
 #include<numbers>
+#include"MakeIdentity4x4.h"
 
 DrawGrid::DrawGrid(const Microsoft::WRL::ComPtr<ID3D12Device>& device,ModelConfig& mc) {
 
@@ -46,7 +47,7 @@ void DrawGrid::Draw(ShaderResourceView& srv,Camera& camera ) {
     cube_[0].PreDraw();
 
     for (int i = 0; i < 2; ++i) {
-        cube_[i].Draw(srv,camera);
+        cube_[i].Draw(srv,camera, MakeIdentity4x4());
     }
 
 }

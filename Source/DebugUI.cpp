@@ -231,7 +231,6 @@ void DebugUI::Color(Vector4& color) {
 
 void DebugUI::HammerUpdate(Hammer& hammer) {
     ImGui::Begin("Hammer");
-    ImGui::SliderFloat3("local", &hammer.GetWorldTransform().localPos_.x, -100.0f, 100.0f);
     ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);   
     ImGui::SliderFloat3("translate", &hammer.GetWorldTransform().translate_.x, -10.0f, 10.0f);
     ImGui::End();
