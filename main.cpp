@@ -9,6 +9,8 @@
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
+
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -101,6 +103,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
     sprite[0].Update();
 
+    sprite[1].SetSize(Vector2(901.0f, 127.0f));
+    sprite[1].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f - sprite[1].GetSize().x / 2.0f, myEngine.GetWC().GetClientHeight() - sprite[1].GetSize().y,0.0f });
+    sprite[1].Update();
+
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
          LoadObjeFile("resources/player", "arm_L.obj"),
@@ -147,22 +153,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     float timer = 0.0f;
 
-    TitleScene* titleScene = new TitleScene();
+    std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
     titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
 
-    GameScene* gameScene = new GameScene();
-    gameScene->Init(
-        myEngine,
-        &playerModel,
-        &armLModel,
-        &armRModel,
-        &legLModel,
-        &legRModel,
-        &hammerModel,
-        &doveModel,
-        mirrorModelData, numSprite);
+    std::unique_ptr<GameScene> gameScene = std::make_unique<GameScene>();
+    gameScene->Init(myEngine, &playerModel, &armLModel, &armRModel, &legLModel,
+        &legRModel, &hammerModel, &doveModel, mirrorModelData, numSprite);
 
-    EndScene* endScene = new EndScene();
+    std::unique_ptr<EndScene> endScene = std::make_unique<EndScene>();
 
     Merigora merigora;
 
@@ -208,18 +206,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             case TITLE:
                 titleScene->Update(sound, seData, bgmData);
                 if (titleScene->IsTransition()) {
+                    titleScene.reset(); // 自動でdeleteが呼び出される
                     scene = GAME;
-                    delete titleScene;
                     titleScene = nullptr;
+
+                    gameScene = std::make_unique<GameScene>();
+
+                    gameScene->Init(
+                        myEngine,
+                        &playerModel,
+                        &armLModel,
+                        &armRModel,
+                        &legLModel,
+                        &legRModel,
+                        &hammerModel,
+                        &doveModel,
+                        mirrorModelData, numSprite);
                 }
                 break;
             case GAME:
                 gameScene->Update(sound, bgmData, seData, voiceData);
                 if (gameScene->IsTransition()) {
-                    delete gameScene;
+                    gameScene.reset();
+
                     gameScene = nullptr;
                     scene = END;
                     sound.SoundStop();
+                    endScene = std::make_unique<EndScene>();
                 }
                 break;
             case END:
@@ -228,6 +241,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 1.0f, false);
+                }
+
+                if (input->IsTriggerKey(DIK_SPACE)) {
+                    endScene->IsTransition() = true;
+
+                    if (endScene->IsTransition()) {
+                        endScene.reset();
+
+                        endScene = nullptr;
+                        scene = TITLE;
+                        sound.SoundStop();
+
+                        titleScene = std::make_unique<TitleScene>();
+                        titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
+
+                    }
+            
                 }
 
                 break;
@@ -323,8 +353,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Draw(camera, srv, sprite);
                 break;
             case END:
-                
-
+                endScene->Draw(camera, srv, sprite[1]);
+     
                 break;
             }
 
