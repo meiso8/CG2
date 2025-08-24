@@ -4,7 +4,7 @@
 #include"Game/TitleScene.h"
 #include"Game/Merigora.h"
 #include"Game/TextureIndex.h"
-
+#include"Game/EndScene.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -147,7 +147,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     float timer = 0.0f;
 
-   TitleScene* titleScene = new TitleScene();
+    TitleScene* titleScene = new TitleScene();
     titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
 
     GameScene* gameScene = new GameScene();
@@ -161,6 +161,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         &hammerModel,
         &doveModel,
         mirrorModelData, numSprite);
+
+    EndScene* endScene = new EndScene();
 
     Merigora merigora;
 
@@ -221,6 +223,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 }
                 break;
             case END:
+
+                endScene->Update(worldColor, myEngine.GetDirectionalLightData().color);
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 1.0f, false);
@@ -290,10 +294,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     titleScene->CameraUpdate(camera);
                     break;
                 case GAME:
-                    
+
                     gameScene->CameraUpdate(camera);
                     break;
                 case END:
+         endScene->CameraUpdate(camera);
+
 
                     break;
                 }
@@ -317,7 +323,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Draw(camera, srv, sprite);
                 break;
             case END:
-
+                
 
                 break;
             }

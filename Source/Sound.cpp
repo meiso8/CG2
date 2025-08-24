@@ -175,16 +175,6 @@ bool Sound::IsPlaying() const {
 }
 
 
-//bool Sound::IsPlaying(const std::wstring& soundId) const {
-//    auto it = voices_.find(soundId);
-//    if (it != voices_.end() && it->second) {
-//        XAUDIO2_VOICE_STATE state{};
-//        it->second->GetState(&state);
-//        return state.BuffersQueued > 0;
-//    }
-//    return false;
-//}
-
 Sound::~Sound() {
 
 };

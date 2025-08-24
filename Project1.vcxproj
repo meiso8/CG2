@@ -100,6 +100,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\EndScene.cpp" />
     <ClCompile Include="Game\Dove.cpp" />
     <ClCompile Include="Game\Collider.cpp" />
     <ClCompile Include="Game\CollisionManager.cpp" />
@@ -207,6 +208,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\EndScene.h" />
     <ClInclude Include="Game\Dove.h" />
     <ClInclude Include="Game\GameScene.h" />
     <ClInclude Include="Game\Collider.h" />
