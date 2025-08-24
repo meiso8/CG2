@@ -69,10 +69,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
 
     textures[WHITE].Load("resources/white1x1.png");
-    textures[EFFECT].Load("resources/effect.png");
+    textures[NUMBERS].Load("resources/numbers.png");
     textures[PRESS_SPACE].Load("resources/pressSpace.png");
     textures[SKY_MODEL].Load("resources/sky.png"),
-    textures[PLAYER].Load("resources/player/player.png");
+        textures[PLAYER].Load("resources/player/player.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv[maxTexture] = {};
@@ -81,15 +81,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
-    Sprite playerSprite;
-    playerSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
-    playerSprite.SetSize(Vector2(256.0f, 256.0f));
-    playerSprite.SetTranslate({ WIN_WIDTH - playerSprite.GetSize().x,WIN_HEIGHT - playerSprite.GetSize().y,0.0f });
-    playerSprite.Update();
+    Sprite numSprite[3];
+    for (int i = 0; i < 3; ++i) {
+        numSprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+        numSprite[i].SetSize(Vector2(80.0f, 80.0f));
+        numSprite[i].SetTranslate({ numSprite[i].GetSize().x + i * 80.0f ,numSprite[i].GetSize().y,0.0f});
+        numSprite[i].GetUVScale().x = 0.1f;
+        numSprite[i].Update();
+    }
 
-    Sprite spaceSprite;
-    spaceSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+    Sprite sprite[2];
+    for (int i = 0; i < 2; ++i) {
+        sprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+    }
 
+    sprite[0].SetSize(Vector2(256.0f, 256.0f));
+    sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f});
+    sprite[0].Update();
+    
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
          LoadObjeFile("resources/player", "arm_L.obj"),
@@ -103,7 +112,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
 
     Model playerModel(myEngine.GetModelConfig(0));
-    playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(),PLAYER_MODEL);
+    playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
     assert(&playerModel);
     Model armLModel(myEngine.GetModelConfig(0));
     armLModel.Create(playerModelData[1], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
@@ -137,7 +146,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     float timer = 0.0f;
 
     TitleScene titleScene;
-    titleScene.Init(myEngine, &hammerModel,mirrorModelData,spaceSprite);
+    titleScene.Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
 
     GameScene gameScene;
     gameScene.Init(
@@ -149,11 +158,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         &legRModel,
         &hammerModel,
         &doveModel,
-        mirrorModelData);
+        mirrorModelData,numSprite);
 
     Merigora merigora;
 
-    merigora.Init(merigoraModel, myEngine,doveModelData);
+    merigora.Init(merigoraModel, myEngine, doveModelData);
 
     Vector3 direction = { 0.0f,0.0f,1.0f };
 
@@ -210,23 +219,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-            {
-                ImGui::Text("FPS : %d", fpsCounter.GetFPS());
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
-                static char str0[128] = "Hello, world!";
-                ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
-
-                if (ImGui::BeginMenu("file")) {
-                    if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
-                    if (ImGui::BeginMenu("open")) {
-                        if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
-                        if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndMenu();
-                }
-
-            }
+            ImGui::Begin("Debug");
+            ImGui::Text("FPS : %d", fpsCounter.GetFPS());
+            ImGui::End();
 
             {
 
@@ -246,7 +241,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 ImGui::End();
             }
 
-            debugUI.SpriteUpdate(playerSprite);
+            debugUI.SpriteUpdate(numSprite[0]);
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.DebugMirror(gameScene.GetMirrors());
@@ -255,6 +250,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.UpdatePlayer(gameScene.GetPlayer());
             debugUI.SphereUpdate(gameScene.GetSphereMesh());
             debugUI.DoveUpdate(gameScene.GetDove());
+
+
 #endif
 
             if (input->IsTriggerKey(DIK_P)) {
@@ -293,16 +290,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             //グリッドの描画
             grid.Draw(srv[WHITE], camera);
-
-            merigora.Draw(camera,srv);
+            merigora.Draw(camera, srv);
 
             switch (scene) {
             case TITLE:
-
                 titleScene.Draw(camera, srv);
                 break;
             case GAME:
-                gameScene.Draw(camera, srv, playerSprite);
+                gameScene.Draw(camera, srv, sprite);
                 break;
             case END:
 

@@ -40,9 +40,9 @@ public:
 
     Material* GetMaterial() { return materialResource_.GetMaterial(); };
 
-    Vector3& GetUVScaleRef() { return uvTransform_.scale; };
-    Vector3& GetUVRotateRef() { return uvTransform_.rotate; };
-    Vector3& GetUVTranslateRef() { return uvTransform_.translate; };
+    Vector3& GetUVScale() { return uvTransform_.scale; };
+    Vector3& GetUVRotate() { return uvTransform_.rotate; };
+    Vector3& GetUVTranslate() { return uvTransform_.translate; };
 
 private:
     void CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device);

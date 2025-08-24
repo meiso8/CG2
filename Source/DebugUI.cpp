@@ -172,10 +172,23 @@ void DebugUI::InputUpdate(Input& input) {
 
 void DebugUI::SpriteUpdate(Sprite& sprite) {
     ImGui::Begin("Sprite");
-    ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, 0.0f, 640.0f);
-    ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-    ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+
+
+    if (ImGui::TreeNode("transform")) {
+        ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, 0.0f, 640.0f);
+        ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+    }
+
+    if (ImGui::TreeNode("uvTransform")) {
+        ImGui::SliderFloat3("uvTranslate", &sprite.GetUVTranslate().x, -100.0f, 100.0f);
+        ImGui::SliderFloat3("uvRotation", &sprite.GetUVRotate().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("uvScale", &sprite.GetUVScale().x, 0.0f, 100.0f);
+        ImGui::TreePop();
+    }
     ImGui::End();
+
+
 }
 
 void DebugUI::SphereUpdate(SphereMesh& sphere) {
