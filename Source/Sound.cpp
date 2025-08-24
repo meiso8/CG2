@@ -103,10 +103,11 @@ void Sound::SoundUnload(SoundData* soundData) {
 void Sound::SoundPlay(const SoundData& soundData, const float& volume, bool isLoop) {
     HRESULT result;
 
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, soundData.pWaveFormat);
-    assert(SUCCEEDED(result));
+    IXAudio2SourceVoice* newVoice = nullptr;
 
-    pSourceVoice_->SetVolume(volume);
+    result = xAudio2_->CreateSourceVoice(&newVoice, soundData.pWaveFormat);
+    assert(SUCCEEDED(result));
+    newVoice->SetVolume(volume);
 
     XAUDIO2_BUFFER buf{};
     buf.pAudioData = soundData.mediaData.data();
@@ -117,32 +118,43 @@ void Sound::SoundPlay(const SoundData& soundData, const float& volume, bool isLo
         buf.LoopCount = XAUDIO2_LOOP_INFINITE; 
     }
 
-    result = pSourceVoice_->SubmitSourceBuffer(&buf);
+    result = newVoice->SubmitSourceBuffer(&buf);
     assert(SUCCEEDED(result));
-    result = pSourceVoice_->Start();//再生開始
+    result = newVoice->Start();//再生開始
     assert(SUCCEEDED(result));
     isStarted_ = true;
     isPaused_ = false;
+
+    voices_.push_back(newVoice);
+
 };
 
 void Sound::SoundStop() {
-    if (pSourceVoice_) {
-        pSourceVoice_->Stop();                // 再生停止
-        pSourceVoice_->FlushSourceBuffers(); // バッファをクリア
+
+    for (auto voice : voices_) {
+        voice->Stop();
+        voice->Discontinuity();
+        voice->FlushSourceBuffers();
+        voice->DestroyVoice();
     }
+    voices_.clear();
+
+    isStarted_ = false;
+    isPaused_ = true;
+
 }
 
 void Sound::SoundPause() {
-    if (pSourceVoice_) {
-        pSourceVoice_->Stop(); // バッファは保持されたまま停止
-        isPaused_ = true;
-    }
+    //if (pSourceVoice_) {
+    //    pSourceVoice_->Stop(); // バッファは保持されたまま停止
+    //    isPaused_ = true;
+    //}
 }
 
 void Sound::SoundResume() {
-    if (pSourceVoice_) {
-        pSourceVoice_->Start(); // 停止した位置から再開
-    }
+    //if (pSourceVoice_) {
+    //    pSourceVoice_->Start(); // 停止した位置から再開
+    //}
 }
 
 bool Sound::IsActuallyPlaying() const {
@@ -150,13 +162,28 @@ bool Sound::IsActuallyPlaying() const {
 }
 
 bool Sound::IsPlaying() const {
-    if (!pSourceVoice_) return false;
-
-    XAUDIO2_VOICE_STATE state{};
-    pSourceVoice_->GetState(&state);
-
-    return state.BuffersQueued > 0;
+    for (auto voice : voices_) {
+        if (voice) {
+            XAUDIO2_VOICE_STATE state{};
+            voice->GetState(&state);
+            if (state.BuffersQueued > 0) {
+                return true; // 少なくとも1つの音声が再生中
+            }
+        }
+    }
+    return false; // すべての音声が停止している
 }
+
+
+//bool Sound::IsPlaying(const std::wstring& soundId) const {
+//    auto it = voices_.find(soundId);
+//    if (it != voices_.end() && it->second) {
+//        XAUDIO2_VOICE_STATE state{};
+//        it->second->GetState(&state);
+//        return state.BuffersQueued > 0;
+//    }
+//    return false;
+//}
 
 Sound::~Sound() {
 

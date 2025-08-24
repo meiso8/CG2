@@ -30,5 +30,6 @@ public:
     void HammerUpdate(Hammer& hammer);
     void UpdatePlayer(Player& player);
     void DoveUpdate(Dove& dove);
+    void CheckInt(int& value);
 };
 

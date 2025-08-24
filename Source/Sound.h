@@ -7,7 +7,7 @@
 #include <mfidl.h>  
 #include <mfreadwrite.h>  
 #include <string>
-
+#include<vector>
 struct SoundData {
     WAVEFORMATEX* pWaveFormat;
     std::vector<BYTE> mediaData;
@@ -48,13 +48,15 @@ public:
 
     bool IsActuallyPlaying() const;
 
-    bool IsPlaying() const;
+    bool IsPlaying()const;
     ~Sound();
 private:
 
     Microsoft::WRL::ComPtr<IXAudio2> xAudio2_ = nullptr; // ComオブジェクトなのでComPtrで管理する。  
     IXAudio2MasteringVoice* masterVoice_ = { nullptr }; // ReleaseなしのためComPtrで管理することが出来ない。  
-    IXAudio2SourceVoice* pSourceVoice_ = { nullptr };
+    //IXAudio2SourceVoice* pSourceVoice_ = { nullptr };
+    std::vector<IXAudio2SourceVoice*> voices_;
+
     bool isStarted_ = false;
     bool isPaused_ = false;
 };

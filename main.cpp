@@ -30,11 +30,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData bgmData[1] = { sound.SoundLoad(L"resources/Sounds/dreamcore.mp3") };
-    SoundData seData[3] = {
+    SoundData bgmData[2] = { sound.SoundLoad(L"resources/Sounds/dreamcore.mp3"),
+        sound.SoundLoad(L"resources/Sounds/kiritan.mp3") };
+    SoundData seData[4] = {
         sound.SoundLoad(L"resources/Sounds/broken.mp3"),
         sound.SoundLoad(L"resources/Sounds/pico.mp3") ,
-        sound.SoundLoad(L"resources/Sounds/cracker.mp3") };
+        sound.SoundLoad(L"resources/Sounds/cracker.mp3"),
+        sound.SoundLoad(L"resources/Sounds/poppo.mp3") };
 
     SoundData voiceData[3] =
     { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
@@ -85,7 +87,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     for (int i = 0; i < 3; ++i) {
         numSprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
         numSprite[i].SetSize(Vector2(80.0f, 80.0f));
-        numSprite[i].SetTranslate({ numSprite[i].GetSize().x + i * 80.0f ,numSprite[i].GetSize().y,0.0f});
+        numSprite[i].SetTranslate({ numSprite[i].GetSize().x + i * 80.0f ,numSprite[i].GetSize().y,0.0f });
         numSprite[i].GetUVScale().x = 0.1f;
         numSprite[i].Update();
     }
@@ -96,9 +98,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     sprite[0].SetSize(Vector2(256.0f, 256.0f));
-    sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f});
+    sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
     sprite[0].Update();
-    
+
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
          LoadObjeFile("resources/player", "arm_L.obj"),
@@ -145,11 +147,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     float timer = 0.0f;
 
-    TitleScene titleScene;
-    titleScene.Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
+   TitleScene* titleScene = new TitleScene();
+    titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
 
-    GameScene gameScene;
-    gameScene.Init(
+    GameScene* gameScene = new GameScene();
+    gameScene->Init(
         myEngine,
         &playerModel,
         &armLModel,
@@ -158,7 +160,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         &legRModel,
         &hammerModel,
         &doveModel,
-        mirrorModelData,numSprite);
+        mirrorModelData, numSprite);
 
     Merigora merigora;
 
@@ -202,15 +204,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-                titleScene.Update(sound, seData, bgmData);
-                if (titleScene.IsTransition()) {
+                titleScene->Update(sound, seData, bgmData);
+                if (titleScene->IsTransition()) {
                     scene = GAME;
+                    delete titleScene;
+                    titleScene = nullptr;
                 }
                 break;
             case GAME:
-                gameScene.Update(sound, bgmData, seData, voiceData);
+                gameScene->Update(sound, bgmData, seData, voiceData);
+                if (gameScene->IsTransition()) {
+                    delete gameScene;
+                    gameScene = nullptr;
+                    scene = END;
+                    sound.SoundStop();
+                }
                 break;
             case END:
+
+                if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
+                    sound.SoundPlay(bgmData[1], 1.0f, false);
+                }
 
                 break;
             }
@@ -244,14 +258,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             debugUI.SpriteUpdate(numSprite[0]);
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
-            debugUI.DebugMirror(gameScene.GetMirrors());
             debugUI.CameraUpdate(camera);
-            debugUI.HammerUpdate(gameScene.GetHammer());
-            debugUI.UpdatePlayer(gameScene.GetPlayer());
-            debugUI.SphereUpdate(gameScene.GetSphereMesh());
-            debugUI.DoveUpdate(gameScene.GetDove());
 
-
+            if (gameScene) {
+                debugUI.DebugMirror(gameScene->GetMirrors());
+                debugUI.HammerUpdate(gameScene->GetHammer());
+                debugUI.UpdatePlayer(gameScene->GetPlayer());
+                debugUI.SphereUpdate(gameScene->GetSphereMesh());
+                debugUI.DoveUpdate(gameScene->GetDove());
+                debugUI.CheckInt(gameScene->GetMirrorBreakCount());
+            }
 #endif
 
             if (input->IsTriggerKey(DIK_P)) {
@@ -271,10 +287,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 switch (scene) {
                 case TITLE:
-                    titleScene.CameraUpdate(camera);
+                    titleScene->CameraUpdate(camera);
                     break;
                 case GAME:
-                    gameScene.CameraUpdate(camera);
+                    
+                    gameScene->CameraUpdate(camera);
                     break;
                 case END:
 
@@ -294,12 +311,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-                titleScene.Draw(camera, srv);
+                titleScene->Draw(camera, srv);
                 break;
             case GAME:
-                gameScene.Draw(camera, srv, sprite);
+                gameScene->Draw(camera, srv, sprite);
                 break;
             case END:
+
 
                 break;
             }

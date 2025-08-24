@@ -16,6 +16,13 @@ void DebugUI::Update() {
 
 }
 
+void DebugUI::CheckInt(int& value) {
+
+    ImGui::Begin("Value");
+    ImGui::SliderInt("int", &value, -100, 100);
+    ImGui::End();
+};
+
 void DebugUI::DoveUpdate(Dove& dove) {
 
     ImGui::Begin("Dove");
