@@ -9,8 +9,6 @@
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
 
-
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -25,7 +23,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     srand(static_cast<unsigned int>(time(nullptr)));
 
-
 #pragma region//XAudio全体の初期化と音声の読み込み
     //DirectX初期化処理の末尾に追加する
     //音声クラスの作成
@@ -39,7 +36,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         sound.SoundLoad(L"resources/Sounds/pico.mp3") ,
         sound.SoundLoad(L"resources/Sounds/cracker.mp3"),
         sound.SoundLoad(L"resources/Sounds/poppo.mp3") };
-
     SoundData voiceData[3] =
     { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
       sound.SoundLoad(L"resources/Sounds/voice2.wav"),
@@ -64,19 +60,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    const int maxTexture = 5;
+    const int maxTexture = 6;
 
     Texture textures[maxTexture] = {
-        Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
-            Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
-                Texture(myEngine.GetDevice(), myEngine.GetCommandList()) ,
-     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) ,
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
 
     textures[WHITE].Load("resources/white1x1.png");
     textures[NUMBERS].Load("resources/numbers.png");
     textures[PRESS_SPACE].Load("resources/pressSpace.png");
-    textures[SKY_MODEL].Load("resources/sky.png"),
-        textures[PLAYER].Load("resources/player/player.png");
+    textures[SKY_MODEL].Load("resources/sky.png");
+    textures[CREDIT].Load("resources/credit.png");
+    textures[PLAYER].Load("resources/player/player.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv[maxTexture] = {};
@@ -89,13 +88,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     for (int i = 0; i < 3; ++i) {
         numSprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
         numSprite[i].SetSize(Vector2(80.0f, 80.0f));
-        numSprite[i].SetTranslate({ numSprite[i].GetSize().x + i * 80.0f ,numSprite[i].GetSize().y,0.0f });
+        numSprite[i].SetTranslate({64.0f + i * numSprite[i].GetSize().x  ,64.0f,0.0f });
         numSprite[i].GetUVScale().x = 0.1f;
+        numSprite[i].GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
         numSprite[i].Update();
     }
 
-    Sprite sprite[2];
-    for (int i = 0; i < 2; ++i) {
+    const int spriteNum = 3;
+    Sprite sprite[spriteNum];
+    for (int i = 0; i < spriteNum; ++i) {
         sprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
     }
 
@@ -107,6 +108,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite[1].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f - sprite[1].GetSize().x / 2.0f, myEngine.GetWC().GetClientHeight() - sprite[1].GetSize().y,0.0f });
     sprite[1].Update();
 
+    sprite[2].SetSize(Vector2(800.0f, 640.0f));
+    sprite[2].GetScaleRef().y = 0.8f;
+    sprite[2].GetRotateRef().x = 6.14f;
+    sprite[2].GetRotateRef().y = 1.0f;
+    sprite[2].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f +180.0f, 64.0f,0.0f });
+    sprite[2].Update();
+
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
          LoadObjeFile("resources/player", "arm_L.obj"),
@@ -114,10 +122,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
          LoadObjeFile("resources/player", "leg_L.obj"),
          LoadObjeFile("resources/player", "leg_R.obj")
     };
+
     ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
     ModelData doveModelData = LoadObjeFile("resources/dove", "dove.obj");
     ModelData merigoraModelData = LoadObjeFile("resources/merigora", "merigora.obj");
     ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
+    ModelData mirrorBallModelData = LoadObjeFile("resources/mirrorBall", "mirrorBall.obj");
 
     Model playerModel(myEngine.GetModelConfig(0));
     playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
@@ -149,18 +159,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
-    Vector2 speed = { 2.0f,2.0f };
-
-    float timer = 0.0f;
-
     std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
     titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
 
     std::unique_ptr<GameScene> gameScene = std::make_unique<GameScene>();
-    gameScene->Init(myEngine, &playerModel, &armLModel, &armRModel, &legLModel,
-        &legRModel, &hammerModel, &doveModel, mirrorModelData, numSprite);
+    gameScene->Init(
+        myEngine,
+        &playerModel,
+        &armLModel,
+        &armRModel,
+        &legLModel,
+        &legRModel,
+        &hammerModel,
+        &doveModel,
+        mirrorModelData,
+        mirrorBallModelData,
+        numSprite,
+        cameraSprite);
 
     std::unique_ptr<EndScene> endScene = std::make_unique<EndScene>();
+    endScene->Init();
 
     Merigora merigora;
 
@@ -199,11 +217,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ゲームの処理
 
-
             merigora.Update();
 
             switch (scene) {
             case TITLE:
+                worldColor = { 0.866f,0.627f,0.866f,1.0f };
+                myEngine.GetDirectionalLightData().color = { 1.0f,1.0f,1.0f,1.0f };
+                myEngine.GetDirectionalLightData().direction = { 0.0f,0.0f,1.0f };
+
                 titleScene->Update(sound, seData, bgmData);
                 if (titleScene->IsTransition()) {
                     titleScene.reset(); // 自動でdeleteが呼び出される
@@ -221,11 +242,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                         &legRModel,
                         &hammerModel,
                         &doveModel,
-                        mirrorModelData, numSprite);
+                        mirrorModelData, 
+                        mirrorBallModelData,
+                        numSprite, cameraSprite);
                 }
                 break;
             case GAME:
-                gameScene->Update(sound, bgmData, seData, voiceData);
+
+                gameScene->Update(sound, bgmData, seData, voiceData,myEngine.GetDirectionalLightData().color);
+
                 if (gameScene->IsTransition()) {
                     gameScene.reset();
 
@@ -233,11 +258,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     scene = END;
                     sound.SoundStop();
                     endScene = std::make_unique<EndScene>();
+                    endScene->Init();
                 }
+
                 break;
             case END:
 
                 endScene->Update(worldColor, myEngine.GetDirectionalLightData().color);
+                sprite[2].GetUVTranslate().y += 1.0f / 240.0f;
+                sprite[2].Update();
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 1.0f, false);
@@ -245,26 +274,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 if (input->IsTriggerKey(DIK_SPACE)) {
                     endScene->IsTransition() = true;
-
-                    if (endScene->IsTransition()) {
-                        endScene.reset();
-
-                        endScene = nullptr;
-                        scene = TITLE;
-                        sound.SoundStop();
-
-                        titleScene = std::make_unique<TitleScene>();
-                        titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
-
-                    }
-            
                 }
 
+                if (endScene->IsTransition()) {
+                    endScene.reset();
+
+                    endScene = nullptr;
+                    scene = TITLE;
+                    sound.SoundStop();
+
+                    titleScene = std::make_unique<TitleScene>();
+                    titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
+
+                }
                 break;
             }
 
-            myEngine.GetDirectionalLightData().direction = { 1.0f,0.0f,0.0f };
-
+    
 #ifdef _DEBUG
 
             ImGui::Begin("Debug");
@@ -272,7 +298,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             ImGui::End();
 
             {
-
                 ImGui::Begin("DirectionalLight");
                 ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
                 ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
@@ -289,7 +314,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 ImGui::End();
             }
 
-            debugUI.SpriteUpdate(numSprite[0]);
+            debugUI.SpriteUpdate(sprite[2]);
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.CameraUpdate(camera);
@@ -328,7 +353,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     gameScene->CameraUpdate(camera);
                     break;
                 case END:
-         endScene->CameraUpdate(camera);
+                    endScene->CameraUpdate(camera);
 
 
                     break;
@@ -353,8 +378,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Draw(camera, srv, sprite);
                 break;
             case END:
-                endScene->Draw(camera, srv, sprite[1]);
-     
+                endScene->Draw(camera, srv, sprite);
                 break;
             }
 

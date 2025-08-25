@@ -33,7 +33,7 @@ public:
     }
 
     Balloon& GetExpansionData() {
-        return *expansionData_;
+         return *expansionData_;
     }
 
     Wave& GetWaveData(size_t index) { return waveData_[index]; };
