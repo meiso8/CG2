@@ -19,8 +19,6 @@ class Sprite
 public:
     void Create(
         const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc);
-
-    void Update();
     void UpdateUV();
 
     void PreDraw();

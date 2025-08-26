@@ -1,7 +1,12 @@
 #pragma once
+#include"Vector2.h"
 #include"Vector3.h"
 #include"Vector4.h"
 #include"Matrix4x4.h"
+
+
+
+Vector2 Add(const Vector2& v1, const Vector2& v2);
 
 //加算
 Vector3 Add(const Vector3& v1, const Vector3& v2);

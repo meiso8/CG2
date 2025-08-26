@@ -110,6 +110,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Game\Hammer.cpp" />
     <ClCompile Include="Game\Merigora.cpp" />
     <ClCompile Include="MyEngine.cpp" />
+    <ClCompile Include="Game\Particle.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
@@ -119,6 +120,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\math\CatmullRom.cpp" />
     <ClCompile Include="Source\math\Collision.cpp" />
     <ClCompile Include="Source\math\Cross.cpp" />
+    <ClCompile Include="Source\math\Vector2.cpp" />
     <ClCompile Include="Source\math\Vector4.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\InputLayout.cpp" />
@@ -228,6 +230,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Game\Merigora.h" />
     <ClInclude Include="Game\TextureIndex.h" />
     <ClInclude Include="MyEngine.h" />
+    <ClInclude Include="Game\Particle.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />
     <ClInclude Include="Source\Camera.h" />

@@ -1,5 +1,11 @@
 #include"Add.h"
 
+Vector2 Add(const Vector2& v1, const Vector2& v2) {
+
+    return { v1.x + v2.x,v1.y + v2.y };
+};
+
+
 //加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
 

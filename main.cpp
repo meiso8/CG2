@@ -90,7 +90,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         numSprite[i].SetTranslate({ 64.0f + i * numSprite[i].GetSize().x  ,64.0f,0.0f });
         numSprite[i].GetUVScale().x = 0.1f;
         numSprite[i].GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
-        numSprite[i].Update();
     }
 
     const int spriteNum = 3;
@@ -101,14 +100,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     sprite[0].SetSize(Vector2(256.0f, 256.0f));
     sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
-    sprite[0].Update();
 
     sprite[2].SetSize(Vector2(800.0f, 640.0f));
     sprite[2].GetScaleRef().y = 0.8f;
     sprite[2].GetRotateRef().x = 6.14f;
     sprite[2].GetRotateRef().y = 1.0f;
     sprite[2].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f + 180.0f, 64.0f,0.0f });
-    sprite[2].Update();
 
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
@@ -262,10 +259,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 endScene->Update(worldColor, myEngine.GetDirectionalLightData().color);
                 sprite[2].GetUVTranslate().y += 1.0f / 240.0f;
-                sprite[2].Update();
+  
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
-                    sound.SoundPlay(bgmData[1], 1.0f, false);
+                    sound.SoundPlay(bgmData[1], 0.5f, false);
                 }
 
                 if (input->IsTriggerKey(DIK_SPACE)) {
@@ -310,8 +307,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
 
             debugUI.SpriteUpdate(sprite[1]);
-            sprite[1].Update();
-      
+ 
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.CameraUpdate(camera);
