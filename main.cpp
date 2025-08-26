@@ -60,26 +60,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    const int maxTexture = 6;
-
-    Texture textures[maxTexture] = {
+    Texture textures[TEXTURES] = {
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
-     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) ,
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
-     Texture(myEngine.GetDevice(), myEngine.GetCommandList()) };
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+ };
 
     textures[WHITE].Load("resources/white1x1.png");
     textures[NUMBERS].Load("resources/numbers.png");
     textures[PRESS_SPACE].Load("resources/pressSpace.png");
-    textures[SKY_MODEL].Load("resources/sky.png");
+    textures[SKY].Load("resources/sky.png");
     textures[CREDIT].Load("resources/credit.png");
     textures[PLAYER].Load("resources/player/player.png");
 
     //ShaderResourceViewを作る
-    ShaderResourceView srv[maxTexture] = {};
-    for (int i = 0; i < maxTexture; ++i) {
+    ShaderResourceView srv[TEXTURES] = {};
+    for (int i = 0; i < TEXTURES; ++i) {
         srv[i].Create(textures[i], i, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
     }
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
@@ -88,7 +87,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     for (int i = 0; i < 3; ++i) {
         numSprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
         numSprite[i].SetSize(Vector2(80.0f, 80.0f));
-        numSprite[i].SetTranslate({64.0f + i * numSprite[i].GetSize().x  ,64.0f,0.0f });
+        numSprite[i].SetTranslate({ 64.0f + i * numSprite[i].GetSize().x  ,64.0f,0.0f });
         numSprite[i].GetUVScale().x = 0.1f;
         numSprite[i].GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
         numSprite[i].Update();
@@ -104,15 +103,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
     sprite[0].Update();
 
-    sprite[1].SetSize(Vector2(901.0f, 127.0f));
-    sprite[1].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f - sprite[1].GetSize().x / 2.0f, myEngine.GetWC().GetClientHeight() - sprite[1].GetSize().y,0.0f });
-    sprite[1].Update();
-
     sprite[2].SetSize(Vector2(800.0f, 640.0f));
     sprite[2].GetScaleRef().y = 0.8f;
     sprite[2].GetRotateRef().x = 6.14f;
     sprite[2].GetRotateRef().y = 1.0f;
-    sprite[2].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f +180.0f, 64.0f,0.0f });
+    sprite[2].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f + 180.0f, 64.0f,0.0f });
     sprite[2].Update();
 
     ModelData playerModelData[5] = {
@@ -128,6 +123,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData merigoraModelData = LoadObjeFile("resources/merigora", "merigora.obj");
     ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
     ModelData mirrorBallModelData = LoadObjeFile("resources/mirrorBall", "mirrorBall.obj");
+    ModelData titleModelData = LoadObjeFile("resources/title", "title.obj");
 
     Model playerModel(myEngine.GetModelConfig(0));
     playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
@@ -160,7 +156,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
     std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
-    titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
+    titleScene->Init(myEngine, &hammerModel,sprite[1],titleModelData,camera, cameraSprite);
 
     std::unique_ptr<GameScene> gameScene = std::make_unique<GameScene>();
     gameScene->Init(
@@ -175,7 +171,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         mirrorModelData,
         mirrorBallModelData,
         numSprite,
-        cameraSprite);
+        cameraSprite, camera);
 
     std::unique_ptr<EndScene> endScene = std::make_unique<EndScene>();
     endScene->Init();
@@ -242,14 +238,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                         &legRModel,
                         &hammerModel,
                         &doveModel,
-                        mirrorModelData, 
+                        mirrorModelData,
                         mirrorBallModelData,
-                        numSprite, cameraSprite);
+                        numSprite, cameraSprite, camera);
                 }
                 break;
             case GAME:
 
-                gameScene->Update(sound, bgmData, seData, voiceData,myEngine.GetDirectionalLightData().color);
+                gameScene->Update(sound, bgmData, seData, voiceData, myEngine.GetDirectionalLightData().color);
 
                 if (gameScene->IsTransition()) {
                     gameScene.reset();
@@ -284,13 +280,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     sound.SoundStop();
 
                     titleScene = std::make_unique<TitleScene>();
-                    titleScene->Init(myEngine, &hammerModel, mirrorModelData, sprite[1]);
+                    titleScene->Init(myEngine, &hammerModel, sprite[1],titleModelData,camera,cameraSprite);
 
                 }
                 break;
             }
 
-    
+
 #ifdef _DEBUG
 
             ImGui::Begin("Debug");
@@ -310,11 +306,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
                 playerModel.GetMaterial()->lightType = light_current % 3;
-
                 ImGui::End();
             }
 
-            debugUI.SpriteUpdate(sprite[2]);
+            debugUI.SpriteUpdate(sprite[1]);
+            sprite[1].Update();
+      
             debugUI.InputUpdate(*input);
             debugUI.Color(worldColor);
             debugUI.CameraUpdate(camera);
@@ -346,11 +343,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                 switch (scene) {
                 case TITLE:
-                    titleScene->CameraUpdate(camera);
+                    titleScene->CameraUpdate();
                     break;
                 case GAME:
 
-                    gameScene->CameraUpdate(camera);
+                    gameScene->CameraUpdate();
                     break;
                 case END:
                     endScene->CameraUpdate(camera);
@@ -372,10 +369,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-                titleScene->Draw(camera, srv);
+                titleScene->Draw(srv);
                 break;
             case GAME:
-                gameScene->Draw(camera, srv, sprite);
+                gameScene->Draw(srv, sprite);
                 break;
             case END:
                 endScene->Draw(camera, srv, sprite);
