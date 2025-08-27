@@ -15,7 +15,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"クソゲーof the year 2025　ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"クソゲー of the year 2025 ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
 
     FPSCounter fpsCounter;
 
@@ -212,6 +212,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     titleScene = nullptr;
 
                     gameScene = std::make_unique<GameScene>();
+                    dove.Init(myEngine, doveModelData, camera);
+
                     gameScene->Init(
                         myEngine,
 
