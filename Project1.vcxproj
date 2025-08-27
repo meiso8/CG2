@@ -195,7 +195,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Sprite.cpp" />
     <ClCompile Include="Source\SphereMesh.cpp" />
     <ClCompile Include="Game\TitleScene.cpp" />
-    <ClCompile Include="Ticket.cpp" />
+    <ClCompile Include="Game\Ticket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -329,7 +329,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Wave.h" />
     <ClInclude Include="Source\Window.h" />
     <ClInclude Include="Game\TitleScene.h" />
-    <ClInclude Include="Ticket.h" />
+    <ClInclude Include="Game\Ticket.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

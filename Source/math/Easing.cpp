@@ -2,6 +2,9 @@
 #include <cmath>
 
 float EaseInOutCubic(const float& x) { return x < 0.5f ? 4 * x * x * x : 1.0f - std::powf(-2.0f * x + 2, 3) / 2.0f; }
+float EaseCubic(float x) {
+    return 3.0f * x * x - 2.0f * x * x * x;
+}
 
 float EaseInOutBack(const float& x){
 

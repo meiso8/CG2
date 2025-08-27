@@ -70,7 +70,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
       Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
-      Texture(myEngine.GetDevice(), myEngine.GetCommandList())
+      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+          Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+                    Texture(myEngine.GetDevice(), myEngine.GetCommandList())
     };
 
     textures[WHITE].Load("resources/white1x1.png");
@@ -80,7 +82,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     textures[CREDIT].Load("resources/credit.png");
     textures[PLAYER].Load("resources/player/player.png");
     textures[NICE].Load("resources/nice.png");
-    textures[BRICK].Load("resources/brick.png");
+    textures[TICKET].Load("resources/ticket.png");
+    textures[MENU0].Load("resources/operation.png");
+    textures[MENU1].Load("resources/operation1.png");
+
     //ShaderResourceViewを作る
     ShaderResourceView srv[TEXTURES] = {};
     for (int i = 0; i < TEXTURES; ++i) {
@@ -214,14 +219,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                         playerModelData,
                         mirrorModelData,
                         mirrorBallModelData,
-                        numSprite, cameraSprite, camera, merigora);
+                        numSprite, cameraSprite, camera, merigora, sound);
 
                     scene = GAME;
                 }
                 break;
             case GAME:
 
-                gameScene->Update(sound, bgmData, seData, voiceData);
+                gameScene->Update(bgmData, seData, voiceData);
 
                 if (gameScene->IsTransition()) {
                     sound.SoundStop();
