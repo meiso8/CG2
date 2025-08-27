@@ -129,10 +129,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData benchModelData = LoadObjeFile("resources/building", "bench.obj");
     ModelData lightModelData = LoadObjeFile("resources/building", "light.obj");
 
-    Model hammerModel(myEngine.GetModelConfig(0));
-    hammerModel.Create(hammerModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), HAMMER_MODEL);
-    Model doveModel(myEngine.GetModelConfig(0));
-    doveModel.Create(doveModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), DOVE_MODEL);
     Model merigoraModel(myEngine.GetModelConfig(0));
     merigoraModel.Create(merigoraModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), MERIGORA_MODEL);
 
@@ -166,11 +162,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     merigora.Init(merigoraModel, myEngine, doveModelData);
 
     std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
-    titleScene->Init(myEngine, &hammerModel, sprite[1], titleModelData, camera, cameraSprite, worldColor);
-
+    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
     std::unique_ptr<GameScene> gameScene;
-
     std::unique_ptr<EndScene> endScene;
+
     MSG msg{};
 
     enum SCENE {
@@ -208,16 +203,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             case TITLE:
                 titleScene->Update(sound, seData, bgmData);
                 if (titleScene->IsTransition()) {
+                    titleScene.reset();
                     titleScene = nullptr;
 
                     gameScene = std::make_unique<GameScene>();
                     gameScene->Init(
                         myEngine,
-                        &hammerModel,
-                        &doveModel,
+
                         playerModelData,
                         mirrorModelData,
                         mirrorBallModelData,
+                        hammerModelData,
+                        doveModelData,
                         numSprite, cameraSprite, camera, merigora, sound);
 
                     scene = GAME;
@@ -228,6 +225,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Update(bgmData, seData, voiceData);
 
                 if (gameScene->IsTransition()) {
+                    gameScene.reset();
                     sound.SoundStop();
                     gameScene = nullptr;
                     endScene = std::make_unique<EndScene>();
@@ -235,36 +233,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     scene = END;
                 }
 
-                if (isDebug) {
-
-                    if (gameScene) {
-                        debugUI.WorldTransformUpdate(building[1].GetWorldTransform());
-                        debugUI.DebugMirror(gameScene->GetMirrors());
-                        debugUI.HammerUpdate(gameScene->GetHammer());
-                        debugUI.UpdatePlayer(gameScene->GetPlayer());
-                        debugUI.SphereUpdate(gameScene->GetSphereMesh());
-                        debugUI.DoveUpdate(gameScene->GetDove());
-                        debugUI.CheckInt(gameScene->GetMirrorBreakCount());
-                    }
-                }
                 break;
             case END:
 
                 endScene->Update();
-
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 0.5f, false);
                 }
 
                 if (endScene->IsTransition()) {
-
+                    endScene.reset();
                     endScene = nullptr;
                     scene = TITLE;
                     sound.SoundStop();
 
                     titleScene = std::make_unique<TitleScene>();
-                    titleScene->Init(myEngine, &hammerModel, sprite[1], titleModelData, camera, cameraSprite, worldColor);
+                    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
                 }
                 break;
             }
@@ -325,19 +310,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
             merigora.Draw(camera, srv);
 
+            for (int i = 0; i < 2; ++i) {
+                building[i].Draw(camera);
+            }
 
-            if (scene == GAME || scene == END) {
-                for (int i = 0; i < 2; ++i) {
-                    building[i].Draw(camera);
-                }
+            for (int i = 0; i < 3; ++i) {
+                bench[i].Draw(camera);
+            }
 
-                for (int i = 0; i < 3; ++i) {
-                    bench[i].Draw(camera);
-                }
-
-                for (int i = 0; i < maxLight; ++i) {
-                    light[i].Draw(camera);
-                }
+            for (int i = 0; i < maxLight; ++i) {
+                light[i].Draw(camera);
             }
 
             switch (scene) {
@@ -353,7 +335,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 }
                 break;
             case END:
-                endScene->Draw(srv, sprite);
+                if (endScene != nullptr) {
+                    endScene->Draw(srv, sprite);
+                }
                 break;
             }
 
