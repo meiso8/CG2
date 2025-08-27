@@ -5,6 +5,7 @@
 #include"Game/Merigora.h"
 #include"Game/TextureIndex.h"
 #include"Game/EndScene.h"
+//#include"Game/Building.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -13,7 +14,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"クソゲーof the year 2025　ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
 
     FPSCounter fpsCounter;
 
@@ -29,7 +30,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Sound sound;
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData bgmData[2] = { sound.SoundLoad(L"resources/Sounds/dreamcore.mp3"),
+    SoundData bgmData[2] = { 
+        sound.SoundLoad(L"resources/Sounds/dreamcore.mp3"),
         sound.SoundLoad(L"resources/Sounds/kiritan.mp3") };
     SoundData seData[4] = {
         sound.SoundLoad(L"resources/Sounds/broken.mp3"),
@@ -67,7 +69,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
- };
+      Texture(myEngine.GetDevice(), myEngine.GetCommandList())
+    };
 
     textures[WHITE].Load("resources/white1x1.png");
     textures[NUMBERS].Load("resources/numbers.png");
@@ -75,6 +78,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     textures[SKY].Load("resources/sky.png");
     textures[CREDIT].Load("resources/credit.png");
     textures[PLAYER].Load("resources/player/player.png");
+    textures[NICE].Load("resources/nice.png");
 
     //ShaderResourceViewを作る
     ShaderResourceView srv[TEXTURES] = {};
@@ -92,7 +96,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         numSprite[i].GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
     }
 
-    const int spriteNum = 3;
+    const int spriteNum = 2;
     Sprite sprite[spriteNum];
     for (int i = 0; i < spriteNum; ++i) {
         sprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
@@ -100,12 +104,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     sprite[0].SetSize(Vector2(256.0f, 256.0f));
     sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
-
-    sprite[2].SetSize(Vector2(800.0f, 640.0f));
-    sprite[2].GetScaleRef().y = 0.8f;
-    sprite[2].GetRotateRef().x = 6.14f;
-    sprite[2].GetRotateRef().y = 1.0f;
-    sprite[2].SetTranslate({ myEngine.GetWC().GetClientWidth() / 2.0f + 180.0f, 64.0f,0.0f });
 
     ModelData playerModelData[5] = {
         LoadObjeFile("resources/player", "body.obj"),
@@ -121,6 +119,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
     ModelData mirrorBallModelData = LoadObjeFile("resources/mirrorBall", "mirrorBall.obj");
     ModelData titleModelData = LoadObjeFile("resources/title", "title.obj");
+    ModelData buildingModelData = LoadObjeFile("resources/building", "building.obj");
+
 
     Model playerModel(myEngine.GetModelConfig(0));
     playerModel.Create(playerModelData[0], myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), PLAYER_MODEL);
@@ -152,33 +152,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
-    std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
-    titleScene->Init(myEngine, &hammerModel,sprite[1],titleModelData,camera, cameraSprite);
-
-    std::unique_ptr<GameScene> gameScene = std::make_unique<GameScene>();
-    gameScene->Init(
-        myEngine,
-        &playerModel,
-        &armLModel,
-        &armRModel,
-        &legLModel,
-        &legRModel,
-        &hammerModel,
-        &doveModel,
-        mirrorModelData,
-        mirrorBallModelData,
-        numSprite,
-        cameraSprite, camera);
-
-    std::unique_ptr<EndScene> endScene = std::make_unique<EndScene>();
-    endScene->Init();
+    //Building building;
+    //building.Init(myEngine,buildingModelData);
 
     Merigora merigora;
-
     merigora.Init(merigoraModel, myEngine, doveModelData);
 
-    Vector3 direction = { 0.0f,0.0f,1.0f };
+    std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
+    titleScene->Init(myEngine, &hammerModel, sprite[1], titleModelData, camera, cameraSprite,worldColor);
 
+    std::unique_ptr<GameScene> gameScene;
+
+    std::unique_ptr<EndScene> endScene;
     MSG msg{};
 
     enum SCENE {
@@ -211,121 +196,96 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region //ゲームの処理
 
             merigora.Update();
+   /*         building.Update();*/
+
 
             switch (scene) {
             case TITLE:
-                worldColor = { 0.866f,0.627f,0.866f,1.0f };
-                myEngine.GetDirectionalLightData().color = { 1.0f,1.0f,1.0f,1.0f };
-                myEngine.GetDirectionalLightData().direction = { 0.0f,0.0f,1.0f };
+
 
                 titleScene->Update(sound, seData, bgmData);
                 if (titleScene->IsTransition()) {
-                    titleScene.reset(); // 自動でdeleteが呼び出される
-                    scene = GAME;
                     titleScene = nullptr;
+   
+                        gameScene = std::make_unique<GameScene>();
+                        gameScene->Init(
+                            myEngine,
+                            &playerModel,
+                            &armLModel,
+                            &armRModel,
+                            &legLModel,
+                            &legRModel,
+                            &hammerModel,
+                            &doveModel,
+                            mirrorModelData,
+                            mirrorBallModelData,
+                            numSprite, cameraSprite, camera, merigora);
 
-                    gameScene = std::make_unique<GameScene>();
-
-                    gameScene->Init(
-                        myEngine,
-                        &playerModel,
-                        &armLModel,
-                        &armRModel,
-                        &legLModel,
-                        &legRModel,
-                        &hammerModel,
-                        &doveModel,
-                        mirrorModelData,
-                        mirrorBallModelData,
-                        numSprite, cameraSprite, camera);
+                    scene = GAME;
                 }
                 break;
             case GAME:
 
-                gameScene->Update(sound, bgmData, seData, voiceData, myEngine.GetDirectionalLightData().color);
+                gameScene->Update(sound, bgmData, seData, voiceData);
 
                 if (gameScene->IsTransition()) {
-                    gameScene.reset();
-
-                    gameScene = nullptr;
-                    scene = END;
                     sound.SoundStop();
+                    gameScene = nullptr;
                     endScene = std::make_unique<EndScene>();
-                    endScene->Init();
+                    endScene->Init(camera,cameraSprite,worldColor, myEngine);
+                    scene = END;
                 }
 
+                if (isDebug) {
+
+                    if (gameScene) {
+                        debugUI.DebugMirror(gameScene->GetMirrors());
+                        debugUI.HammerUpdate(gameScene->GetHammer());
+                        debugUI.UpdatePlayer(gameScene->GetPlayer());
+                        debugUI.SphereUpdate(gameScene->GetSphereMesh());
+                        debugUI.DoveUpdate(gameScene->GetDove());
+                        debugUI.CheckInt(gameScene->GetMirrorBreakCount());
+                    }
+                }
                 break;
             case END:
 
-                endScene->Update(worldColor, myEngine.GetDirectionalLightData().color);
-                sprite[2].GetUVTranslate().y += 1.0f / 240.0f;
-  
+                endScene->Update();
+
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 0.5f, false);
                 }
 
-                if (input->IsTriggerKey(DIK_SPACE)) {
-                    endScene->IsTransition() = true;
-                }
-
                 if (endScene->IsTransition()) {
-                    endScene.reset();
-
+          
                     endScene = nullptr;
                     scene = TITLE;
                     sound.SoundStop();
 
                     titleScene = std::make_unique<TitleScene>();
-                    titleScene->Init(myEngine, &hammerModel, sprite[1],titleModelData,camera,cameraSprite);
+                    titleScene->Init(myEngine, &hammerModel, sprite[1], titleModelData, camera, cameraSprite,worldColor);
 
                 }
                 break;
             }
 
-
 #ifdef _DEBUG
-
-            ImGui::Begin("Debug");
-            ImGui::Text("FPS : %d", fpsCounter.GetFPS());
-            ImGui::End();
-
-            {
-                ImGui::Begin("DirectionalLight");
-                ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
-                ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
-                myEngine.GetDirectionalLightData().direction = Normalize(direction);
-                ImGui::DragFloat("intensity", &myEngine.GetDirectionalLightData().intensity);
-
-                const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
-
-                static int light_current = 2;
-
-                ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                playerModel.GetMaterial()->lightType = light_current % 3;
-                ImGui::End();
-            }
-
-            debugUI.SpriteUpdate(sprite[1]);
- 
-            debugUI.InputUpdate(*input);
-            debugUI.Color(worldColor);
-            debugUI.CameraUpdate(camera);
-
-            if (gameScene) {
-                debugUI.DebugMirror(gameScene->GetMirrors());
-                debugUI.HammerUpdate(gameScene->GetHammer());
-                debugUI.UpdatePlayer(gameScene->GetPlayer());
-                debugUI.SphereUpdate(gameScene->GetSphereMesh());
-                debugUI.DoveUpdate(gameScene->GetDove());
-                debugUI.CheckInt(gameScene->GetMirrorBreakCount());
-            }
-#endif
 
             if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
             }
+
+            if (isDebug) {
+                debugUI.CheckDirectionalLight(myEngine.GetDirectionalLightData());
+                debugUI.CheckFPS(fpsCounter);
+                debugUI.SpriteUpdate(sprite[1]);
+                debugUI.InputUpdate(*input);
+                debugUI.Color(worldColor);
+                debugUI.CameraUpdate(camera);
+            }
+#endif
 
             //カメラの切り替え処理
             if (isDebug) {
@@ -342,13 +302,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     titleScene->CameraUpdate();
                     break;
                 case GAME:
-
                     gameScene->CameraUpdate();
                     break;
                 case END:
-                    endScene->CameraUpdate(camera);
-
-
+                    endScene->CameraUpdate();
                     break;
                 }
 
@@ -360,9 +317,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             myEngine.PreCommandSet(worldColor);
 
             //グリッドの描画
-            grid.Draw(srv[WHITE], camera);
+            if (isDebug) {
+                grid.Draw(srv[WHITE], camera);
+            }
             merigora.Draw(camera, srv);
-
+     
             switch (scene) {
             case TITLE:
                 titleScene->Draw(srv);
@@ -371,9 +330,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Draw(srv, sprite);
                 break;
             case END:
-                endScene->Draw(camera, srv, sprite);
+                endScene->Draw(srv, sprite);
                 break;
             }
+
+            //building.Draw(camera);
 
             myEngine.PostCommandSet();
 

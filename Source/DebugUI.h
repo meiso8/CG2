@@ -13,6 +13,8 @@ class Camera;
 class Hammer;
 class Player;
 class Dove;
+class FPSCounter;
+struct DirectionalLight;
 #include<list>
 
 class DebugUI
@@ -31,5 +33,7 @@ public:
     void UpdatePlayer(Player& player);
     void DoveUpdate(Dove& dove);
     void CheckInt(int& value);
+    void CheckFPS(FPSCounter& fpsCounter);
+    void CheckDirectionalLight(DirectionalLight& directionalLights);
 };
 

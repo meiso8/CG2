@@ -4,6 +4,8 @@
 #include"Input.h"
 #include"Sprite.h"
 #include"SphereMesh.h"
+#include"FPSCounter.h"
+#include"DirectionalLight.h"
 #include<numbers>
 #include<algorithm>
 #include"Camera.h"
@@ -11,9 +13,35 @@
 #include"../Game/Player.h"
 #include "../Game/Mirror.h"
 #include "../Game/Dove.h"
+
 void DebugUI::Update() {
 
 
+}
+
+void DebugUI::CheckDirectionalLight(DirectionalLight& directionalLights) {
+
+    Vector3 direction = directionalLights.direction;
+    ImGui::Begin("DirectionalLight");
+    ImGui::ColorEdit4("color", &directionalLights.color.x);
+    ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
+    directionalLights.direction = Normalize(direction);
+    ImGui::DragFloat("intensity", &directionalLights.intensity);
+
+    const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
+
+    static int light_current = 2;
+
+    //ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
+    //playerModel.GetMaterial()->lightType = light_current % 3;
+    ImGui::End();
+
+};
+
+void DebugUI::CheckFPS(FPSCounter& fpsCounter) {
+    ImGui::Begin("Debug");
+    ImGui::Text("FPS : %d", fpsCounter.GetFPS());
+    ImGui::End();
 }
 
 void DebugUI::CheckInt(int& value) {
@@ -36,11 +64,12 @@ void DebugUI::UpdatePlayer(Player& player) {
 
     ImGui::Begin("Player");
 
-    // スライダーを作成
-    //ImGui::SliderFloat3("ArmL Position", &player.armLWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    //ImGui::SliderFloat3("ArmR Position", &player.armRWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    //ImGui::SliderFloat3("LegL Position", &player.legLWorldTransform_.localPos_.x, -10.0f, 10.0f);
-    //ImGui::SliderFloat3("LegR Position", &player.legRWorldTransform_.localPos_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("translate", &player.GetWorldTransform().translate_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("rotate", &player.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
+    ImGui::Text("worldPos %f %f %f",
+        player.GetWorldPosition().x,
+        player.GetWorldPosition().y,
+        player.GetWorldPosition().z);
 
     ImGui::SliderFloat3("ArmL rotate", &player.GetArmLWorldTransform().GetRotate().x, -10.0f, 10.0f);
     ImGui::SliderFloat3("ArmR rotate", &player.GetArmRWorldTransform().GetRotate().x, -10.0f, 10.0f);
@@ -252,7 +281,7 @@ void DebugUI::Color(Vector4& color) {
 
 void DebugUI::HammerUpdate(Hammer& hammer) {
     ImGui::Begin("Hammer");
-    ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);   
+    ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
     ImGui::SliderFloat3("translate", &hammer.GetWorldTransform().translate_.x, -10.0f, 10.0f);
     ImGui::End();
 };
