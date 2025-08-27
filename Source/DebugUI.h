@@ -3,6 +3,7 @@
 #include"ImGuiClass.h"
 #include"Vector3.h"
 #include"Vector4.h"
+#include"WorldTransform.h"
 
 class Model;
 class Input;
@@ -35,5 +36,7 @@ public:
     void CheckInt(int& value);
     void CheckFPS(FPSCounter& fpsCounter);
     void CheckDirectionalLight(DirectionalLight& directionalLights);
+    void WorldTransformUpdate(WorldTransform& worldTransform);
+
 };
 

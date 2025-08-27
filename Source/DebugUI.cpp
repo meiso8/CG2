@@ -273,6 +273,19 @@ void DebugUI::WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& transl
 
 };
 
+void DebugUI::WorldTransformUpdate(WorldTransform& worldTransform) {
+
+    //ImGui::Begin("WorldTransform");
+
+    if (ImGui::TreeNode("worldTransform")) {
+        ImGui::SliderFloat3("translation", &worldTransform.translate_.x, -10.0f, 10.0f);
+        ImGui::SliderFloat3("rotation", &worldTransform.rotate_.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &worldTransform.scale_.x, 0.0f, 10.0f);
+        ImGui::TreePop();
+    }
+    //ImGui::End();
+};
+
 void DebugUI::Color(Vector4& color) {
     ImGui::Begin("Color");
     ImGui::ColorEdit4("color", (float*)&color);
