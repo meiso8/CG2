@@ -6,6 +6,7 @@
 #include"Game/TextureIndex.h"
 #include"Game/EndScene.h"
 #include"Game/Building.h"
+#include"Game/Dove.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -161,6 +162,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Merigora merigora;
     merigora.Init(merigoraModel, myEngine, doveModelData);
 
+    Dove dove;
+    dove.Init(myEngine, doveModelData, camera);
+
     std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
     titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
     std::unique_ptr<GameScene> gameScene;
@@ -202,6 +206,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             switch (scene) {
             case TITLE:
                 titleScene->Update(sound, seData, bgmData);
+
                 if (titleScene->IsTransition()) {
                     titleScene.reset();
                     titleScene = nullptr;
@@ -214,7 +219,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                         mirrorModelData,
                         mirrorBallModelData,
                         hammerModelData,
-                        doveModelData,
+                       dove,
                         numSprite, cameraSprite, camera, merigora, sound);
 
                     scene = GAME;
@@ -225,12 +230,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 gameScene->Update(bgmData, seData, voiceData);
 
                 if (gameScene->IsTransition()) {
-                    gameScene.reset();
+                 
                     sound.SoundStop();
-                    gameScene = nullptr;
+
                     endScene = std::make_unique<EndScene>();
                     endScene->Init(camera, cameraSprite, worldColor, myEngine);
                     scene = END;
+
+                    gameScene.reset();
+                    gameScene = nullptr;
+
                 }
 
                 break;
@@ -293,7 +302,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     }
                     break;
                 case END:
-                    endScene->CameraUpdate();
+                    if (endScene != nullptr) {
+                        endScene->CameraUpdate();
+                    }
                     break;
                 }
 
@@ -308,6 +319,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (isDebug) {
                 grid.Draw(srv[WHITE], camera);
             }
+
             merigora.Draw(camera, srv);
 
             for (int i = 0; i < 2; ++i) {
@@ -324,20 +336,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-
-                if (titleScene != nullptr) {
-                    titleScene->Draw(srv);
-                }
+                    titleScene->Draw(srv);        
                 break;
-            case GAME:
-                if (gameScene != nullptr) {
-                    gameScene->Draw(srv, sprite);
-                }
+            case GAME:   
+                    gameScene->Draw(srv, sprite);   
                 break;
             case END:
-                if (endScene != nullptr) {
-                    endScene->Draw(srv, sprite);
-                }
+                    endScene->Draw(srv, sprite);     
                 break;
             }
 
