@@ -43,7 +43,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
       sound.SoundLoad(L"resources/Sounds/voice2.wav"),
       sound.SoundLoad(L"resources/Sounds/voice3.wav") };
 
-
 #pragma endregion
 
     DebugUI debugUI;
@@ -266,7 +265,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
                     titleScene = std::make_unique<TitleScene>();
                     titleScene->Init(myEngine, &hammerModel, sprite[1], titleModelData, camera, cameraSprite, worldColor);
-
                 }
                 break;
             }
@@ -327,20 +325,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
             merigora.Draw(camera, srv);
 
-            for (int i = 0; i < 2; ++i) {
-                building[i].Draw(camera);
-            }
 
-            for (int i = 0; i < 3; ++i) {
-                bench[i].Draw(camera);
-            }
+            if (scene == GAME || scene == END) {
+                for (int i = 0; i < 2; ++i) {
+                    building[i].Draw(camera);
+                }
 
-            for (int i = 0; i < maxLight; ++i) {
-                light[i].Draw(camera);
+                for (int i = 0; i < 3; ++i) {
+                    bench[i].Draw(camera);
+                }
+
+                for (int i = 0; i < maxLight; ++i) {
+                    light[i].Draw(camera);
+                }
             }
 
             switch (scene) {
             case TITLE:
+
                 if (titleScene != nullptr) {
                     titleScene->Draw(srv);
                 }
