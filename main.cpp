@@ -228,41 +228,47 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 break;
             case GAME:
 
-                gameScene->Update(bgmData, seData, voiceData);
-                gameScene->CameraUpdate();
+                if (gameScene) {
+                    gameScene->Update(bgmData, seData, voiceData);
+                    gameScene->CameraUpdate();
 
-                if (gameScene->IsTransition()) {
+                    if (gameScene->IsTransition()) {
 
-                    gameScene.reset();
-                    gameScene = nullptr;
-                    sound.SoundStop();
+                        gameScene.reset();
+                        gameScene = nullptr;
+                        sound.SoundStop();
 
-                    endScene = std::make_unique<EndScene>();
-                    endScene->Init(camera, cameraSprite, worldColor, myEngine);
-                    scene = END;
+                        endScene = std::make_unique<EndScene>();
+                        endScene->Init(camera, cameraSprite, worldColor, myEngine);
+                        scene = END;
+                    }
+
                 }
-
+     
                 break;
             case END:
 
-                endScene->Update();
-                endScene->CameraUpdate();
+                if (endScene) {
+                    endScene->Update();
+                    endScene->CameraUpdate();
 
-                if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
-                    sound.SoundPlay(bgmData[1], 0.5f, false);
+                    if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
+                        sound.SoundPlay(bgmData[1], 0.5f, false);
+                    }
+
+                    if (endScene->IsTransition()) {
+                        endScene.reset();
+                        endScene = nullptr;
+                        scene = TITLE;
+                        sound.SoundStop();
+
+                        titleScene = std::make_unique<TitleScene>();
+                        titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+
+
+                    }
                 }
-
-                if (endScene->IsTransition()) {
-                    endScene.reset();
-                    endScene = nullptr;
-                    scene = TITLE;
-                    sound.SoundStop();
-
-                    titleScene = std::make_unique<TitleScene>();
-                    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
-
-
-                }
+   
                 break;
             }
 
@@ -276,7 +282,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             if (isDebug) {
                 debugUI.CheckDirectionalLight(myEngine.GetDirectionalLightData());
                 debugUI.CheckFPS(fpsCounter);
-                debugUI.SpriteUpdate(sprite[1]);
+    
                 debugUI.InputUpdate(*input);
                 debugUI.Color(worldColor);
                 debugUI.CameraUpdate(camera);
@@ -312,13 +318,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-                titleScene->Draw(srv);
+                if (titleScene) {
+                    titleScene->Draw(srv);
+                }
+              
                 break;
             case GAME:
-                gameScene->Draw(srv, sprite);
+                if (gameScene) {
+                    gameScene->Draw(srv, sprite);
+                }
+        
                 break;
             case END:
-                endScene->Draw(srv, sprite);
+                if (endScene) {
+                    endScene->Draw(srv, sprite);
+                }
+ 
                 break;
             }
 
