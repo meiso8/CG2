@@ -210,22 +210,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     titleScene.reset();
                     titleScene = nullptr;
 
-                    if (gameScene == nullptr) {
-                        gameScene = std::make_unique<GameScene>();
-                        dove.Init(myEngine, doveModelData, camera);
+                    gameScene = std::make_unique<GameScene>();
+                    dove.Init(myEngine, doveModelData, camera);
 
-                        gameScene->Init(
-                            myEngine,
+                    gameScene->Init(
+                        myEngine,
 
-                            playerModelData,
-                            mirrorModelData,
-                            mirrorBallModelData,
-                            hammerModelData,
-                            dove,
-                            numSprite, cameraSprite, camera, merigora, sound);
-
-                    }
-
+                        playerModelData,
+                        mirrorModelData,
+                        mirrorBallModelData,
+                        hammerModelData,
+                        dove,
+                        numSprite, cameraSprite, camera, merigora, sound);
 
                     scene = GAME;
                 }
@@ -241,12 +237,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     gameScene = nullptr;
                     sound.SoundStop();
 
-                    if (endScene == nullptr) {
-                        endScene = std::make_unique<EndScene>();
-                        endScene->Init(camera, cameraSprite, worldColor, myEngine);
-                        scene = END;
-                    }
-
+                    endScene = std::make_unique<EndScene>();
+                    endScene->Init(camera, cameraSprite, worldColor, myEngine);
+                    scene = END;
                 }
 
                 break;
@@ -265,10 +258,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     scene = TITLE;
                     sound.SoundStop();
 
-                    if (titleScene == nullptr) {
-                        titleScene = std::make_unique<TitleScene>();
-                        titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
-                    }
+                    titleScene = std::make_unique<TitleScene>();
+                    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+
 
                 }
                 break;
@@ -338,20 +330,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
     }
-
-
-    if (titleScene != nullptr) {
-        titleScene.reset();
-    }
-
-    if (gameScene != nullptr) {
-        gameScene.reset();
-    }
-
-    if (endScene != nullptr) {
-        endScene.reset();
-    }
-
 
     myEngine.End();
 
