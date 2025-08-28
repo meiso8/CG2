@@ -16,6 +16,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
     myEngine.Create(L"クソゲー of the year 2025 ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
+    //DirectX初期化処理の末尾に追加する
+//音声クラスの作成
+    Sound sound;
 
     FPSCounter fpsCounter;
 
@@ -26,9 +29,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     srand(static_cast<unsigned int>(time(nullptr)));
 
 #pragma region//XAudio全体の初期化と音声の読み込み
-    //DirectX初期化処理の末尾に追加する
-    //音声クラスの作成
-    Sound sound;
+
 
     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
     SoundData bgmData[2] = {
@@ -130,9 +131,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     ModelData benchModelData = LoadObjeFile("resources/building", "bench.obj");
     ModelData lightModelData = LoadObjeFile("resources/building", "light.obj");
 
-    Model merigoraModel(myEngine.GetModelConfig(0));
-    merigoraModel.Create(merigoraModelData, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), MERIGORA_MODEL);
-
     Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
     Building building[2];
@@ -160,7 +158,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     }
 
     Merigora merigora;
-    merigora.Init(merigoraModel, myEngine, doveModelData);
+    merigora.Init(myEngine, doveModelData, merigoraModelData);
 
     Dove dove;
     dove.Init(myEngine, doveModelData, camera);
@@ -206,23 +204,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             switch (scene) {
             case TITLE:
                 titleScene->Update(sound, seData, bgmData);
+                titleScene->CameraUpdate();
 
                 if (titleScene->IsTransition()) {
                     titleScene.reset();
                     titleScene = nullptr;
 
-                    gameScene = std::make_unique<GameScene>();
-                    dove.Init(myEngine, doveModelData, camera);
+                    if (gameScene == nullptr) {
+                        gameScene = std::make_unique<GameScene>();
+                        dove.Init(myEngine, doveModelData, camera);
 
-                    gameScene->Init(
-                        myEngine,
+                        gameScene->Init(
+                            myEngine,
 
-                        playerModelData,
-                        mirrorModelData,
-                        mirrorBallModelData,
-                        hammerModelData,
-                       dove,
-                        numSprite, cameraSprite, camera, merigora, sound);
+                            playerModelData,
+                            mirrorModelData,
+                            mirrorBallModelData,
+                            hammerModelData,
+                            dove,
+                            numSprite, cameraSprite, camera, merigora, sound);
+
+                    }
+
 
                     scene = GAME;
                 }
@@ -230,17 +233,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             case GAME:
 
                 gameScene->Update(bgmData, seData, voiceData);
+                gameScene->CameraUpdate();
 
                 if (gameScene->IsTransition()) {
-                 
-                    sound.SoundStop();
-
-                    endScene = std::make_unique<EndScene>();
-                    endScene->Init(camera, cameraSprite, worldColor, myEngine);
-                    scene = END;
 
                     gameScene.reset();
                     gameScene = nullptr;
+                    sound.SoundStop();
+
+                    if (endScene == nullptr) {
+                        endScene = std::make_unique<EndScene>();
+                        endScene->Init(camera, cameraSprite, worldColor, myEngine);
+                        scene = END;
+                    }
 
                 }
 
@@ -248,6 +253,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             case END:
 
                 endScene->Update();
+                endScene->CameraUpdate();
 
                 if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
                     sound.SoundPlay(bgmData[1], 0.5f, false);
@@ -259,8 +265,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                     scene = TITLE;
                     sound.SoundStop();
 
-                    titleScene = std::make_unique<TitleScene>();
-                    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+                    if (titleScene == nullptr) {
+                        titleScene = std::make_unique<TitleScene>();
+                        titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+                    }
+
                 }
                 break;
             }
@@ -279,41 +288,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 debugUI.InputUpdate(*input);
                 debugUI.Color(worldColor);
                 debugUI.CameraUpdate(camera);
+                //デバッグカメラに切り替え
+              //視点操作
+                input->EyeOperation(camera);
+                camera.Update();
             }
 #endif
 
-            //カメラの切り替え処理
-            if (isDebug) {
-                //デバッグカメラに切り替え
-                          //視点操作
-                input->EyeOperation(camera);
-
-                camera.Update();
-
-            } else {
-
-                switch (scene) {
-                case TITLE:
-                    if (titleScene != nullptr) {
-                        titleScene->CameraUpdate();
-                    }
-                    break;
-                case GAME:
-                    if (gameScene != nullptr) {
-                        gameScene->CameraUpdate();
-                    }
-                    break;
-                case END:
-                    if (endScene != nullptr) {
-                        endScene->CameraUpdate();
-                    }
-                    break;
-                }
-
-            }
-
 #pragma region //描画
-
 
             myEngine.PreCommandSet(worldColor);
 
@@ -338,15 +320,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
             switch (scene) {
             case TITLE:
-                    titleScene->Draw(srv);        
+                titleScene->Draw(srv);
                 break;
-            case GAME:   
-                    gameScene->Draw(srv, sprite);   
+            case GAME:
+                gameScene->Draw(srv, sprite);
                 break;
             case END:
-                    endScene->Draw(srv, sprite);     
+                endScene->Draw(srv, sprite);
                 break;
             }
+
+
 
             myEngine.PostCommandSet();
 
@@ -354,6 +338,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
         }
     }
+
+
+    if (titleScene != nullptr) {
+        titleScene.reset();
+    }
+
+    if (gameScene != nullptr) {
+        gameScene.reset();
+    }
+
+    if (endScene != nullptr) {
+        endScene.reset();
+    }
+
 
     myEngine.End();
 

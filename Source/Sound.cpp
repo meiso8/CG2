@@ -176,5 +176,5 @@ bool Sound::IsPlaying() const {
 
 
 Sound::~Sound() {
-    SoundStop();
+ 
 };

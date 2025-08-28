@@ -34,6 +34,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
 
+
+
 #ifdef _DEBUG
     debugError.Create(device);
     Log(logStream, "SetDebugError");
