@@ -1,26 +1,25 @@
-#include "../Header/Model.h"
-#include"../Header/CreateBufferResource.h"
-#include"../Header/Texture.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
-#include"../Header/math/Transform.h"
-#include"../Header/math/MakeIdentity4x4.h"
+#include "Model.h"
+#include"CreateBufferResource.h"
+#include"Texture.h"
+#include"TransformationMatrix.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
+#include"Transform.h"
+#include"MakeIdentity4x4.h"
 #include<numbers>
 
-void Model::Create(
-    const std::string& directoryPath,
-    const std::string& filename,
+
+void Model::Create(const ModelData& modelData,
     const Microsoft::WRL::ComPtr<ID3D12Device>& device,
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& srvDescriptorHeap,uint32_t index) {
+
+    modelData_ = modelData;
 
     //マテリアルの作成 lightType halfLambert
     materialResource_.CreateMaterial(device, 2);
 
     CreateWorldVPResource(device);
 
-    //モデルの読み込み
-    modelData_ = LoadObjeFile(directoryPath, filename);
     //頂点リソースを作る
     vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * modelData_.vertices.size());
 
@@ -65,10 +64,10 @@ void Model::Create(
     waveData_[0].amplitude = 0.0f;
     waveData_[0].frequency = 2.0f;
 
-    waveData_[1].direction = { 0.0f,1.0f,0.0f };
+    waveData_[1].direction = { 1.0f,0.0f,0.0f };
     waveData_[1].time = 0.0f;
     waveData_[1].amplitude = 0.0f;
-    waveData_[1].frequency = 10.0f;
+    waveData_[1].frequency = 0.0f;
 
 #pragma endregion
 

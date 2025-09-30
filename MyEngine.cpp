@@ -34,6 +34,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
     //ファイルへのログ出力
     Log(logStream, "Complete create D3D12Device!!!\n");
 
+
+
 #ifdef _DEBUG
     debugError.Create(device);
     Log(logStream, "SetDebugError");
@@ -116,7 +118,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
 
     //RasterizerStateの設定を行う
     rasterizerState[0].Create(D3D12_CULL_MODE_BACK, D3D12_FILL_MODE_SOLID);
-    rasterizerState[1].Create(D3D12_CULL_MODE_NONE, D3D12_FILL_MODE_SOLID);
+    //rasterizerState[1].Create(D3D12_CULL_MODE_NONE, D3D12_FILL_MODE_SOLID);
+    rasterizerState[1].Create(D3D12_CULL_MODE_FRONT, D3D12_FILL_MODE_SOLID);
     Log(logStream, "SetRasterizerState");
 
 #pragma region//ShaderをCompileする
@@ -134,8 +137,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         rootSignature,
         inputLayout,
         dxcCompiler,
-        blendState[0],
-        rasterizerState[0],
+        blendState[0],//ブレンドしない
+        rasterizerState[0],//後ろをカリング
         depthStencil,
         device);
 
@@ -143,8 +146,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         rootSignature,
         inputLayout,
         dxcCompiler,
-        blendState[1],
-        rasterizerState[0],
+        blendState[1],//ブレンドする
+        rasterizerState[0],//後ろをカリング
         depthStencil,
         device);
 
@@ -152,8 +155,8 @@ void MyEngine::Create(const std::wstring& title, int32_t clientWidth, int32_t cl
         rootSignature,
         inputLayout,
         dxcCompiler,
-        blendState[0],
-        rasterizerState[1],
+        blendState[0],//ブレンドしない
+        rasterizerState[1],//裏面描画
         depthStencil,
         device);
 

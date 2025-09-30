@@ -1,4 +1,4 @@
-#include"../../Header/math/MakeTranslateMatrix.h"
+#include"MakeTranslateMatrix.h"
 
 //平行移動行列
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {

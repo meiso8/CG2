@@ -1,9 +1,9 @@
-#include "../Header/Sprite.h"
-#include"../Header/CreateBufferResource.h"
-#include"../Header/TransformationMatrix.h"
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/MakeIdentity4x4.h"
-#include"../Header/math/Multiply.h"
+#include "Sprite.h"
+#include"CreateBufferResource.h"
+#include"TransformationMatrix.h"
+#include"MakeAffineMatrix.h"
+#include"MakeIdentity4x4.h"
+#include"Multiply.h"
 
 void Sprite::Create(
     const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
@@ -168,15 +168,6 @@ void Sprite::SetColor(const Vector4& color) {
     materialResource_.SetColor(color);
 }
 
-void Sprite::Update() {
-
-    UpdateUV();
-
-    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
-}
-
 void Sprite::UpdateUV() {
 
     uvTransformMatrix_ = MakeAffineMatrix(uvTransform_.scale, uvTransform_.rotate, uvTransform_.translate);
@@ -196,6 +187,11 @@ void Sprite::PreDraw() {
 void Sprite::Draw(
     ShaderResourceView& srv
 ) {
+
+    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
+
     //頂点バッファビューを設定
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //IBVを設定new

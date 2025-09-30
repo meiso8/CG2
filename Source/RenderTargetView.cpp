@@ -1,5 +1,5 @@
-#include "../Header/RenderTargetView.h"
-#include"../Header/GetCPUDescriptorHandle.h"
+#include "RenderTargetView.h"
+#include"GetCPUDescriptorHandle.h"
 #include<cassert>
 #pragma comment(lib,"d3d12.lib")
 

@@ -1,7 +1,7 @@
-#include "../Header/ShaderResourceView.h"
-#include"../Header/GetCPUDescriptorHandle.h"
-#include"../Header/GetGPUDescriptorHandle.h"
-#include"../Header/Texture.h"
+#include "ShaderResourceView.h"
+#include"GetCPUDescriptorHandle.h"
+#include"GetGPUDescriptorHandle.h"
+#include"Texture.h"
 
 void ShaderResourceView::Create(
     Texture& texture,

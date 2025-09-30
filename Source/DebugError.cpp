@@ -1,4 +1,4 @@
-#include "../Header/DebugError.h"
+#include "DebugError.h"
 #include<cassert> //assertも利用するため
 
 void DebugError::Create(const Microsoft::WRL::ComPtr<ID3D12Device>& device)

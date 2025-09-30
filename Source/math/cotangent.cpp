@@ -1,4 +1,4 @@
-#include"../../Header/math/cotangent.h"
+#include"cotangent.h"
 #include <cmath>
 
 float cot(float rotate) {

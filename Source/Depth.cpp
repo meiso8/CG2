@@ -1,4 +1,4 @@
-#include"../Header/Depth.h"
+#include"Depth.h"
 #include<cassert> //assertも利用するため
 
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencileTextureResource(

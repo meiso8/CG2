@@ -1,4 +1,4 @@
-#include "../Header/Fence.h"
+#include "Fence.h"
 
 #include<cassert>
 

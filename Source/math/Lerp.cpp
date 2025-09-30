@@ -1,7 +1,19 @@
-#include "../../Header/math/Lerp.h"
-#include"../../Header/math/Normalize.h"
-#include"../../Header/math/Dot.h"
+#include "Lerp.h"
+#include"Normalize.h"
+#include"Dot.h"
 #include<cmath>
+
+float Lerp(float start, float end, float t) {
+
+	return { start * (1.0f - t) + end * t };
+
+};
+
+//Vector2 Lerp(Vector2 start, Vector2 end, float t) {
+//
+//	return { start * (1.0f - t) + end * t };
+//
+//};
 
 Vector3 Lerp(Vector3 start, Vector3 end, float t) {
 

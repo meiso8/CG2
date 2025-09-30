@@ -1,4 +1,4 @@
-#include "../Header/InputLayout.h"
+#include "InputLayout.h"
 
 
 void InputLayout::Create() {

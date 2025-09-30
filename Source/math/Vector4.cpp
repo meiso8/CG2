@@ -1,6 +1,6 @@
-#include"../../Header/math/Add.h"
-#include"../../Header/math/Subtract.h"
-#include"../../Header/math/Multiply.h"
+#include"Add.h"
+#include"Subtract.h"
+#include"Multiply.h"
 
 //二項演算子 Binary Operator
 Vector4 operator+(const Vector4& v1, const Vector4& v2) { return Add(v1, v2); }

@@ -1,13 +1,119 @@
-#include "../Header/DebugUI.h"
-#include"../Header/math/Normalize.h"
-#include"../Header/Model.h"
-#include"../Header/Input.h"
-#include"../Header/Sprite.h"
-#include"../Header/Sphere.h"
+#include "DebugUI.h"
+#include"Normalize.h"
+#include"Model.h"
+#include"Input.h"
+#include"Sprite.h"
+#include"SphereMesh.h"
+#include"FPSCounter.h"
+#include"DirectionalLight.h"
 #include<numbers>
 #include<algorithm>
+#include"Camera.h"
+#include"../Game/Hammer.h"
+#include"../Game/Player.h"
+#include "../Game/Mirror.h"
+#include "../Game/Dove.h"
 
 void DebugUI::Update() {
+
+
+}
+
+void DebugUI::CheckDirectionalLight(DirectionalLight& directionalLights) {
+
+    Vector3 direction = directionalLights.direction;
+    ImGui::Begin("DirectionalLight");
+    ImGui::ColorEdit4("color", &directionalLights.color.x);
+    ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
+    directionalLights.direction = Normalize(direction);
+    ImGui::DragFloat("intensity", &directionalLights.intensity);
+
+    const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
+
+    static int light_current = 2;
+
+    //ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
+    //playerModel.GetMaterial()->lightType = light_current % 3;
+    ImGui::End();
+
+};
+
+void DebugUI::CheckFPS(FPSCounter& fpsCounter) {
+    ImGui::Begin("Debug");
+    ImGui::Text("FPS : %d", fpsCounter.GetFPS());
+    ImGui::End();
+}
+
+void DebugUI::CheckInt(int& value) {
+
+    ImGui::Begin("Value");
+    ImGui::SliderInt("int", &value, -100, 100);
+    ImGui::End();
+};
+
+void DebugUI::DoveUpdate(Dove& dove) {
+
+    ImGui::Begin("Dove");
+    ImGui::SliderFloat3("translate", &dove.GetWorldTransform().translate_.x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("rotate", &dove.GetWorldTransform().rotate_.x, -100.0f, 100.0f);
+    ImGui::End();
+
+};
+
+void DebugUI::UpdatePlayer(Player& player) {
+
+    ImGui::Begin("Player");
+
+    ImGui::SliderFloat3("translate", &player.GetWorldTransform().translate_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("rotate", &player.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
+    ImGui::Text("worldPos %f %f %f",
+        player.GetWorldPosition().x,
+        player.GetWorldPosition().y,
+        player.GetWorldPosition().z);
+
+    ImGui::SliderFloat3("ArmL rotate", &player.GetArmLWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("ArmR rotate", &player.GetArmRWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegL rotate", &player.GetLegLWorldTransform().GetRotate().x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("LegR rotate", &player.GetLegRWorldTransform().GetRotate().x, -10.0f, 10.0f);
+
+    ImGui::SliderInt("HP", &player.GetHP(), -100, 100);
+
+    ImGui::End();
+}
+
+
+void DebugUI::CameraUpdate(Camera& camera) {
+    ImGui::Begin("Camera");
+
+    ImGui::SliderFloat3("translate", &camera.GetTranslate().x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("rotate", &camera.GetRotate().x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("scale", &camera.GetScale().x, -100.0f, 100.0f);
+
+
+
+
+
+    ImGui::End();
+
+
+
+}
+
+void DebugUI::DebugMirror(std::list<Mirror*>mirrors) {
+    ImGui::Begin("Model");
+
+    for (Mirror* mirror : mirrors) {
+        if (ImGui::TreeNode("mirrors")) {
+
+            Vector3 pos = mirror->GetWorldPosition();
+            ImGui::DragFloat3("worldPos", &pos.x, 0.03f, 0.0f, 1000.0f);
+            ImGui::Text("%s", (mirror->IsBroken()) ? "broken" : "safe");
+            ImGui::TreePop();
+        }
+    }
+
+
+    ImGui::End();
 
 
 }
@@ -78,7 +184,7 @@ void DebugUI::InputUpdate(Input& input) {
 
     Vector2 normL = Normalize(Vector2(static_cast<float>(input.GetJoyState().lX), static_cast<float>(input.GetJoyState().lY)));
 
-    ImGui::Text("normLX: %f %f", normL.x,normL.y);//x軸位置
+    ImGui::Text("normLX: %f %f", normL.x, normL.y);//x軸位置
 
 
     ImGui::Text("joyStateLX: %ld", input.GetJoyState().lX);//x軸位置
@@ -104,25 +210,56 @@ void DebugUI::InputUpdate(Input& input) {
 
 void DebugUI::SpriteUpdate(Sprite& sprite) {
     ImGui::Begin("Sprite");
-    ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, 0.0f, 640.0f);
-    ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
-    ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+
+
+    if (ImGui::TreeNode("transform")) {
+        ImGui::SliderFloat3("translation", &sprite.GetTranslateRef().x, -1280.0f, 1280.0f);
+        ImGui::SliderFloat3("rotation", &sprite.GetRotateRef().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &sprite.GetScaleRef().x, 0.0f, 10.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("uvTransform")) {
+        ImGui::SliderFloat3("uvTranslate", &sprite.GetUVTranslate().x, -100.0f, 100.0f);
+        ImGui::SliderFloat3("uvRotation", &sprite.GetUVRotate().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("uvScale", &sprite.GetUVScale().x, 0.0f, 100.0f);
+        ImGui::TreePop();
+    }
     ImGui::End();
+
+
 }
 
-void DebugUI::SphereUpdate(Sphere& sphere) {
+void DebugUI::SphereUpdate(SphereMesh& sphere) {
     ImGui::Begin("Sphere");
-    ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
-    ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
-    ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
-    ImGui::ColorEdit4("color", &sphere.GetColor().x);
-    ImGui::End();
 
-    ImGui::Begin("SphereExpansion");
-    ImGui::DragFloat("expansionData", &sphere.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
-    ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
-    ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
-    ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+
+    if (ImGui::TreeNode("worldTransform")) {
+        ImGui::SliderFloat3("translation", &sphere.GetTranslate().x, 0.0f, 6400.0f);
+        ImGui::SliderFloat3("rotation", &sphere.GetRotate().x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &sphere.GetScale().x, 0.0f, 1000.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("uvTransform")) {
+        ImGui::SliderFloat3("uvTranslate", &sphere.GetUVTransform().translate.x, -100.0f, 100.0f);
+        ImGui::SliderFloat3("uvRotation", &sphere.GetUVTransform().rotate.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("uvScale", &sphere.GetUVTransform().scale.x, 0.0f, 100.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Expansion")) {
+        ImGui::DragFloat("expansionData", &sphere.GetExpansionData().expansion, 0.03f, 0.0f, 10.0f);
+        ImGui::DragFloat("sphere", &sphere.GetExpansionData().sphere, 0.03f, 0.0f, 1.0f);
+        ImGui::DragFloat("cube", &sphere.GetExpansionData().cube, 0.03f, 0.0f, 1.0f);
+        ImGui::Checkbox("isSphere", &sphere.GetExpansionData().isSphere);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Color")) {
+        ImGui::ColorEdit4("color", &sphere.GetColor().x);
+        ImGui::TreePop();
+    }
 
     ImGui::End();
 }
@@ -136,4 +273,30 @@ void DebugUI::WorldMatrixUpdate(Vector3& scale, Vector3& rotate, Vector3& transl
         ImGui::TreePop();
     }
 
+};
+
+void DebugUI::WorldTransformUpdate(WorldTransform& worldTransform) {
+
+    //ImGui::Begin("WorldTransform");
+
+    if (ImGui::TreeNode("worldTransform")) {
+        ImGui::SliderFloat3("translation", &worldTransform.translate_.x, -10.0f, 10.0f);
+        ImGui::SliderFloat3("rotation", &worldTransform.rotate_.x, 0.0f, std::numbers::pi_v<float>*2.0f);
+        ImGui::SliderFloat3("scale", &worldTransform.scale_.x, 0.0f, 10.0f);
+        ImGui::TreePop();
+    }
+    //ImGui::End();
+};
+
+void DebugUI::Color(Vector4& color) {
+    ImGui::Begin("Color");
+    ImGui::ColorEdit4("color", (float*)&color);
+    ImGui::End();
+}
+
+void DebugUI::HammerUpdate(Hammer& hammer) {
+    ImGui::Begin("Hammer");
+    ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("translate", &hammer.GetWorldTransform().translate_.x, -10.0f, 10.0f);
+    ImGui::End();
 };

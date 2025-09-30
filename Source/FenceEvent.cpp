@@ -1,4 +1,4 @@
-#include "../Header/FenceEvent.h"
+#include "FenceEvent.h"
 #include<cassert>
 
 void FenceEvent::Create() {

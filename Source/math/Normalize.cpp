@@ -1,5 +1,5 @@
-#include"../../Header/math/Normalize.h"
-#include"../../Header/math/Length.h"
+#include"Normalize.h"
+#include"Length.h"
 
 Vector3 Normalize(const Vector3& v) {
     float length = Length(v);

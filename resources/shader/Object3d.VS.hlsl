@@ -42,8 +42,8 @@ float WaveUpdate(VertexShaderInput input)
     float Dot1 = dot(input.position, normalize(gWave[0].direction) * gWave[0].frequency);
     float Wave1 = cos(gWave[0].time + Dot1) * gWave[0].amplitude;
     
-    float Dot2 = dot(input.position, normalize(gWave[1].direction) * gWave[1].frequency);
-    float Wave2 = cos(gWave[0].time + Dot2) * gWave[1].amplitude; //1と同じ時間を入れる
+    float Dot2 = dot(pow(input.position, 2), normalize(gWave[1].direction));
+    float Wave2 = sin(gWave[1].time + Dot2) * gWave[1].amplitude;
     
     return Wave1 + Wave2;
 }
@@ -83,8 +83,7 @@ VertexShaderOutput main(VertexShaderInput input)
     VertexShaderOutput output;
     //行列の積を計算する関数がhlslの組み込み関数で定義されている
     input.position.y += WaveUpdate(input);
-    
-    
+     
     input.position.xyz += BalloonUpdate(input);
     //output.position = ;
     

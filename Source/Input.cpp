@@ -1,11 +1,13 @@
-#include"../Header/Input.h"
+#include"Input.h"
 #include <assert.h>
 #pragma comment(lib,"dinput8.lib")
 #pragma comment(lib,"dxguid.lib")
 
-#include"../Header/Log.h"
-#include"../Header/Camera.h"
-#include"../Header/math/Normalize.h"
+#include"Log.h"
+#include"Camera.h"
+#include"math/Normalize.h"
+
+Input* Input::instance_ = nullptr;
 
 BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) {
     auto* self = static_cast<Input*>(pContext);
@@ -294,7 +296,7 @@ void Input::EyeOperation(Camera& camera) {
 
     pos_ = TransformCoordinate(shericalCoordinate_);
 
-    camera.SetTarnslate(pos_);
+    camera.SetTranslate(pos_);
 
 }
 

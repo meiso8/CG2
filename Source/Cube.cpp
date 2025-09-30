@@ -1,16 +1,16 @@
-#include "../Header/Cube.h"
+#include "Cube.h"
 
-#include"../Header/CreateBufferResource.h"
+#include"CreateBufferResource.h"
 
 
-#include"../Header/math/MakeAffineMatrix.h"
-#include"../Header/math/Multiply.h"
+#include"MakeAffineMatrix.h"
+#include"Multiply.h"
 
 void Cube::Create(
-    const Microsoft::WRL::ComPtr<ID3D12Device>& device, Camera& camera, ModelConfig& mc
+    const Microsoft::WRL::ComPtr<ID3D12Device>& device, ModelConfig& mc
 ) {
 
-    camera_ = &camera;
+    //camera_ = &camera;
 
     CreateVertex(device);
     CreateIndexResource(device);
@@ -75,7 +75,7 @@ void Cube::CreateVertex(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
     Vector3 min = { -0.5f,-0.5f,-0.5f };
     Vector3 max = { 0.5f,0.5f,0.5f };
 
-    vertexData_[0].position = { min.x,min.y,min.z,1.0f};//左sita
+    vertexData_[0].position = { min.x,min.y,min.z,1.0f };//左sita
     vertexData_[0].texcoord = { 0.0f,1.0f };
     vertexData_[0].normal = { vertexData_[0].position.x,  vertexData_[0].position.y,  vertexData_[0].position.z };//法線
     vertexData_[1].position = { min.x,max.y,min.z,1.0f };//左上
@@ -124,7 +124,7 @@ void Cube::CreateIndexResource(const Microsoft::WRL::ComPtr<ID3D12Device>& devic
     //頂点数を削減
 
         // Front face
-        indexData_[0] = 0, indexData_[1] = 1, indexData_[2] = 2,
+    indexData_[0] = 0, indexData_[1] = 1, indexData_[2] = 2,
         indexData_[3] = 2, indexData_[4] = 1, indexData_[5] = 3,
         // Back face
         indexData_[6] = 4, indexData_[7] = 6, indexData_[8] = 5,
@@ -152,11 +152,6 @@ void Cube::CreateTransformationMatrix(const Microsoft::WRL::ComPtr<ID3D12Device>
     //データを書き込む
     //書き込むためのアドレスを取得
     transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-
-    transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_, worldMatrix_ };
 }
 
 void Cube::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device) {
@@ -195,14 +190,6 @@ void Cube::SetMinMax(const Vector3& min, const Vector3& max) {
 
 }
 
-void Cube::Update() {
-
-    worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-    worldViewProjectionMatrix_ = Multiply(worldMatrix_, camera_->GetViewProjectionMatrix());
-    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix_ };
-}
-
-
 void Cube::PreDraw() {
     modelConfig_.commandList->GetComandList()->RSSetViewports(1, modelConfig_.viewport);//Viewportを設定
     modelConfig_.commandList->GetComandList()->RSSetScissorRects(1, modelConfig_.scissorRect);//Scirssorを設定
@@ -214,8 +201,12 @@ void Cube::PreDraw() {
 }
 
 void Cube::Draw(
-    ShaderResourceView& srv
+    ShaderResourceView& srv, Camera& camera,const Matrix4x4& worldMatrix
 ) {
+
+    worldViewProjectionMatrix_ = Multiply(worldMatrix, camera.GetViewProjectionMatrix());
+    *transformationMatrixData_ = { worldViewProjectionMatrix_,worldMatrix };
+
     //頂点バッファビューを設定
     modelConfig_.commandList->GetComandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);//VBVを設定
     //IBVを設定new

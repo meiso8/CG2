@@ -1,6 +1,6 @@
 #include<Windows.h>
-#include "../Header/CompileShader.h"
-#include"../Header/Log.h"
+#include "CompileShader.h"
+#include"Log.h"
 
 #include<format>
 #include<cassert> //assertも利用するため

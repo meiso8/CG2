@@ -1,4 +1,4 @@
-#include"../Header/Sound.h"
+#include"Sound.h"
 #include <fstream>
 #include<assert.h>
 
@@ -9,7 +9,11 @@
 
 #pragma comment(lib, "xaudio2.lib") // xaudio2.libをリンクする。  
 
-void Sound::Initialize() {
+
+
+Sound* Sound::instance_ = nullptr;
+
+Sound::Sound() {
     HRESULT result;
     result = XAudio2Create(xAudio2_.GetAddressOf(), 0, XAUDIO2_DEFAULT_PROCESSOR);
     assert(SUCCEEDED(result));
@@ -20,7 +24,8 @@ void Sound::Initialize() {
 
     result = MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
     assert(SUCCEEDED(result));
-};
+}
+
 
 SoundData Sound::SoundLoad(const std::wstring& path) {
 
@@ -95,24 +100,81 @@ void Sound::SoundUnload(SoundData* soundData) {
 
 };
 
-void Sound::SoundPlay(const SoundData& soundData) {
+void Sound::SoundPlay(const SoundData& soundData, const float& volume, bool isLoop) {
     HRESULT result;
 
-    IXAudio2SourceVoice* pSourceVoice{ nullptr };
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice, soundData.pWaveFormat);
+    IXAudio2SourceVoice* newVoice = nullptr;
+
+    result = xAudio2_->CreateSourceVoice(&newVoice, soundData.pWaveFormat);
     assert(SUCCEEDED(result));
+    newVoice->SetVolume(volume);
 
     XAUDIO2_BUFFER buf{};
     buf.pAudioData = soundData.mediaData.data();
     buf.AudioBytes = /*sizeof(BYTE) * */static_cast<UINT32>(soundData.mediaData.size());
-    buf.Flags = XAUDIO2_END_OF_STREAM;
+    buf.Flags =  XAUDIO2_END_OF_STREAM;
 
-    result = pSourceVoice->SubmitSourceBuffer(&buf);
+    if (isLoop) {
+        buf.LoopCount = XAUDIO2_LOOP_INFINITE; 
+    }
+
+    result = newVoice->SubmitSourceBuffer(&buf);
     assert(SUCCEEDED(result));
-    result = pSourceVoice->Start();//再生開始
+    result = newVoice->Start();//再生開始
     assert(SUCCEEDED(result));
+    isStarted_ = true;
+    isPaused_ = false;
+
+    voices_.push_back(newVoice);
+
 };
 
-Sound::~Sound() {
+void Sound::SoundStop() {
 
+    for (auto voice : voices_) {
+        voice->Stop();
+        voice->Discontinuity();
+        voice->FlushSourceBuffers();
+        voice->DestroyVoice();
+    }
+    voices_.clear();
+
+    isStarted_ = false;
+    isPaused_ = true;
+
+}
+
+void Sound::SoundPause() {
+    //if (pSourceVoice_) {
+    //    pSourceVoice_->Stop(); // バッファは保持されたまま停止
+    //    isPaused_ = true;
+    //}
+}
+
+void Sound::SoundResume() {
+    //if (pSourceVoice_) {
+    //    pSourceVoice_->Start(); // 停止した位置から再開
+    //}
+}
+
+bool Sound::IsActuallyPlaying() const {
+    return isStarted_ && !isPaused_;
+}
+
+bool Sound::IsPlaying() const {
+    for (auto voice : voices_) {
+        if (voice) {
+            XAUDIO2_VOICE_STATE state{};
+            voice->GetState(&state);
+            if (state.BuffersQueued > 0) {
+                return true; // 少なくとも1つの音声が再生中
+            }
+        }
+    }
+    return false; // すべての音声が停止している
+}
+
+
+Sound::~Sound() {
+ 
 };

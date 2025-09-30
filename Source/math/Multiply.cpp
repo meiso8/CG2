@@ -1,4 +1,9 @@
-#include"../../Header/math/Multiply.h"
+#include"Multiply.h"
+
+Vector2 Multiply(const float scalar, const Vector2& v) {
+    return { scalar * v.x,scalar * v.y };
+};
+
 
 //スカラー倍
 Vector3 Multiply(const float scalar, const Vector3& v) {
@@ -28,3 +33,5 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 
     return result;
 };
+
+

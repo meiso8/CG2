@@ -1,4 +1,4 @@
-#include"../Header/MaterialData.h"
+#include"MaterialData.h"
 #include <filesystem>
 #include <fstream>//ファイルの書いたり読んだりするライブラリ
 #include<cassert> //assertも利用するため

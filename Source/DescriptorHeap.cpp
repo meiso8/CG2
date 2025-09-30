@@ -1,4 +1,4 @@
-#include"../Header/DescriptorHeap.h"
+#include"DescriptorHeap.h"
 #include<cassert> //assertも利用するため
 
 //DescriptorHeapの作成関数

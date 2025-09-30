@@ -1,6 +1,6 @@
 
-#include"../../Header/math/MakeRotateMatrix.h"
-#include"../../Header/math/Multiply.h"
+#include"MakeRotateMatrix.h"
+#include"Multiply.h"
 #include <cmath>
 
 //1.X軸回転行列

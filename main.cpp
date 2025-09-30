@@ -1,7 +1,12 @@
 #include<numbers>
 #include"MyEngine.h"
-
-
+#include"Game/GameScene.h"
+#include"Game/TitleScene.h"
+#include"Game/Merigora.h"
+#include"Game/TextureIndex.h"
+#include"Game/EndScene.h"
+#include"Game/Building.h"
+#include"Game/Dove.h"
 
 #define WIN_WIDTH 1280
 #define WIN_HEIGHT 720
@@ -10,24 +15,35 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"EEZEngine", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"クソゲー of the year 2025 ミラーキラー", WIN_WIDTH, WIN_HEIGHT);
+    //DirectX初期化処理の末尾に追加する
+//音声クラスの作成
+    Sound sound;
 
     FPSCounter fpsCounter;
 
-    Input input;
+    Input* input = Input::GetInstance();
     //入力
-    input.Initialize(myEngine.GetWC(), fpsCounter.GetFPS());
+    input->Initialize(myEngine.GetWC(), fpsCounter.GetFPS());
+
+    srand(static_cast<unsigned int>(time(nullptr)));
 
 #pragma region//XAudio全体の初期化と音声の読み込み
-    //DirectX初期化処理の末尾に追加する
-    //音声クラスの作成
-    Sound sound;
-    sound.Initialize();
 
-    //ここはゲームによって異なる
-     //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
-    SoundData soundData1 = sound.SoundLoad(L"resources/Sounds/Alarm01.wav");
-    SoundData soundData2 = sound.SoundLoad(L"resources/Sounds/maou_se_battle_explosion05.mp3");
+
+    //音声読み込み SoundDataの変数を増やせばメモリが許す限りいくつでも読み込める。
+    SoundData bgmData[2] = {
+        sound.SoundLoad(L"resources/Sounds/dreamcore.mp3"),
+        sound.SoundLoad(L"resources/Sounds/kiritan.mp3") };
+    SoundData seData[4] = {
+        sound.SoundLoad(L"resources/Sounds/broken.mp3"),
+        sound.SoundLoad(L"resources/Sounds/pico.mp3") ,
+        sound.SoundLoad(L"resources/Sounds/cracker.mp3"),
+        sound.SoundLoad(L"resources/Sounds/poppo.mp3") };
+    SoundData voiceData[3] =
+    { sound.SoundLoad(L"resources/Sounds/voice1.wav"),
+      sound.SoundLoad(L"resources/Sounds/voice2.wav"),
+      sound.SoundLoad(L"resources/Sounds/voice3.wav") };
 
 #pragma endregion
 
@@ -37,104 +53,130 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region//Camera
 
     bool isDebug = false;
-
     Camera camera;
-    DebugCamera debugCamera;
+    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f } };
+    camera.SetTransform(cameraTransform);
+    camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
 
     Camera cameraSprite;
     cameraSprite.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), true);
 
 #pragma endregion
 
-    Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f } };
-    camera.SetTransform(cameraTransform);
-    camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
-
-    debugCamera.Initialize(&input, static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT));
-
-    Texture texture = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture.Load("resources/dvd.png");
-
-    //ShaderResourceViewを作る
-    ShaderResourceView srv = {};
-    srv.Create(texture, 1, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
-    Texture texture2 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture2.Load("resources/white1x1.png");
-
-    //ShaderResourceViewを作る
-    ShaderResourceView srv2 = {};
-    srv2.Create(texture2, 2, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
-    Texture texture3 = Texture(myEngine.GetDevice(), myEngine.GetCommandList());
-    texture3.Load("resources/effect.png");
-
-    //ShaderResourceViewを作る
-    ShaderResourceView srv3 = {};
-    srv3.Create(texture3, 4, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
-
-    DrawGrid grid = DrawGrid(myEngine.GetDevice(), camera, myEngine.GetModelConfig(0));
-
-    Sprite sprite;
-    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
-    sprite.SetSize(Vector2(256.0f, 128.0f));
-
-    Model model(myEngine.GetModelConfig(0));
-    model.Create("resources", "teapot.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 3);
-
-    Model bunnyModel(myEngine.GetModelConfig(0));
-    bunnyModel.Create("resources", "bunny.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 5);
-
-    Model multiMesh(myEngine.GetModelConfig(2));
-    multiMesh.Create("resources", "multiMesh.obj", myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap(), 6);
-
-    Sphere sphere(myEngine.GetModelConfig(1));
-    sphere.Create(myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
-
-    const int maxMatrix = 4;
-
-    enum Matrix {
-        TEAPOT,
-        BUNNY,
-        SPHERE,
-        MULTIMESH,
-        MAX_MATRIX
+    Texture textures[TEXTURES] = {
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+     Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+      Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+          Texture(myEngine.GetDevice(), myEngine.GetCommandList()),
+                    Texture(myEngine.GetDevice(), myEngine.GetCommandList())
     };
 
-    Vector3 scale[MAX_MATRIX] = {};
-    Vector3 rotation[MAX_MATRIX] = {};
-    Vector3 translation[MAX_MATRIX] = {};
-    Matrix4x4 worldMat[MAX_MATRIX] = {};
+    textures[WHITE].Load("resources/white1x1.png");
+    textures[NUMBERS].Load("resources/numbers.png");
+    textures[PRESS_SPACE].Load("resources/pressSpace.png");
+    textures[SKY].Load("resources/sky.png");
+    textures[CREDIT].Load("resources/credit.png");
+    textures[PLAYER].Load("resources/player/player.png");
+    textures[NICE].Load("resources/nice.png");
+    textures[TICKET].Load("resources/ticket.png");
+    textures[MENU0].Load("resources/operation.png");
+    textures[MENU1].Load("resources/operation1.png");
 
-    for (int i = 0; i < MAX_MATRIX; ++i) {
-        scale[i] = { 1.0f,1.0f,1.0f };
-        rotation[i] = { 0.0f,0.0f,0.0f };
-        worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
+    //ShaderResourceViewを作る
+    ShaderResourceView srv[TEXTURES] = {};
+    for (int i = 0; i < TEXTURES; ++i) {
+        srv[i].Create(textures[i], i, myEngine.GetDevice(), myEngine.GetSrvDescriptorHeap());
     }
 
-    scale[SPHERE] = { 2.5f,2.5f,2.5f };
+    DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
-    translation[TEAPOT] = { -7.5f,0.75f,0.0f };
-    translation[BUNNY] = { 0.0f };
-    translation[SPHERE] = { 0.0f,1.0f,0.0f };
-    translation[MULTIMESH] = { -10.0f,1.0f,0.0f };
+    Sprite numSprite[3];
+    for (int i = 0; i < 3; ++i) {
+        numSprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+        numSprite[i].SetSize(Vector2(80.0f, 80.0f));
+        numSprite[i].SetTranslate({ 64.0f + i * numSprite[i].GetSize().x  ,64.0f,0.0f });
+        numSprite[i].GetUVScale().x = 0.1f;
+        numSprite[i].GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
+    }
+
+    const int spriteNum = 2;
+    Sprite sprite[spriteNum];
+    for (int i = 0; i < spriteNum; ++i) {
+        sprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+    }
+
+    sprite[0].SetSize(Vector2(256.0f, 256.0f));
+    sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
+
+    ModelData playerModelData[5] = {
+        LoadObjeFile("resources/player", "body.obj"),
+         LoadObjeFile("resources/player", "arm_L.obj"),
+         LoadObjeFile("resources/player", "arm_R.obj"),
+         LoadObjeFile("resources/player", "leg_L.obj"),
+         LoadObjeFile("resources/player", "leg_R.obj")
+    };
+
+    ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
+    ModelData doveModelData = LoadObjeFile("resources/dove", "dove.obj");
+    ModelData merigoraModelData = LoadObjeFile("resources/merigora", "merigora.obj");
+    ModelData mirrorModelData = LoadObjeFile("resources/mirror", "mirror.obj");
+    ModelData mirrorBallModelData = LoadObjeFile("resources/mirrorBall", "mirrorBall.obj");
+    ModelData titleModelData = LoadObjeFile("resources/title", "title.obj");
+    ModelData buildingModelData = LoadObjeFile("resources/building", "building.obj");
+    ModelData benchModelData = LoadObjeFile("resources/building", "bench.obj");
+    ModelData lightModelData = LoadObjeFile("resources/building", "light.obj");
+
+    Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
+
+    Building building[2];
+
+    for (int i = 0; i < 2; ++i) {
+        building[i].Init(myEngine, buildingModelData, BUILDING_MODEL);
+        building[i].GetWorldTransform().translate_ = { 16.0f * (2 * i - 1),0.0f,16.0f };
+        building[i].Update();
+    }
+
+    Building bench[3];
+    for (int i = 0; i < 3; ++i) {
+        bench[i].Init(myEngine, benchModelData, BUILDING_MODEL);
+        bench[i].GetWorldTransform().translate_ = { -22.0f + (i * 6),0.0f,6.0f };
+        bench[i].Update();
+    }
+
+    const int maxLight = 4;
+    Building light[maxLight];
+
+    for (int i = 0; i < maxLight; ++i) {
+        light[i].Init(myEngine, lightModelData, BUILDING_MODEL);
+        light[i].GetWorldTransform().translate_ = { 8.0f * (2 * i - 3),0.0f,10.0f };
+        light[i].Update();
+    }
+
+    Merigora merigora;
+    merigora.Init(myEngine, doveModelData, merigoraModelData);
+
+    Dove dove;
+    dove.Init(myEngine, doveModelData, camera);
+
+    std::unique_ptr<TitleScene> titleScene = std::make_unique<TitleScene>();
+    titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+    std::unique_ptr<GameScene> gameScene;
+    std::unique_ptr<EndScene> endScene;
 
     MSG msg{};
 
-    bool isExpansion = false;
-    float expansionSpeed = 1.0f / 30.0f;
-    float toCubeSpeed = 1.0f / 240.0f;
+    enum SCENE {
+        TITLE,
+        GAME,
+        END
+    };
 
-    bool isButton[4] = { false };
-
-
-    Vector4 worldColor = { 0.0f,0.0f,0.0f,1.0f };
-
-    Vector2 speed = { 2.0f,2.0f };
-    size_t currentIndex = 0;
-    Vector4 colors[4] = { {1.0f,0.0f,0.0f,1.0f}, {0.0f,1.0f,0.0f,1.0f}, {0.0f,0.0f,1.0f,1.0f}, {1.0f,0.0f,1.0f,1.0f} };
-    float timer = 0.0f;
+    unsigned int scene = TITLE;
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -148,7 +190,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         } else {
 
             //キーボード情報の取得開始
-            input.InputInfoGet();
+            input->InputInfoGet();
 
             //エンジンのアップデート
             myEngine.Update();
@@ -157,198 +199,153 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region //ゲームの処理
 
+            merigora.Update();
 
-            timer++;
-            float t = timer / 240.0f;
+            switch (scene) {
+            case TITLE:
+                titleScene->Update(sound, seData, bgmData);
+                titleScene->CameraUpdate();
 
-            static int light_current = 2;
+                if (titleScene->IsTransition()) {
+                    titleScene.reset();
+                    titleScene = nullptr;
 
-            if (t >= 1.0f) {
-                currentIndex = (currentIndex + 1) % 4;
-                timer = 0.0f;
-                t = 0.0f;
-                light_current++;
+                    gameScene = std::make_unique<GameScene>();
+                    dove.Init(myEngine, doveModelData, camera);
+
+                    gameScene->Init(
+                        myEngine,
+
+                        playerModelData,
+                        mirrorModelData,
+                        mirrorBallModelData,
+                        hammerModelData,
+                        dove,
+                        numSprite, cameraSprite, camera, merigora, sound);
+
+                    scene = GAME;
+                }
+                break;
+            case GAME:
+
+                if (gameScene) {
+                    gameScene->Update(bgmData, seData, voiceData);
+                    gameScene->CameraUpdate();
+
+                    if (gameScene->IsTransition()) {
+
+                        gameScene.reset();
+                        gameScene = nullptr;
+                        sound.SoundStop();
+
+                        endScene = std::make_unique<EndScene>();
+                        endScene->Init(camera, cameraSprite, worldColor, myEngine);
+                        scene = END;
+                    }
+
+                }
+     
+                break;
+            case END:
+
+                if (endScene) {
+                    endScene->Update();
+                    endScene->CameraUpdate();
+
+                    if (!sound.IsPlaying() && !sound.IsActuallyPlaying()) {
+                        sound.SoundPlay(bgmData[1], 0.5f, false);
+                    }
+
+                    if (endScene->IsTransition()) {
+                        endScene.reset();
+                        endScene = nullptr;
+                        scene = TITLE;
+                        sound.SoundStop();
+
+                        titleScene = std::make_unique<TitleScene>();
+                        titleScene->Init(myEngine, hammerModelData, titleModelData, sprite[1], camera, cameraSprite, worldColor);
+
+
+                    }
+                }
+   
+                break;
             }
 
 #ifdef _DEBUG
 
-            {
-                ImGui::Text("FPS : %d", fpsCounter.GetFPS());
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
-                static char str0[128] = "Hello, world!";
-                ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
-
-                if (ImGui::BeginMenu("file")) {
-                    if (ImGui::MenuItem("newCreate")) { /* 処理 */ }
-                    if (ImGui::BeginMenu("open")) {
-                        if (ImGui::MenuItem("recentFile")) { /* 処理 */ }
-                        if (ImGui::MenuItem("otherFile")) { /* 処理 */ }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndMenu();
-                }
-
-            }
-
-            ImGui::Begin("WorldMatrix");
-            const char* items[] = { "TEAPOT", "BUNNY", "SPHERE","MULTIMESH" };
-            for (int i = 0; i < MAX_MATRIX; ++i) {
-                debugUI.WorldMatrixUpdate(scale[i], rotation[i], translation[i], items[i]);
-            }
-            ImGui::End();
-
-            {
-                Vector3 direction = myEngine.GetDirectionalLightData().direction;
-                ImGui::Begin("DirectionalLight");
-                ImGui::ColorEdit4("color", &myEngine.GetDirectionalLightData().color.x);
-                ImGui::SliderFloat3("direction", &direction.x, -1.0f, 1.0f);//後で正規化する
-                myEngine.GetDirectionalLightData().direction = Normalize(direction);
-                ImGui::DragFloat("intensity", &myEngine.GetDirectionalLightData().intensity);
-
-                const char* lights[] = { "NONE", "LambertianReflectance", "HalfLambert" };
- 
-
-                ImGui::Combo("LightMode", &light_current, lights, IM_ARRAYSIZE(lights));
-                sphere.GetMaterial()->lightType = light_current%3;
-                bunnyModel.GetMaterial()->lightType = light_current%3;
-                model.GetMaterial()->lightType = light_current%3;
-                multiMesh.GetMaterial()->lightType = light_current%3;
-
-                ImGui::End();
-            }
-
-            debugUI.SphereUpdate(sphere);
-            debugUI.SpriteUpdate(sprite);
-
-            debugUI.ModelUpdate(bunnyModel);
-            debugUI.InputUpdate(input);
-
-
-#endif
-
-            rotation[TEAPOT].y += 1.0f / 60.0f;
-
-            float x = 0.0f;
-            float y = 0.0f;
-
-            if (input.GetJoyStick(0, &x, &y)) {
-                translation[BUNNY].x += x / 60.0f;
-                translation[BUNNY].z += y / 60.0f;
-            }
-
-            rotation[MULTIMESH].y += 1.0f / 60.0f;
-            worldMat[TEAPOT] = Multiply(MakeAffineMatrix(scale[TEAPOT], rotation[TEAPOT], translation[TEAPOT]), MakeRotateYMatrix(rotation[TEAPOT].y));
-
-            for (int i = BUNNY; i < MAX_MATRIX; ++i) {
-                worldMat[i] = MakeAffineMatrix(scale[i], rotation[i], translation[i]);
-            }
-
-            sphere.SetUVScale({ 1.0f,50.0f,1.0f });
-            sphere.GetUVTransform().translate += { 0.0f, 1.0f / 60.0f, 0.0f };
-            sphere.UpdateUV();
-            sphere.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
-
-            bunnyModel.GetWaveData(0).amplitude = 1.0f / 16.0f;
-            bunnyModel.GetWaveData(0).time += 1.0f / 60.0f;
-
-            model.UpdateUV();
-
-            if (isExpansion) {
-                bunnyModel.GetExpansionData().expansion += expansionSpeed;
-
-                bool isSmall = bunnyModel.GetExpansionData().expansion <= 0.0f;
-
-                if (isSmall) {
-                    isExpansion = false;
-                    bunnyModel.GetExpansionData().expansion = 0.0f;
-                }
-
-                if (bunnyModel.GetExpansionData().expansion >= 1.5f || isSmall) {
-                    expansionSpeed *= -1.0f;
-
-                }
-
-            }
-
-            sphere.GetExpansionData().cube += toCubeSpeed;
-            if (sphere.GetExpansionData().cube <= 0.0f || sphere.GetExpansionData().cube >= 1.0f) {
-                toCubeSpeed *= -1.0f;
-            }
-            sprite.SetColor(Lerp(colors[currentIndex], colors[(currentIndex + 1) % 4], t));
-            sprite.GetTranslateRef() += {speed.x, speed.y, 0.0f};
-
-            if (sprite.GetTranslateRef().x > myEngine.GetWC().GetClientWidth() - sprite.GetSize().x || sprite.GetTranslateRef().x < 0.0f) {
-                speed.x *= -1.0f;
-            }
-
-            if (sprite.GetTranslateRef().y > myEngine.GetWC().GetClientHeight() - sprite.GetSize().y || sprite.GetTranslateRef().y < 0.0f) {
-                speed.y *= -1.0f;
-            }
-
-            sprite.Update();
-
-            //視点操作
-            input.EyeOperation(camera);
-
-            if (input.IsTriggerKey(DIK_1)) {
-                //音声再生
-                sound.SoundPlay(soundData1);
-            }
-
-            if (input.IsTriggerKey(DIK_SPACE)) {
-                //音声再生
-                sound.SoundPlay(soundData2);
-                isExpansion = true;
-            }
-
-            if (input.IsTriggerKey(DIK_RETURN)) {
-                debugCamera.SetIsOrthographic(true);
-            }
-
-            if (input.IsTriggerKey(DIK_D)) {
+            if (input->IsTriggerKey(DIK_P)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
             }
 
-
-            if (input.IsJoyStickPressButton(0)) {
-                isExpansion = true;
+            if (input->IsTriggerKey(DIK_O)) {
+                camera.SetOrthographic(true);
+               
             }
 
-            //カメラの切り替え処理
             if (isDebug) {
+                debugUI.CheckDirectionalLight(myEngine.GetDirectionalLightData());
+                debugUI.CheckFPS(fpsCounter);
+    
+                debugUI.InputUpdate(*input);
+                debugUI.Color(worldColor);
+                debugUI.CameraUpdate(camera);
                 //デバッグカメラに切り替え
-                camera.SetViewMatrix(debugCamera.GetViewMatrix());
-                camera.SetProjectionMatrix(debugCamera.GetProjectionMatrix());
-                debugCamera.Update();
-
-            } else {
-                //カメラの更新処理
+              //視点操作
+                input->EyeOperation(camera);
                 camera.Update();
             }
+#endif
 
 #pragma region //描画
 
-
             myEngine.PreCommandSet(worldColor);
 
-            grid.Draw(srv2);
+            //グリッドの描画
+            if (isDebug) {
+                grid.Draw(srv[WHITE], camera);
+            }
 
-            model.PreDraw(PSO::TRIANGLE);
+            merigora.Draw(camera, srv);
 
-            model.Draw(worldMat[TEAPOT], camera);
-            bunnyModel.Draw(worldMat[BUNNY], camera);
-            multiMesh.PreDraw(PSO::TRIANGLE);
-            multiMesh.Draw(worldMat[MULTIMESH], camera);
+            for (int i = 0; i < 2; ++i) {
+                building[i].Draw(camera);
+            }
 
-            sphere.PreDraw();
-            sphere.Draw(worldMat[SPHERE], camera, srv3);
+            for (int i = 0; i < 3; ++i) {
+                bench[i].Draw(camera);
+            }
 
-            sprite.PreDraw();
-            sprite.Draw(srv);
+            for (int i = 0; i < maxLight; ++i) {
+                light[i].Draw(camera);
+            }
+
+            switch (scene) {
+            case TITLE:
+                if (titleScene) {
+                    titleScene->Draw(srv);
+                }
+              
+                break;
+            case GAME:
+                if (gameScene) {
+                    gameScene->Draw(srv, sprite);
+                }
+        
+                break;
+            case END:
+                if (endScene) {
+                    endScene->Draw(srv, sprite);
+                }
+ 
+                break;
+            }
+
 
 
             myEngine.PostCommandSet();
+
 #pragma endregion
 
         }

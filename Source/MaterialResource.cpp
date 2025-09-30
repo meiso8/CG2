@@ -1,6 +1,6 @@
-#include"../Header/MaterialResource.h"
-#include"../Header/math/MakeIdentity4x4.h"
-#include"../Header/CreateBufferResource.h"
+#include"MaterialResource.h"
+#include"MakeIdentity4x4.h"
+#include"CreateBufferResource.h"
 
 void MaterialResource::CreateMaterial(const Microsoft::WRL::ComPtr<ID3D12Device>& device, uint32_t lightType) {
 
