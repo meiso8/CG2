@@ -16,6 +16,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{e7196278-88b7-4671-bfc6-3bc9800a56db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\NewFilter1">
+      <UniqueIdentifier>{0010a3ef-ddf2-4b75-a9ce-ce0d6163d96f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -60,7 +63,7 @@
     <ClCompile Include="Source\Math\Transpose.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CoordinateTransform.cpp">
+    <ClCompile Include="Source\Math\CoordinateTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\cotangent.cpp">
@@ -96,115 +99,115 @@
     <ClCompile Include="Source\Math\Dot.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Sound.cpp">
+    <ClCompile Include="Source\Sound\Sound.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Camera\DebugCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input.cpp">
+    <ClCompile Include="Source\Input\Input.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Depth.cpp">
+    <ClCompile Include="Source\Engine\Depth.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ModelData.cpp">
+    <ClCompile Include="Source\Mesh\ModelData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Camera\Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MaterialData.cpp">
+    <ClCompile Include="Source\Surface\MaterialData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Window.cpp">
+    <ClCompile Include="Source\Engine\Window.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DXGIFactory.cpp">
+    <ClCompile Include="Source\Engine\DXGIFactory.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CommandQueue.cpp">
+    <ClCompile Include="Source\Engine\CommandQueue.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CommandList.cpp">
+    <ClCompile Include="Source\Engine\CommandList.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SwapChain.cpp">
+    <ClCompile Include="Source\Engine\SwapChain.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DescriptorHeap.cpp">
+    <ClCompile Include="Source\Engine\DescriptorHeap.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RenderTargetView.cpp">
+    <ClCompile Include="Source\Engine\RenderTargetView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GetCPUDescriptorHandle.cpp">
+    <ClCompile Include="Source\Engine\GetCPUDescriptorHandle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GetGPUDescriptorHandle.cpp">
+    <ClCompile Include="Source\Engine\GetGPUDescriptorHandle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DebugError.cpp">
+    <ClCompile Include="Source\Engine\DebugError.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TransitionBarrier.cpp">
+    <ClCompile Include="Source\Engine\TransitionBarrier.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Fence.cpp">
+    <ClCompile Include="Source\Engine\Fence.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FenceEvent.cpp">
+    <ClCompile Include="Source\Engine\FenceEvent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Log.cpp">
+    <ClCompile Include="Source\Engine\Log.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CompileShader.cpp">
+    <ClCompile Include="Source\Engine\CompileShader.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\BlendState.cpp">
+    <ClCompile Include="Source\Engine\BlendState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RasterizerState.cpp">
+    <ClCompile Include="Source\Engine\RasterizerState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\PSO.cpp">
+    <ClCompile Include="Source\Engine\PSO.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Viewport.cpp">
+    <ClCompile Include="Source\Engine\Viewport.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ScissorRect.cpp">
+    <ClCompile Include="Source\Engine\ScissorRect.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CreateBufferResource.cpp">
+    <ClCompile Include="Source\Engine\CreateBufferResource.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Texture.cpp">
+    <ClCompile Include="Source\Surface\Texture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ShaderResourceView.cpp">
+    <ClCompile Include="Source\Engine\ShaderResourceView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Model.cpp">
+    <ClCompile Include="Source\Mesh\Model.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Sprite.cpp">
+    <ClCompile Include="Source\Mesh\Sprite.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\WorldTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MaterialResource.cpp">
+    <ClCompile Include="Source\Surface\MaterialResource.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ImGuiClass.cpp">
+    <ClCompile Include="Source\ImGui\ImGuiClass.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Vector3.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GPU.cpp">
+    <ClCompile Include="Source\Engine\GPU.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Easing.cpp">
@@ -219,34 +222,34 @@
     <ClCompile Include="Source\Math\Matrix4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\InputLayout.cpp">
+    <ClCompile Include="Source\Engine\InputLayout.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RootSignature.cpp">
+    <ClCompile Include="Source\Engine\RootSignature.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\LineMesh.cpp">
+    <ClCompile Include="Source\Mesh\LineMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DrawGrid.cpp">
+    <ClCompile Include="Source\Mesh\DrawGrid.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ShericalCoordinate.cpp">
+    <ClCompile Include="Source\Math\ShericalCoordinate.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Cube.cpp">
+    <ClCompile Include="Source\Mesh\Cube.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SphereMesh.cpp">
+    <ClCompile Include="Source\Mesh\SphereMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DebugUI.cpp">
+    <ClCompile Include="Source\ImGui\DebugUI.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Vector4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FPSCounter.cpp">
+    <ClCompile Include="Source\ImGui\FPSCounter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Collision.cpp">
@@ -261,7 +264,7 @@
     <ClCompile Include="Source\Math\AABB.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="MyEngine.cpp">
+    <ClCompile Include="Source\Engine\MyEngine.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Math\Vector2.cpp">
@@ -297,163 +300,160 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Balloon.h">
+    <ClInclude Include="Source\Mesh\Balloon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\BlendState.h">
+    <ClInclude Include="Source\Engine\BlendState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Camera\Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CommandList.h">
+    <ClInclude Include="Source\Engine\CommandList.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CommandQueue.h">
+    <ClInclude Include="Source\Engine\CommandQueue.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CompileShader.h">
+    <ClInclude Include="Source\Engine\CompileShader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Config.h">
+    <ClInclude Include="Source\Mesh\Config.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CrashHandler.h">
+    <ClInclude Include="Source\Engine\CrashHandler.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CreateBufferResource.h">
+    <ClInclude Include="Source\Engine\CreateBufferResource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Cube.h">
+    <ClInclude Include="Source\Mesh\Cube.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\D3DResourceLeakChecker.h">
+    <ClInclude Include="Source\Engine\D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Camera\DebugCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DebugError.h">
+    <ClInclude Include="Source\Engine\DebugError.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DebugUI.h">
+    <ClInclude Include="Source\ImGui\DebugUI.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Depth.h">
+    <ClInclude Include="Source\Engine\Depth.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DescriptorHeap.h">
+    <ClInclude Include="Source\Engine\DescriptorHeap.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DirectionalLight.h">
+    <ClInclude Include="Source\Surface\DirectionalLight.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DrawGrid.h">
+    <ClInclude Include="Source\Mesh\DrawGrid.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DXGIFactory.h">
+    <ClInclude Include="Source\Engine\DXGIFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Fence.h">
+    <ClInclude Include="Source\Engine\Fence.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\FenceEvent.h">
+    <ClInclude Include="Source\Engine\FenceEvent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\FPSCounter.h">
+    <ClInclude Include="Source\ImGui\FPSCounter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GetCPUDescriptorHandle.h">
+    <ClInclude Include="Source\Engine\GetCPUDescriptorHandle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GetGPUDescriptorHandle.h">
+    <ClInclude Include="Source\Engine\GetGPUDescriptorHandle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GPU.h">
+    <ClInclude Include="Source\Engine\GPU.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ImGuiClass.h">
+    <ClInclude Include="Source\ImGui\ImGuiClass.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input.h">
+    <ClInclude Include="Source\Input\Input.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\InputLayout.h">
+    <ClInclude Include="Source\Engine\InputLayout.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\LineMesh.h">
+    <ClInclude Include="Source\Mesh\LineMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Log.h">
+    <ClInclude Include="Source\Engine\Log.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Material.h">
+    <ClInclude Include="Source\Surface\Material.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MaterialData.h">
+    <ClInclude Include="Source\Surface\MaterialData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MaterialResource.h">
+    <ClInclude Include="Source\Surface\MaterialResource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Model.h">
+    <ClInclude Include="Source\Mesh\Model.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ModelData.h">
+    <ClInclude Include="Source\Mesh\ModelData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\PSO.h">
+    <ClInclude Include="Source\Engine\PSO.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RasterizerState.h">
+    <ClInclude Include="Source\Engine\RasterizerState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RenderTargetView.h">
+    <ClInclude Include="Source\Engine\RenderTargetView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ResourceObject.h">
+    <ClInclude Include="Source\Engine\RootSignature.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RootSignature.h">
+    <ClInclude Include="Source\Engine\ScissorRect.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ScissorRect.h">
+    <ClInclude Include="Source\Engine\ShaderResourceView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ShaderResourceView.h">
+    <ClInclude Include="Source\Sound\Sound.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Sound.h">
+    <ClInclude Include="Source\Mesh\SphereMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SphereMesh.h">
+    <ClInclude Include="Source\Mesh\Sprite.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Sprite.h">
+    <ClInclude Include="Source\Engine\SwapChain.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SwapChain.h">
+    <ClInclude Include="Source\Surface\Texture.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Texture.h">
+    <ClInclude Include="Source\Math\TransformationMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TransformationMatrix.h">
+    <ClInclude Include="Source\Engine\TransitionBarrier.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TransitionBarrier.h">
+    <ClInclude Include="Source\Mesh\VertexData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VertexData.h">
+    <ClInclude Include="Source\Engine\Viewport.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Viewport.h">
+    <ClInclude Include="Source\Mesh\Wave.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Wave.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Window.h">
+    <ClInclude Include="Source\Engine\Window.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\AABB.h">
@@ -576,7 +576,7 @@
     <ClInclude Include="Source\Math\Cross.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="MyEngine.h">
+    <ClInclude Include="Source\Engine\MyEngine.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Math\Pendulum.h">

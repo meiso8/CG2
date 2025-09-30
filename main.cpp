@@ -30,16 +30,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma endregion
 
-    DebugUI debugUI;
+    bool isDebug = false;
 
+    DebugUI debugUI;
 
 #pragma region//Camera
 
-    bool isDebug = false;
     Camera camera;
     Transform cameraTransform{ { 1.0f, 1.0f, 1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-10.0f } };
     camera.SetTransform(cameraTransform);
     camera.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), false);
+
 
     Camera cameraSprite;
     cameraSprite.Initialize(static_cast<float>(WIN_WIDTH), static_cast<float>(WIN_HEIGHT), true);
@@ -73,12 +74,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     sprite[0].SetSize(Vector2(256.0f, 256.0f));
     sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
 
-
-    ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
+    //モデル呼び出し例
+    //ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
 
     Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
 
     MSG msg{};
+
+
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -104,7 +107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 
-            if (input->IsTriggerKey(DIK_P)) {
+            if (input->IsTriggerKey(DIK_SPACE)) {
                 //デバッグの切り替え
                 isDebug = (isDebug) ? false : true;
             }
