@@ -8,7 +8,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"2102_TD2_1", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"MyEngine", WIN_WIDTH, WIN_HEIGHT);
     //DirectX初期化処理の末尾に追加する
 //音声クラスの作成
     Sound sound;
