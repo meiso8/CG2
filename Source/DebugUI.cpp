@@ -9,10 +9,7 @@
 #include<numbers>
 #include<algorithm>
 #include"Camera.h"
-#include"../Game/Hammer.h"
-#include"../Game/Player.h"
-#include "../Game/Mirror.h"
-#include "../Game/Dove.h"
+
 
 void DebugUI::Update() {
 
@@ -51,35 +48,6 @@ void DebugUI::CheckInt(int& value) {
     ImGui::End();
 };
 
-void DebugUI::DoveUpdate(Dove& dove) {
-
-    ImGui::Begin("Dove");
-    ImGui::SliderFloat3("translate", &dove.GetWorldTransform().translate_.x, -100.0f, 100.0f);
-    ImGui::SliderFloat3("rotate", &dove.GetWorldTransform().rotate_.x, -100.0f, 100.0f);
-    ImGui::End();
-
-};
-
-void DebugUI::UpdatePlayer(Player& player) {
-
-    ImGui::Begin("Player");
-
-    ImGui::SliderFloat3("translate", &player.GetWorldTransform().translate_.x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("rotate", &player.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
-    ImGui::Text("worldPos %f %f %f",
-        player.GetWorldPosition().x,
-        player.GetWorldPosition().y,
-        player.GetWorldPosition().z);
-
-    ImGui::SliderFloat3("ArmL rotate", &player.GetArmLWorldTransform().GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("ArmR rotate", &player.GetArmRWorldTransform().GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegL rotate", &player.GetLegLWorldTransform().GetRotate().x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("LegR rotate", &player.GetLegRWorldTransform().GetRotate().x, -10.0f, 10.0f);
-
-    ImGui::SliderInt("HP", &player.GetHP(), -100, 100);
-
-    ImGui::End();
-}
 
 
 void DebugUI::CameraUpdate(Camera& camera) {
@@ -89,32 +57,7 @@ void DebugUI::CameraUpdate(Camera& camera) {
     ImGui::SliderFloat3("rotate", &camera.GetRotate().x, -100.0f, 100.0f);
     ImGui::SliderFloat3("scale", &camera.GetScale().x, -100.0f, 100.0f);
 
-
-
-
-
     ImGui::End();
-
-
-
-}
-
-void DebugUI::DebugMirror(std::list<Mirror*>mirrors) {
-    ImGui::Begin("Model");
-
-    for (Mirror* mirror : mirrors) {
-        if (ImGui::TreeNode("mirrors")) {
-
-            Vector3 pos = mirror->GetWorldPosition();
-            ImGui::DragFloat3("worldPos", &pos.x, 0.03f, 0.0f, 1000.0f);
-            ImGui::Text("%s", (mirror->IsBroken()) ? "broken" : "safe");
-            ImGui::TreePop();
-        }
-    }
-
-
-    ImGui::End();
-
 
 }
 
@@ -294,9 +237,3 @@ void DebugUI::Color(Vector4& color) {
     ImGui::End();
 }
 
-void DebugUI::HammerUpdate(Hammer& hammer) {
-    ImGui::Begin("Hammer");
-    ImGui::SliderFloat3("rotate", &hammer.GetWorldTransform().rotate_.x, -10.0f, 10.0f);
-    ImGui::SliderFloat3("translate", &hammer.GetWorldTransform().translate_.x, -10.0f, 10.0f);
-    ImGui::End();
-};

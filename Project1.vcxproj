@@ -100,18 +100,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Game\Building.cpp" />
-    <ClCompile Include="Game\EndScene.cpp" />
-    <ClCompile Include="Game\Dove.cpp" />
-    <ClCompile Include="Game\Collider.cpp" />
-    <ClCompile Include="Game\CollisionManager.cpp" />
-    <ClCompile Include="Game\GameScene.cpp" />
-    <ClCompile Include="Game\Mirror.cpp" />
-    <ClCompile Include="Game\Player.cpp" />
-    <ClCompile Include="Game\Hammer.cpp" />
-    <ClCompile Include="Game\Merigora.cpp" />
     <ClCompile Include="MyEngine.cpp" />
-    <ClCompile Include="Game\Particle.cpp" />
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\DebugUI.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
@@ -194,8 +183,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\Sprite.cpp" />
     <ClCompile Include="Source\SphereMesh.cpp" />
-    <ClCompile Include="Game\TitleScene.cpp" />
-    <ClCompile Include="Game\Ticket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shader\Object3d.PS.hlsl">
@@ -212,14 +199,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\Building.h" />
-    <ClInclude Include="Game\EndScene.h" />
-    <ClInclude Include="Game\Dove.h" />
-    <ClInclude Include="Game\GameScene.h" />
-    <ClInclude Include="Game\Collider.h" />
-    <ClInclude Include="Game\CollisionConfig.h" />
-    <ClInclude Include="Game\CollisionManager.h" />
-    <ClInclude Include="Game\Hammer.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -228,12 +207,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="Game\Mirror.h" />
-    <ClInclude Include="Game\Player.h" />
-    <ClInclude Include="Game\Merigora.h" />
-    <ClInclude Include="Game\TextureIndex.h" />
     <ClInclude Include="MyEngine.h" />
-    <ClInclude Include="Game\Particle.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />
     <ClInclude Include="Source\Camera.h" />
@@ -328,8 +302,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Viewport.h" />
     <ClInclude Include="Source\Wave.h" />
     <ClInclude Include="Source\Window.h" />
-    <ClInclude Include="Game\TitleScene.h" />
-    <ClInclude Include="Game\Ticket.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
