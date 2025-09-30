@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{e7196278-88b7-4671-bfc6-3bc9800a56db}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine">
       <UniqueIdentifier>{afd23ada-1f51-4906-bb55-1b1ed2f7530d}</UniqueIdentifier>
     </Filter>
@@ -67,31 +64,40 @@
     <Filter Include="ヘッダー ファイル\Engine\Surface">
       <UniqueIdentifier>{f066c38b-7dff-46c7-9969-12767b54d776}</UniqueIdentifier>
     </Filter>
+    <Filter Include="externals">
+      <UniqueIdentifier>{ecbcd98e-d2d0-4428-8720-5f12c490ba62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals\imgui">
+      <UniqueIdentifier>{e7196278-88b7-4671-bfc6-3bc9800a56db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals\assimp">
+      <UniqueIdentifier>{00c9f943-af76-4b6c-acad-e01d7dccd3dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Camera\Camera.cpp">
       <Filter>ソース ファイル\Engine\Camera</Filter>
@@ -329,28 +335,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\BlendState.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -637,14 +643,20 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
-      <Filter>imgui</Filter>
+      <Filter>externals\imgui</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mdd.lib" />
-    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mtd.lib" />
+    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mdd.lib">
+      <Filter>externals\assimp</Filter>
+    </Library>
+    <Library Include="externals\assimp\lib\Debug\assimp-vc143-mtd.lib">
+      <Filter>externals\assimp</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
-    <None Include="externals\assimp\lib\Debug\assimp-vc143-mtd.pdb" />
+    <None Include="externals\assimp\lib\Debug\assimp-vc143-mtd.pdb">
+      <Filter>externals\assimp</Filter>
+    </None>
   </ItemGroup>
 </Project>
