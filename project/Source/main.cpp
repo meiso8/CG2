@@ -111,12 +111,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 debugUI.Color(worldColor);
                 debugUI.CameraUpdate(camera);
                 //デバッグカメラに切り替え
-              //視点操作
+                       //視点操作
                 input->EyeOperation(camera);
+   
 
             }
 
             camera.Update();
+  
 #endif
 
 #pragma region //描画
