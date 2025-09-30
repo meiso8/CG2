@@ -8,7 +8,7 @@
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     MyEngine myEngine;
-    myEngine.Create(L"2102_TD2", WIN_WIDTH, WIN_HEIGHT);
+    myEngine.Create(L"2102_TD2_1", WIN_WIDTH, WIN_HEIGHT);
     //DirectX初期化処理の末尾に追加する
 //音声クラスの作成
     Sound sound;
@@ -57,31 +57,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     DrawGrid grid = DrawGrid(myEngine.GetDevice(), myEngine.GetModelConfig(0));
 
-    Sprite numSprite;
-    numSprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
-    numSprite.SetSize(Vector2(80.0f, 80.0f));
-    numSprite.SetTranslate({ 64.0f + numSprite.GetSize().x  ,64.0f,0.0f });
-    numSprite.GetUVScale().x = 0.1f;
-    numSprite.GetMaterial()->color = { 1.0f,0.0f,0.0f,1.0f };
-
-
-    const int spriteNum = 2;
-    Sprite sprite[spriteNum];
-    for (int i = 0; i < spriteNum; ++i) {
-        sprite[i].Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
-    }
-
-    sprite[0].SetSize(Vector2(256.0f, 256.0f));
-    sprite[0].SetTranslate({ WIN_WIDTH - sprite[0].GetSize().x,WIN_HEIGHT - sprite[0].GetSize().y,0.0f });
+    Sprite sprite;
+    sprite.Create(myEngine.GetDevice(), cameraSprite, myEngine.GetModelConfig(1));
+    sprite.SetSize(Vector2(256.0f, 256.0f));
+    sprite.SetTranslate({ WIN_WIDTH - sprite.GetSize().x,WIN_HEIGHT - sprite.GetSize().y,0.0f });
 
     //モデル呼び出し例
     //ModelData hammerModelData = LoadObjeFile("resources/hammer", "hammer.obj");
 
-    Vector4 worldColor = { 0.866f,0.627f,0.866f,1.0f };
+    Vector4 worldColor = { 0.6f,0.6f,0.6f,1.0f };
 
     MSG msg{};
-
-
 
     // =============================================
     //ウィンドウのxボタンが押されるまでループ メインループ
@@ -127,8 +113,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 //デバッグカメラに切り替え
               //視点操作
                 input->EyeOperation(camera);
-                camera.Update();
+
             }
+
+            camera.Update();
 #endif
 
 #pragma region //描画
