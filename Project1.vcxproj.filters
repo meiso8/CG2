@@ -21,49 +21,49 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Add.cpp">
+    <ClCompile Include="Source\Math\Add.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Inverse.cpp">
+    <ClCompile Include="Source\Math\Inverse.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeAffineMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeAffineMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeIdentity4x4.cpp">
+    <ClCompile Include="Source\Math\MakeIdentity4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeOrthographicMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeOrthographicMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakePerspectiveFovMatrix.cpp">
+    <ClCompile Include="Source\Math\MakePerspectiveFovMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeRotateMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeRotateMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeScaleMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeScaleMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeTranslateMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeTranslateMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\MakeViewportMatrix.cpp">
+    <ClCompile Include="Source\Math\MakeViewportMatrix.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Multiply.cpp">
+    <ClCompile Include="Source\Math\Multiply.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Subtract.cpp">
+    <ClCompile Include="Source\Math\Subtract.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Transpose.cpp">
+    <ClCompile Include="Source\Math\Transpose.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\CoordinateTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\cotangent.cpp">
+    <ClCompile Include="Source\Math\cotangent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -87,19 +87,19 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Normalize.cpp">
+    <ClCompile Include="Source\Math\Normalize.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Length.cpp">
+    <ClCompile Include="Source\Math\Length.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Dot.cpp">
+    <ClCompile Include="Source\Math\Dot.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Sound.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DebugCamera.cpp">
+    <ClCompile Include="Source\Camera\DebugCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input.cpp">
@@ -111,7 +111,7 @@
     <ClCompile Include="Source\ModelData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Camera.cpp">
+    <ClCompile Include="Source\Camera\Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\MaterialData.cpp">
@@ -192,7 +192,7 @@
     <ClCompile Include="Source\Sprite.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\WorldTransform.cpp">
+    <ClCompile Include="Source\Math\WorldTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\MaterialResource.cpp">
@@ -201,22 +201,22 @@
     <ClCompile Include="Source\ImGuiClass.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Vector3.cpp">
+    <ClCompile Include="Source\Math\Vector3.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\GPU.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Easing.cpp">
+    <ClCompile Include="Source\Math\Easing.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Lerp.cpp">
+    <ClCompile Include="Source\Math\Lerp.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\TransformVector.cpp">
+    <ClCompile Include="Source\Math\TransformVector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Matrix4x4.cpp">
+    <ClCompile Include="Source\Math\Matrix4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\InputLayout.cpp">
@@ -243,28 +243,28 @@
     <ClCompile Include="Source\DebugUI.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Vector4.cpp">
+    <ClCompile Include="Source\Math\Vector4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Source\FPSCounter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Collision.cpp">
+    <ClCompile Include="Source\Math\Collision.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\CatmullRom.cpp">
+    <ClCompile Include="Source\Math\CatmullRom.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Cross.cpp">
+    <ClCompile Include="Source\Math\Cross.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\AABB.cpp">
+    <ClCompile Include="Source\Math\AABB.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="MyEngine.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\math\Vector2.cpp">
+    <ClCompile Include="Source\Math\Vector2.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -303,7 +303,7 @@
     <ClInclude Include="Source\BlendState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Camera.h">
+    <ClInclude Include="Source\Camera\Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\CommandList.h">
@@ -330,7 +330,7 @@
     <ClInclude Include="Source\D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DebugCamera.h">
+    <ClInclude Include="Source\Camera\DebugCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\DebugError.h">
@@ -456,130 +456,130 @@
     <ClInclude Include="Source\Window.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\AABB.h">
+    <ClInclude Include="Source\Math\AABB.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Add.h">
+    <ClInclude Include="Source\Math\Add.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\CatmullRom.h">
+    <ClInclude Include="Source\Math\CatmullRom.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Collision.h">
+    <ClInclude Include="Source\Math\Collision.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\CoordinateTransform.h">
+    <ClInclude Include="Source\Math\CoordinateTransform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\cotangent.h">
+    <ClInclude Include="Source\Math\cotangent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Dot.h">
+    <ClInclude Include="Source\Math\Dot.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Easing.h">
+    <ClInclude Include="Source\Math\Easing.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Inverse.h">
+    <ClInclude Include="Source\Math\Inverse.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Length.h">
+    <ClInclude Include="Source\Math\Length.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Lerp.h">
+    <ClInclude Include="Source\Math\Lerp.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeAffineMatrix.h">
+    <ClInclude Include="Source\Math\MakeAffineMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeIdentity4x4.h">
+    <ClInclude Include="Source\Math\MakeIdentity4x4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeOrthographicMatrix.h">
+    <ClInclude Include="Source\Math\MakeOrthographicMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakePerspectiveFovMatrix.h">
+    <ClInclude Include="Source\Math\MakePerspectiveFovMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeRotateMatrix.h">
+    <ClInclude Include="Source\Math\MakeRotateMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeScaleMatrix.h">
+    <ClInclude Include="Source\Math\MakeScaleMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeTranslateMatrix.h">
+    <ClInclude Include="Source\Math\MakeTranslateMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\MakeViewportMatrix.h">
+    <ClInclude Include="Source\Math\MakeViewportMatrix.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Matrix3x3.h">
+    <ClInclude Include="Source\Math\Matrix3x3.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Matrix4x4.h">
+    <ClInclude Include="Source\Math\Matrix4x4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Multiply.h">
+    <ClInclude Include="Source\Math\Multiply.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Normalize.h">
+    <ClInclude Include="Source\Math\Normalize.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Sphere.h">
+    <ClInclude Include="Source\Math\Sphere.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\SphericalCoordinate.h">
+    <ClInclude Include="Source\Math\SphericalCoordinate.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Subtract.h">
+    <ClInclude Include="Source\Math\Subtract.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Transform.h">
+    <ClInclude Include="Source\Math\Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\TransformVector.h">
+    <ClInclude Include="Source\Math\TransformVector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Transpose.h">
+    <ClInclude Include="Source\Math\Transpose.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Vector2.h">
+    <ClInclude Include="Source\Math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Vector3.h">
+    <ClInclude Include="Source\Math\Vector3.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Vector4.h">
+    <ClInclude Include="Source\Math\Vector4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\WorldTransform.h">
+    <ClInclude Include="Source\Math\WorldTransform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Plane.h">
+    <ClInclude Include="Source\Math\Plane.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Project.h">
+    <ClInclude Include="Source\Math\Project.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Ray.h">
+    <ClInclude Include="Source\Math\Ray.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Segment.h">
+    <ClInclude Include="Source\Math\Segment.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Triangle.h">
+    <ClInclude Include="Source\Math\Triangle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Line.h">
+    <ClInclude Include="Source\Math\Line.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Cross.h">
+    <ClInclude Include="Source\Math\Cross.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="MyEngine.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\math\Pendulum.h">
+    <ClInclude Include="Source\Math\Pendulum.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

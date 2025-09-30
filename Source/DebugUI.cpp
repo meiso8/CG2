@@ -8,7 +8,7 @@
 #include"DirectionalLight.h"
 #include<numbers>
 #include<algorithm>
-#include"Camera.h"
+#include"Camera/Camera.h"
 
 
 void DebugUI::Update() {

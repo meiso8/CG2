@@ -2,7 +2,7 @@
 
 
 #include"Texture.h"
-#include"Camera.h"
+#include"Camera/Camera.h"
 #include"ModelData.h"
 #include"MaterialResource.h"
 #include"TransformationMatrix.h"

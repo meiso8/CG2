@@ -10,7 +10,7 @@
 #include"ModelData.h"  
 #include"PSO.h"  
 #include"ShaderResourceView.h"  
-#include"Camera.h"  
+#include"Camera/Camera.h"  
 #include"TransformationMatrix.h"  
 #include"MaterialResource.h"  
 #include"Vector2.h"  

@@ -69,7 +69,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\math;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\Math;$(ProjectDir)Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -97,7 +97,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\math;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\Math;$(ProjectDir)Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,7 +126,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\math;$(ProjectDir)Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)externals\assimp\include;$(ProjectDir)Source\Math;$(ProjectDir)Source</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -151,23 +151,23 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\LineMesh.cpp" />
     <ClCompile Include="Source\DrawGrid.cpp" />
-    <ClCompile Include="Source\math\AABB.cpp" />
-    <ClCompile Include="Source\math\CatmullRom.cpp" />
-    <ClCompile Include="Source\math\Collision.cpp" />
-    <ClCompile Include="Source\math\Cross.cpp" />
-    <ClCompile Include="Source\math\Vector2.cpp" />
-    <ClCompile Include="Source\math\Vector4.cpp" />
+    <ClCompile Include="Source\Math\AABB.cpp" />
+    <ClCompile Include="Source\Math\CatmullRom.cpp" />
+    <ClCompile Include="Source\Math\Collision.cpp" />
+    <ClCompile Include="Source\Math\Cross.cpp" />
+    <ClCompile Include="Source\Math\Vector2.cpp" />
+    <ClCompile Include="Source\Math\Vector4.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\InputLayout.cpp" />
     <ClCompile Include="Source\GPU.cpp" />
     <ClCompile Include="Source\ImGuiClass.cpp" />
     <ClCompile Include="Source\MaterialResource.cpp" />
-    <ClCompile Include="Source\math\Easing.cpp" />
-    <ClCompile Include="Source\math\Lerp.cpp" />
-    <ClCompile Include="Source\math\Matrix4x4.cpp" />
-    <ClCompile Include="Source\math\Vector3.cpp" />
-    <ClCompile Include="Source\math\TransformVector.cpp" />
-    <ClCompile Include="Source\math\WorldTransform.cpp" />
+    <ClCompile Include="Source\Math\Easing.cpp" />
+    <ClCompile Include="Source\Math\Lerp.cpp" />
+    <ClCompile Include="Source\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Source\Math\Vector3.cpp" />
+    <ClCompile Include="Source\Math\TransformVector.cpp" />
+    <ClCompile Include="Source\Math\WorldTransform.cpp" />
     <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\ShaderResourceView.cpp" />
     <ClCompile Include="Source\CreateBufferResource.cpp" />
@@ -187,8 +187,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Source\CommandQueue.cpp" />
     <ClCompile Include="Source\DescriptorHeap.cpp" />
     <ClCompile Include="Source\DXGIFactory.cpp" />
-    <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\DebugCamera.cpp" />
+    <ClCompile Include="Source\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Camera\DebugCamera.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -200,30 +200,30 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</WholeProgramOptimization>
     </ClCompile>
-    <ClCompile Include="Source\math\Add.cpp" />
-    <ClCompile Include="Source\math\cotangent.cpp" />
+    <ClCompile Include="Source\Math\Add.cpp" />
+    <ClCompile Include="Source\Math\cotangent.cpp" />
     <ClCompile Include="Source\Depth.cpp" />
-    <ClCompile Include="Source\math\Dot.cpp" />
+    <ClCompile Include="Source\Math\Dot.cpp" />
     <ClCompile Include="Source\Input.cpp" />
-    <ClCompile Include="Source\math\Inverse.cpp" />
-    <ClCompile Include="Source\math\Length.cpp" />
-    <ClCompile Include="Source\math\MakeAffineMatrix.cpp" />
-    <ClCompile Include="Source\math\MakeIdentity4x4.cpp" />
-    <ClCompile Include="Source\math\MakeOrthographicMatrix.cpp" />
-    <ClCompile Include="Source\math\MakePerspectiveFovMatrix.cpp" />
-    <ClCompile Include="Source\math\MakeRotateMatrix.cpp" />
-    <ClCompile Include="Source\math\MakeScaleMatrix.cpp" />
-    <ClCompile Include="Source\math\MakeTranslateMatrix.cpp" />
-    <ClCompile Include="Source\math\MakeViewportMatrix.cpp" />
+    <ClCompile Include="Source\Math\Inverse.cpp" />
+    <ClCompile Include="Source\Math\Length.cpp" />
+    <ClCompile Include="Source\Math\MakeAffineMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakeIdentity4x4.cpp" />
+    <ClCompile Include="Source\Math\MakeOrthographicMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakePerspectiveFovMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakeRotateMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakeScaleMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakeTranslateMatrix.cpp" />
+    <ClCompile Include="Source\Math\MakeViewportMatrix.cpp" />
     <ClCompile Include="Source\MaterialData.cpp" />
     <ClCompile Include="Source\ModelData.cpp" />
-    <ClCompile Include="Source\math\Multiply.cpp" />
-    <ClCompile Include="Source\math\Normalize.cpp" />
+    <ClCompile Include="Source\Math\Multiply.cpp" />
+    <ClCompile Include="Source\Math\Normalize.cpp" />
     <ClCompile Include="Source\ShericalCoordinate.cpp" />
     <ClCompile Include="Source\Sound.cpp" />
-    <ClCompile Include="Source\math\Subtract.cpp" />
+    <ClCompile Include="Source\Math\Subtract.cpp" />
     <ClCompile Include="Source\CoordinateTransform.cpp" />
-    <ClCompile Include="Source\math\Transpose.cpp" />
+    <ClCompile Include="Source\Math\Transpose.cpp" />
     <ClCompile Include="Source\Window.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
     <ClCompile Include="Source\TransitionBarrier.cpp" />
@@ -262,7 +262,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="MyEngine.h" />
     <ClInclude Include="Source\Balloon.h" />
     <ClInclude Include="Source\BlendState.h" />
-    <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\Camera\Camera.h" />
     <ClInclude Include="Source\CommandList.h" />
     <ClInclude Include="Source\CommandQueue.h" />
     <ClInclude Include="Source\CompileShader.h" />
@@ -271,7 +271,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\CreateBufferResource.h" />
     <ClInclude Include="Source\Cube.h" />
     <ClInclude Include="Source\D3DResourceLeakChecker.h" />
-    <ClInclude Include="Source\DebugCamera.h" />
+    <ClInclude Include="Source\Camera\DebugCamera.h" />
     <ClInclude Include="Source\DebugError.h" />
     <ClInclude Include="Source\DebugUI.h" />
     <ClInclude Include="Source\Depth.h" />
@@ -293,47 +293,47 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Source\Material.h" />
     <ClInclude Include="Source\MaterialData.h" />
     <ClInclude Include="Source\MaterialResource.h" />
-    <ClInclude Include="Source\math\AABB.h" />
-    <ClInclude Include="Source\math\Add.h" />
-    <ClInclude Include="Source\math\CatmullRom.h" />
-    <ClInclude Include="Source\math\Collision.h" />
-    <ClInclude Include="Source\math\CoordinateTransform.h" />
-    <ClInclude Include="Source\math\cotangent.h" />
-    <ClInclude Include="Source\math\Cross.h" />
-    <ClInclude Include="Source\math\Dot.h" />
-    <ClInclude Include="Source\math\Easing.h" />
-    <ClInclude Include="Source\math\Inverse.h" />
-    <ClInclude Include="Source\math\Length.h" />
-    <ClInclude Include="Source\math\Lerp.h" />
-    <ClInclude Include="Source\math\Line.h" />
-    <ClInclude Include="Source\math\MakeAffineMatrix.h" />
-    <ClInclude Include="Source\math\MakeIdentity4x4.h" />
-    <ClInclude Include="Source\math\MakeOrthographicMatrix.h" />
-    <ClInclude Include="Source\math\MakePerspectiveFovMatrix.h" />
-    <ClInclude Include="Source\math\MakeRotateMatrix.h" />
-    <ClInclude Include="Source\math\MakeScaleMatrix.h" />
-    <ClInclude Include="Source\math\MakeTranslateMatrix.h" />
-    <ClInclude Include="Source\math\MakeViewportMatrix.h" />
-    <ClInclude Include="Source\math\Matrix3x3.h" />
-    <ClInclude Include="Source\math\Matrix4x4.h" />
-    <ClInclude Include="Source\math\Multiply.h" />
-    <ClInclude Include="Source\math\Normalize.h" />
-    <ClInclude Include="Source\math\Pendulum.h" />
-    <ClInclude Include="Source\math\Plane.h" />
-    <ClInclude Include="Source\math\Project.h" />
-    <ClInclude Include="Source\math\Ray.h" />
-    <ClInclude Include="Source\math\Segment.h" />
-    <ClInclude Include="Source\math\Sphere.h" />
-    <ClInclude Include="Source\math\SphericalCoordinate.h" />
-    <ClInclude Include="Source\math\Subtract.h" />
-    <ClInclude Include="Source\math\Transform.h" />
-    <ClInclude Include="Source\math\TransformVector.h" />
-    <ClInclude Include="Source\math\Transpose.h" />
-    <ClInclude Include="Source\math\Triangle.h" />
-    <ClInclude Include="Source\math\Vector2.h" />
-    <ClInclude Include="Source\math\Vector3.h" />
-    <ClInclude Include="Source\math\Vector4.h" />
-    <ClInclude Include="Source\math\WorldTransform.h" />
+    <ClInclude Include="Source\Math\AABB.h" />
+    <ClInclude Include="Source\Math\Add.h" />
+    <ClInclude Include="Source\Math\CatmullRom.h" />
+    <ClInclude Include="Source\Math\Collision.h" />
+    <ClInclude Include="Source\Math\CoordinateTransform.h" />
+    <ClInclude Include="Source\Math\cotangent.h" />
+    <ClInclude Include="Source\Math\Cross.h" />
+    <ClInclude Include="Source\Math\Dot.h" />
+    <ClInclude Include="Source\Math\Easing.h" />
+    <ClInclude Include="Source\Math\Inverse.h" />
+    <ClInclude Include="Source\Math\Length.h" />
+    <ClInclude Include="Source\Math\Lerp.h" />
+    <ClInclude Include="Source\Math\Line.h" />
+    <ClInclude Include="Source\Math\MakeAffineMatrix.h" />
+    <ClInclude Include="Source\Math\MakeIdentity4x4.h" />
+    <ClInclude Include="Source\Math\MakeOrthographicMatrix.h" />
+    <ClInclude Include="Source\Math\MakePerspectiveFovMatrix.h" />
+    <ClInclude Include="Source\Math\MakeRotateMatrix.h" />
+    <ClInclude Include="Source\Math\MakeScaleMatrix.h" />
+    <ClInclude Include="Source\Math\MakeTranslateMatrix.h" />
+    <ClInclude Include="Source\Math\MakeViewportMatrix.h" />
+    <ClInclude Include="Source\Math\Matrix3x3.h" />
+    <ClInclude Include="Source\Math\Matrix4x4.h" />
+    <ClInclude Include="Source\Math\Multiply.h" />
+    <ClInclude Include="Source\Math\Normalize.h" />
+    <ClInclude Include="Source\Math\Pendulum.h" />
+    <ClInclude Include="Source\Math\Plane.h" />
+    <ClInclude Include="Source\Math\Project.h" />
+    <ClInclude Include="Source\Math\Ray.h" />
+    <ClInclude Include="Source\Math\Segment.h" />
+    <ClInclude Include="Source\Math\Sphere.h" />
+    <ClInclude Include="Source\Math\SphericalCoordinate.h" />
+    <ClInclude Include="Source\Math\Subtract.h" />
+    <ClInclude Include="Source\Math\Transform.h" />
+    <ClInclude Include="Source\Math\TransformVector.h" />
+    <ClInclude Include="Source\Math\Transpose.h" />
+    <ClInclude Include="Source\Math\Triangle.h" />
+    <ClInclude Include="Source\Math\Vector2.h" />
+    <ClInclude Include="Source\Math\Vector3.h" />
+    <ClInclude Include="Source\Math\Vector4.h" />
+    <ClInclude Include="Source\Math\WorldTransform.h" />
     <ClInclude Include="Source\Model.h" />
     <ClInclude Include="Source\ModelData.h" />
     <ClInclude Include="Source\PSO.h" />
