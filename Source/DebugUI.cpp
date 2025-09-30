@@ -87,6 +87,8 @@ void DebugUI::CameraUpdate(Camera& camera) {
 
     ImGui::SliderFloat3("translate", &camera.GetTranslate().x, -100.0f, 100.0f);
     ImGui::SliderFloat3("rotate", &camera.GetRotate().x, -100.0f, 100.0f);
+    ImGui::SliderFloat3("scale", &camera.GetScale().x, -100.0f, 100.0f);
+
 
 
 

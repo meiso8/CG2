@@ -279,6 +279,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
                 isDebug = (isDebug) ? false : true;
             }
 
+            if (input->IsTriggerKey(DIK_O)) {
+                camera.SetOrthographic(true);
+               
+            }
+
             if (isDebug) {
                 debugUI.CheckDirectionalLight(myEngine.GetDirectionalLightData());
                 debugUI.CheckFPS(fpsCounter);

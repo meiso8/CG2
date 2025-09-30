@@ -38,12 +38,14 @@ public:
     };
     Vector3& GetTranslate() { return translate_; };
     Vector3& GetRotate() { return rotation_; };
+    Vector3& GetScale() { return scale_; };
     Vector2& GetOffset() { return offset_; };
 
     void SetRotate(const Vector3& rotate) { rotation_ = rotate; };
     void SetRotateY(const float& rotateY) { rotation_.y = rotateY; };
     void SetRotateZ(const float& rotateZ) { rotation_.z = rotateZ; };
     void SetOffset(const Vector2& offset) { offset_ = offset; };
+    void SetOrthographic(bool isOrthographic) { isOrthographic_ = isOrthographic; }
 
     void SetFarZ(const float& farZ) { farZ_ = farZ; };
     void SetTranslate(const Vector3& translate) { translate_ = translate; };
