@@ -374,3 +374,6 @@ logs/
 
 # Game
 Game/
+
+!externals/assimp/lib/Debug/
+!externals/assimp/lib/Release/
